@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.R.I.D - Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .grid-bg { background-image: radial-gradient(#3ecf8e 1px, transparent 1px); background-size: 30px 30px; }
+        @keyframes pulse-border { 0%, 100% { border-color: rgba(62, 207, 142, 0.3); } 50% { border-color: rgba(62, 207, 142, 0.8); } }
+        .active-border { animation: pulse-border 2s infinite; }
+    </style>
+</head>
+<body class="bg-[#0a0c10] flex items-center justify-center h-screen overflow-hidden font-sans">
+    
+    <div class="absolute inset-0 grid-bg opacity-10"></div>
+
+    <div class="relative w-full max-w-md p-1 z-10">
+        <div class="bg-[#12151a] border border-[#30363d] rounded-2xl shadow-2xl p-8 relative active-border">
+            
+            <div class="text-center mb-8">
+                <h2 class="text-white text-xl font-black tracking-[0.3em] uppercase italic">Novo Registro</h2>
+                <p class="text-[#3ecf8e]/60 text-[9px] font-bold tracking-[0.2em] mt-2 uppercase">Terminal de Credenciais G.R.I.D</p>
+            </div>
+
+            {% if msg %}
+            <div class="mb-6 p-4 bg-[#3ecf8e]/10 border border-[#3ecf8e]/40 text-[#3ecf8e] rounded text-[10px] font-black uppercase text-center italic">
+                {{ msg }}
+            </div>
+            {% endif %}
+
+            <form action="/register" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-500 uppercase mb-2 ml-1">Endereço de Email</label>
+                    <input type="email" name="email" required placeholder="operador@grid.pt"
+                           class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3 text-white text-sm focus:border-[#3ecf8e] outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-500 uppercase mb-2 ml-1">Nome de Utilizador</label>
+                    <input type="text" name="username" required placeholder="Identitade Tática"
+                           class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3 text-white text-sm focus:border-[#3ecf8e] outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-500 uppercase mb-2 ml-1">Definir Password</label>
+                    <input type="password" name="password" required placeholder="••••••••"
+                           class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3 text-white text-sm focus:border-[#3ecf8e] outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-500 uppercase mb-2 ml-1">Confirmar Password</label>
+                    <input type="password" name="confirm_password" required placeholder="••••••••"
+                           class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3 text-white text-sm focus:border-[#3ecf8e] outline-none">
+                </div>
+
+                <button type="submit" class="w-full border border-[#3ecf8e] text-[#3ecf8e] hover:bg-[#3ecf8e] hover:text-black font-black py-4 rounded-xl uppercase text-xs transition-all transform active:scale-95 shadow-[0_0_15px_rgba(62,207,142,0.1)]">
+                    Gerar Credenciais
+                </button>
+            </form>
+
+            <div class="mt-8 text-center border-t border-[#30363d] pt-6">
+                <a href="/login" class="text-[9px] text-slate-500 hover:text-white uppercase italic transition-colors">
+                    « Voltar ao Terminal de Acesso
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

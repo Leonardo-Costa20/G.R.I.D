@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.R.I.D - Autenticação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(1000%); } }
+        .scanline { width: 100%; height: 100px; z-index: 5; background: linear-gradient(0deg, rgba(62, 207, 142, 0.1) 0%, rgba(62, 207, 142, 0) 100%); opacity: 0.1; position: absolute; bottom: 100%; animation: scanline 8s linear infinite; }
+        .grid-bg { background-image: radial-gradient(#3ecf8e 1px, transparent 1px); background-size: 30px 30px; }
+    </style>
+</head>
+<body class="bg-[#0a0c10] flex items-center justify-center h-screen overflow-hidden font-sans">
+    
+    <div class="absolute inset-0 grid-bg opacity-10"></div>
+    <div class="scanline"></div>
+
+    <div class="relative w-full max-w-md p-1 z-10">
+        <div class="bg-[#12151a] border border-[#30363d] rounded-2xl shadow-2xl p-8 overflow-hidden relative">
+            
+            <div class="text-center mb-10">
+                <h1 class="text-white text-3xl font-black tracking-[0.4em] uppercase italic">
+                    G.R.I.D <span class="text-[#3ecf8e] font-light not-italic">OS</span>
+                </h1>
+                <p class="text-[#3ecf8e]/60 text-[9px] font-bold tracking-[0.3em] mt-3 uppercase">
+                    Terminal de Acesso Restrito
+                </p>
+            </div>
+
+            {% if error %}
+            <div class="mb-6 p-4 bg-red-500/10 border-l-4 border-red-500 text-red-500 rounded flex items-center gap-3 animate-pulse">
+                <span class="text-[10px] font-black uppercase tracking-widest">{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <form action="/login" method="POST" class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Identificação (User ou Email)</label>
+                    <input type="text" name="login_identity" required
+                           placeholder="operador ou email@grid.com"
+                           class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3.5 text-white text-sm focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e]/30 outline-none transition-all placeholder:text-slate-700">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Código de Acesso (PIN)</label>
+                    <input type="password" name="password" required
+                           placeholder="••••••••"
+                           class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3.5 text-white text-sm tracking-[0.5em] text-center focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e]/30 outline-none transition-all placeholder:text-slate-700 placeholder:tracking-normal">
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-[#3ecf8e] hover:bg-[#34b37a] text-black font-black py-4 rounded-xl uppercase tracking-[0.2em] text-xs transition-all transform active:scale-[0.98] shadow-[0_0_20px_rgba(62,207,142,0.2)]">
+                    Desbloquear Sistema
+                </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-[#30363d] text-center">
+                <a href="/register" class="text-[10px] text-[#3ecf8e] font-bold uppercase tracking-widest hover:underline decoration-2 underline-offset-4">
+                    Criar Novo Acesso
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
