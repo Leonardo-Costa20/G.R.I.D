@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.R.I.D OS | Admin Panel</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --sidebar-bg: #161b22;
+            --card-bg: rgba(22, 27, 34, 0.8);
+            --text-main: #c9d1d9;
+            --win-border: rgba(48, 54, 61, 0.8);
+            --accent: #3ecf8e;
+            --accent-dim: rgba(62, 207, 142, 0.1);
+            --danger: #f85149;
+            --grid-color: rgba(62, 207, 142, 0.05);
+        }
+
+        body { font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); color: var(--text-main); margin: 0; overflow-x: hidden; }
+        .grid-canvas { background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px); background-size: 30px 30px; position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        
+        .admin-card { background: var(--card-bg); border: 1px solid var(--win-border); border-radius: 12px; backdrop-filter: blur(8px); transition: all 0.3s ease; }
+        .admin-card:hover { border-color: rgba(62, 207, 142, 0.4); transform: translateY(-2px); }
+        
+        .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; border: 1px solid transparent; }
+        .bg-approved { background: rgba(62, 207, 142, 0.1); color: var(--accent); border-color: rgba(62, 207, 142, 0.3); }
+        
+        .terminal-line { animation: fadeIn 0.2s ease-out forwards; border-left: 2px solid transparent; padding-left: 8px; }
+        .terminal-line.info { border-left-color: #3b82f6; }
+        .terminal-line.success { border-left-color: var(--accent); }
+        .terminal-line.danger { border-left-color: var(--danger); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body class="flex h-screen z-10 relative">
+
+    <div class="grid-canvas"></div>
+
+    <aside id="sidebar" class="w-[70px] bg-[#161b22] border-r border-[var(--win-border)] flex flex-col py-8 items-center gap-8 z-10">
+        <div class="text-[#3ecf8e]">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+            </svg>
+        </div>
+        <nav class="flex flex-col gap-4">
+            <a href="/dashboard" title="Voltar ao Painel" class="p-3 text-gray-500 hover:text-[var(--accent)] hover:bg-[var(--accent-dim)] rounded-xl transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            </a>
+            <a href="/logout" title="Sair" class="p-3 text-gray-500 hover:text-[var(--danger)] transition-colors mt-auto">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-8 flex flex-col gap-6 overflow-y-auto z-10">
+        <header class="flex justify-between items-center border-b border-[var(--win-border)] pb-4">
+            <div>
+                <h1 class="text-xl font-extrabold text-white tracking-wider uppercase">G.R.I.D OS // Admin Panel</h1>
+                <p class="text-xs text-gray-400 mt-1">Sessão activa como: <span class="text-[var(--accent)] font-bold">{{ username }}</span></p>
+            </div>
+            <div class="flex gap-4 text-xs font-bold">
+                <div class="bg-black/40 px-4 py-2 border border-[var(--win-border)] rounded-lg flex items-center gap-2">
+                    <span id="status-indicator" class="w-2 h-2 bg-gray-500 rounded-full transition-all duration-500"></span>
+                    ROVER_01: <span class="text-gray-500" id="rover-status">A AGUARDAR...</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="admin-card p-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Contas Ativas</div>
+                <div class="text-3xl font-bold text-[var(--accent)] mt-1">{{ users|length }}</div>
+            </div>
+            <div class="admin-card p-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Equipamentos</div>
+                <div class="text-3xl font-bold text-blue-400 mt-1">01 <span class="text-xs text-gray-600">/ 01</span></div>
+            </div>
+            <div class="admin-card p-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Infraestrutura</div>
+                <div class="mt-2 space-y-1">
+                    <div class="flex justify-between text-[10px]"><span>Supabase API</span> <span class="text-green-500" id="supabase-status">CONNECTED</span></div>
+                    <div class="flex justify-between text-[10px]"><span>MQTT Broker</span> <span class="text-green-500">READY</span></div>
+                </div>
+            </div>
+            <div class="admin-card p-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Utilizadores Online</div>
+                <div class="text-3xl font-bold text-yellow-500 mt-1" id="websocket-count">0</div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+            <div class="admin-card p-6 lg:col-span-2 flex flex-col gap-4">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-white border-b border-[var(--win-border)] pb-2">Gestão de Permissões</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-[var(--win-border)] text-gray-500 font-bold uppercase">
+                                <th class="pb-3">Membro</th>
+                                <th class="pb-3">Estado</th>
+                                <th class="pb-3">Cargo</th>
+                                <th class="pb-3">Rover Vinculado</th>
+                                <th class="pb-3 text-right">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800/50">
+                            {% for user in users %}
+                            <tr class="group" id="row-{{ user.username }}">
+                                <td class="py-4 font-bold text-white">
+                                    {{ user.username }}
+                                    <span class="block text-[10px] font-normal text-gray-500">{{ user.email }}</span>
+                                </td>
+                                <td class="py-4">
+                                    {% if user.aprovado %}
+                                        <span class="status-badge bg-approved">Ativo</span>
+                                    {% else %}
+                                        <button onclick="approveUser('{{ user.username }}')" class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-2 py-1 rounded text-[9px] font-bold uppercase hover:bg-yellow-500 hover:text-black transition-all">Pendente</button>
+                                    {% endif %}
+                                </td>
+                                <td class="py-4">
+                                    <select onchange="changeRole('{{ user.username }}', this.value)" class="bg-[#161b22] border border-[var(--win-border)] text-[10px] rounded p-1 text-[var(--accent)] font-bold focus:outline-none">
+                                        <option value="viewer" {% if user.role == 'viewer' %}selected{% endif %}>VIEWER</option>
+                                        <option value="pilot" {% if user.role == 'pilot' %}selected{% endif %}>PILOT</option>
+                                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>ADMIN</option>
+                                    </select>
+                                </td>
+                                <td class="py-4">
+                                    <select onchange="bindRover('{{ user.username }}', this.value)" class="bg-[#161b22] border border-[var(--win-border)] text-[10px] rounded p-1 text-gray-400 focus:outline-none">
+                                        <option value="Nenhum" {% if user.rover_vinculado == 'Nenhum' %}selected{% endif %}>Nenhum</option>
+                                        <option value="Rover_01" {% if user.rover_vinculado == 'Rover_01' %}selected{% endif %}>Rover_01</option>
+                                        <option value="Rover_02" {% if user.rover_vinculado == 'Rover_02' %}selected{% endif %}>Rover_02</option>
+                                    </select>
+                                </td>
+                                <td class="py-4 text-right">
+                                    <button onclick="deleteUser('{{ user.username }}')" class="text-gray-600 hover:text-[var(--danger)] text-[9px] font-bold uppercase transition-colors">Remover</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <div class="admin-card p-4 border-emerald-500/20">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)] mb-3">Rover Telemetry Diagnostics</h3>
+                    <div class="space-y-2 text-[11px]">
+                        <div class="flex justify-between border-b border-gray-800/60 pb-1">
+                            <span class="text-gray-500">Última Atividade</span>
+                            <span id="rover-last-active" class="font-bold text-white">Never</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-800/60 pb-1">
+                            <span class="text-gray-500">Último Sensor Lido</span>
+                            <span id="rover-last-sensor" class="font-bold text-blue-400">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Latência do Fluxo</span>
+                            <span id="rover-latency" class="font-bold text-green-400">-- ms</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card p-4 border-blue-500/20">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-3">Database & Site Analytics</h3>
+                    <div class="space-y-2 text-[11px]">
+                        <div class="flex justify-between border-b border-gray-800/60 pb-1">
+                            <span class="text-gray-500">Total Pacotes MQTT</span>
+                            <span id="mqtt-counter" class="font-bold text-white">0</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-800/60 pb-1">
+                            <span class="text-gray-500">Total Logs Coletados</span>
+                            <span id="total-logs" class="font-bold text-yellow-500">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Velocidade Supabase</span>
+                            <span id="db-latency" class="font-bold text-green-400">-- ms</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card p-4 flex-1 flex flex-col bg-black/60 min-h-[220px]">
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-[#3ecf8e] border-b border-gray-800 pb-2 flex justify-between items-center">
+                        <span>Live Access Logs</span>
+                        <span class="flex gap-1 items-center"><span class="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse"></span> <span class="text-[8px] text-gray-500">SECURE</span></span>
+                    </div>
+                    <div id="admin-terminal" class="flex-1 overflow-y-auto text-[10px] font-mono p-2 flex flex-col gap-1 text-gray-400 mt-2">
+                        <div class="terminal-line success">[SYS] Kernel operacional.</div>
+                        <div class="terminal-line info">[SYS] Ligação MQTT em escuta estável.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const socket = io();
+        
+        socket.on('rover_status_update', (data) => {
+            const statusEl = $('#rover-status');
+            const indicator = $('#status-indicator');
+
+            if (data.status === 'online') {
+                statusEl.text('ONLINE').removeClass('text-gray-500 text-red-500').addClass('text-[var(--accent)]');
+                indicator.removeClass('bg-gray-500 bg-red-500').addClass('bg-green-500 animate-pulse');
+                logToTerminal("Link de comunicação estabelecido.", "success");
+            } else {
+                statusEl.text('OFFLINE').removeClass('text-gray-500 text-[var(--accent)]').addClass('text-red-500');
+                indicator.removeClass('bg-gray-500 bg-green-500 animate-pulse').addClass('bg-red-500');
+                logToTerminal("Conexão interrompida com o dispositivo.", "danger");
+            }
+        });
+
+        // Escuta os pacotes contínuos do Python para animar as latências e contadores
+        socket.on('server_metrics', (data) => {
+            $('#websocket-count').text(data.ws_clients);
+            $('#mqtt-counter').text(data.mqtt_count);
+            $('#total-logs').text(data.total_db_logs);
+            
+            // Injeção da velocidade da Supabase
+            if(data.db_latency === "FAIL") {
+                $('#db-latency').text("FAIL").removeClass('text-green-400').addClass('text-red-500');
+                $('#supabase-status').text("OFFLINE").removeClass('text-green-500').addClass('text-red-500');
+            } else {
+                $('#db-latency').text(data.db_latency + ' ms').removeClass('text-red-500').addClass('text-green-400');
+                $('#supabase-status').text("CONNECTED").removeClass('text-red-500').addClass('text-green-500');
+            }
+
+            // Injeção da velocidade de resposta do Rover
+            if (data.rover_active_time !== "Never") {
+                $('#rover-last-active').text(data.rover_active_time);
+                $('#rover-last-sensor').text(data.rover_sensor.toUpperCase());
+                $('#rover-latency').text(data.rover_latency + ' ms');
+                
+                if(data.rover_latency > 100) {
+                    $('#rover-latency').removeClass('text-green-400').addClass('text-yellow-500');
+                } else {
+                    $('#rover-latency').removeClass('text-yellow-500').addClass('text-green-400');
+                }
+            } else {
+                $('#rover-last-active').text("OFFLINE");
+                $('#rover-last-sensor').text("--");
+                $('#rover-latency').text("--").removeClass('text-green-400').addClass('text-red-400');
+            }
+        });
+
+        function logToTerminal(message, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            $('#admin-terminal').append(`<div class="terminal-line ${type}">[${time}] ${message}</div>`);
+            const term = document.getElementById('admin-terminal'); term.scrollTop = term.scrollHeight;
+        }
+
+        function approveUser(username) { $.post('/admin/approve', { username: username }, function(r) { if(r.status === 'success') { logToTerminal(`Utilizador '${username}' aprovado.`, 'success'); setTimeout(() => { location.reload(); }, 800); } }); }
+        function changeRole(username, newRole) { $.post('/admin/change-role', { username: username, role: newRole }, function(r) { if(r.status === 'success') logToTerminal(`Cargo alterado: '${username}' -> ${newRole.toUpperCase()}.`, 'info'); }); }
+        function bindRover(username, roverId) { $.post('/admin/bind-rover', { username: username, rover_id: roverId }, function(r) { if(r.status === 'success') logToTerminal(`Vínculo de hardware alterado para '${username}'.`, 'success'); }); }
+        function deleteUser(username) { if(confirm(`Remover acesso de ${username}?`)) { $.post('/admin/reject', { username: username }, function(r) { if(r.status === 'success') { logToTerminal(`Acesso revogado: ${username}.`, 'danger'); $(`#row-${username}`).fadeOut(); } }); } }
+    </script>
+</body>
+</html>

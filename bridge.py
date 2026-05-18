@@ -68,7 +68,7 @@ client.username_pw_set(MQTT_USER, MQTT_PASS)
 client.tls_set() 
 client.on_message = on_message
 
-print("🚀 Ponte G.R.I.D Inteligente Ativa! (Intervalo: 2 min)")
+print("Bridge Ativa! (Intervalo: 2 min)")
 client.connect(MQTT_BROKER, 8883)
 client.subscribe("G.R.I.D/#") 
 client.loop_forever()
