@@ -163,6 +163,134 @@ except Exception as e:
 
 # --- ROTAS FLASK ECOSSISTEMA ---
 
+# --- ROTAS DE LOGS DE MISSÃO ---
+
+@app.route('/logs')
+def logs_page():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return render_template('logs.html', username=session.get('username'), role=session.get('role'))
+
+@app.route('/api/logs')
+def api_logs():
+    if not session.get('logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 25, type=int)
+    sensor_filter = request.args.get('sensor', '', type=str)
+    start_date = request.args.get('start', '', type=str)
+    end_date = request.args.get('end', '', type=str)
+    
+    if not supabase:
+        return jsonify({"error": "Database unavailable"}), 503
+    
+    try:
+        query = supabase.table("logs_operacao").select("*", count="exact")
+        
+        # Filtro por sensor (origem)
+        if sensor_filter:
+            query = query.eq("origem", sensor_filter)
+        
+        # Filtro por data
+        if start_date:
+            query = query.gte("created_at", start_date + "T00:00:00")
+        if end_date:
+            query = query.lte("created_at", end_date + "T23:59:59")
+        
+        # Ordenação decrescente (mais recente primeiro)
+        query = query.order("created_at", desc=True)
+        
+        # Paginação
+        offset = (page - 1) * per_page
+        res = query.range(offset, offset + per_page - 1).execute()
+        
+        total = res.count if res.count is not None else len(res.data)
+        total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+        
+        return jsonify({
+            "logs": res.data,
+            "page": page,
+            "per_page": per_page,
+            "total": total,
+            "total_pages": total_pages,
+            "has_next": page < total_pages,
+            "has_prev": page > 1
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/logs/sensors')
+def api_logs_sensors():
+    """Retorna lista única de sensores para os filtros"""
+    if not session.get('logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    if not supabase:
+        return jsonify({"sensors": []}), 503
+    
+    try:
+        res = supabase.table("logs_operacao").select("origem").execute()
+        sensors = list(set([item['origem'] for item in res.data if item.get('origem')]))
+        return jsonify({"sensors": sorted(sensors)})
+    except:
+        return jsonify({"sensors": []}), 500
+
+@app.route('/api/logs/export')
+def api_logs_export():
+    """Exporta logs para CSV"""
+    if not session.get('logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    sensor_filter = request.args.get('sensor', '', type=str)
+    start_date = request.args.get('start', '', type=str)
+    end_date = request.args.get('end', '', type=str)
+    
+    if not supabase:
+        return jsonify({"error": "Database unavailable"}), 503
+    
+    try:
+        query = supabase.table("logs_operacao").select("*").order("created_at", desc=True)
+        
+        if sensor_filter:
+            query = query.eq("origem", sensor_filter)
+        if start_date:
+            query = query.gte("created_at", start_date + "T00:00:00")
+        if end_date:
+            query = query.lte("created_at", end_date + "T23:59:59")
+        
+        res = query.limit(1000).execute()
+        
+        import csv
+        import io
+        from flask import Response
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['ID', 'Categoria', 'Origem', 'Valor', 'Mensagem', 'Nível Alerta', 'Data/Hora'])
+        
+        for log in res.data:
+            writer.writerow([
+                log.get('id', ''),
+                log.get('categoria', ''),
+                log.get('origem', ''),
+                log.get('valor', ''),
+                log.get('mensagem', ''),
+                log.get('nivel_alerta', ''),
+                log.get('created_at', '')
+            ])
+        
+        output.seek(0)
+        return Response(
+            output,
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment; filename=grid_mission_logs.csv"}
+        )
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/')
 def landing():
     return render_template('landing.html')

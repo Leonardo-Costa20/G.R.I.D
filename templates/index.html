@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G.R.I.D OS | Mission Control</title>
+ 
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#3ecf8e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="G.R.I.D">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -17,274 +25,524 @@
             --bg-color: #0d1117;
             --sidebar-bg: #161b22;
             --text-main: #c9d1d9;
+            --text-nav: #8b949e;
             --window-bg: rgba(22, 27, 34, 0.96);
             --win-header: rgba(48, 54, 61, 0.5);
             --grid-color: rgba(62, 207, 142, 0.1);
             --win-border: rgba(48, 54, 61, 0.8);
             --accent: #3ecf8e;
         }
-
         body.light-mode {
             --bg-color: #f0f4f8;
             --sidebar-bg: #ffffff;
             --text-main: #1a202c;
+            --text-nav: #4a5568;
             --window-bg: rgba(255, 255, 255, 0.96);
             --win-header: #edf2f7;
             --grid-color: rgba(0, 0, 0, 0.05);
             --win-border: rgba(0, 0, 0, 0.1);
         }
-
+ 
+        * { box-sizing: border-box; }
         body { 
             font-family: 'JetBrains Mono', monospace; 
             background-color: var(--bg-color); 
             color: var(--text-main); 
             margin: 0; 
             overflow: hidden; 
-            transition: background-color 0.3s ease;
         }
-
         .grid-canvas {
             background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px);
             background-size: 40px 40px;
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
-
+ 
+        /* ═══════════════════════════════════
+           SIDEBAR — DESKTOP
+        ═══════════════════════════════════ */
         #sidebar {
-            width: 70px; background-color: var(--sidebar-bg); 
-            border-right: 1px solid var(--win-border); z-index: 1000;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden;
+            width: 70px;
+            background-color: var(--sidebar-bg); 
+            border-right: 1px solid var(--win-border);
+            z-index: 1000;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
         }
-        #sidebar:hover { width: 240px; }
-
+        #sidebar:hover { width: 260px; }
+ 
         .nav-item {
-            width: 100%; display: flex; align-items: center; padding: 15px 24px;
-            color: #8b949e; font-size: 11px; font-weight: 700;
+            width: 100%; display: flex; align-items: center; padding: 14px 24px;
+            color: var(--text-nav); font-size: 11px; font-weight: 700;
             transition: 0.2s; white-space: nowrap; border: none; background: none; cursor: pointer;
+            text-decoration: none;
         }
         .nav-item:hover { color: var(--accent); background: rgba(62, 207, 142, 0.05); }
-        .nav-item svg { min-width: 22px; height: 22px; margin-right: 20px; }
-        .nav-text { opacity: 0; transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-item svg { min-width: 22px; height: 22px; margin-right: 20px; flex-shrink: 0; stroke: currentColor; fill: none; }
+        .nav-text { opacity: 0; transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 1px; color: inherit; }
         #sidebar:hover .nav-text { opacity: 1; }
-
-        .window-node { 
-            position: absolute !important; background-color: var(--window-bg) !important;
-            border: 1px solid var(--win-border) !important; border-radius: 16px; 
-            display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            backdrop-filter: blur(12px); min-width: 200px; min-height: 150px; overflow: hidden; z-index: 10;
+ 
+        .sensor-group { display: none; background: rgba(0,0,0,0.1); flex-direction: column; }
+        .nav-item.sub-item { padding-left: 24px; font-size: 10px; }
+ 
+        /* ═══════════════════════════════════
+           BOTTOM NAV — MOBILE
+        ═══════════════════════════════════ */
+        #bottom-nav {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+            background: var(--sidebar-bg);
+            border-top: 1px solid var(--win-border);
+            padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+            justify-content: space-around;
+            align-items: center;
         }
-        .window-node.active-win { border-color: var(--accent) !important; box-shadow: 0 0 20px rgba(62, 207, 142, 0.2); }
+        .bnav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: var(--text-nav); font-size: 8px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            background: none; border: none; cursor: pointer; padding: 4px 10px;
+            text-decoration: none; min-width: 52px;
+            transition: color 0.2s;
+        }
+        .bnav-item:hover, .bnav-item:active { color: var(--accent); }
+        .bnav-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; }
+ 
+        /* Drawer mobile de sensores */
+        #mobile-sensor-drawer {
+            display: none;
+            position: fixed; bottom: calc(60px + env(safe-area-inset-bottom)); left: 0; right: 0;
+            z-index: 999;
+            background: var(--sidebar-bg);
+            border-top: 1px solid var(--win-border);
+            padding: 16px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .drawer-btn {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px;
+            background: rgba(62,207,142,0.05);
+            border: 1px solid var(--win-border);
+            border-radius: 12px;
+            color: var(--text-nav); font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .drawer-btn:active { background: rgba(62,207,142,0.15); color: var(--accent); }
+        .drawer-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; flex-shrink: 0; }
+ 
+        /* ═══════════════════════════════════
+           WORKSPACE & JANELAS — DESKTOP
+        ═══════════════════════════════════ */
+        #workspace { flex: 1; position: relative; overflow: hidden; }
+ 
+        .window-node { 
+            position: absolute !important; 
+            background-color: var(--window-bg) !important;
+            border: 1px solid var(--win-border) !important; 
+            border-radius: 20px;
+            display: flex; flex-direction: column; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(12px); 
+            min-width: 200px; min-height: 150px; 
+            overflow: hidden;
+            z-index: 10;
+        }
+        .dragging {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 25px rgba(62, 207, 142, 0.4) !important;
+            z-index: 999 !important;
+        }
         .window-handle { background-color: var(--win-header); border-bottom: 1px solid var(--win-border); padding: 12px 18px; cursor: move; flex-shrink: 0; }
-        .window-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; width: 100%; height: 100%; }
-        .ui-resizable-se { width: 14px !important; height: 14px !important; right: 8px !important; bottom: 8px !important; background: none !important; border-right: 3px solid var(--accent); border-bottom: 3px solid var(--accent); border-bottom-right-radius: 6px; opacity: 0.3; }
-        .window-node:hover .ui-resizable-se { opacity: 1; }
-        .sensor-val { font-size: clamp(1.2rem, 6vw, 3rem); font-weight: 800; color: var(--accent); line-height: 1; }
+        .window-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .sensor-val { font-size: 2.5rem; font-weight: 800; color: var(--accent); line-height: 1; }
         .label-sub { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.4; margin-bottom: 8px; }
+ 
+        .ui-resizable-se { 
+            width: 14px !important; height: 14px !important; 
+            right: 8px !important; bottom: 8px !important; 
+            background: none !important; 
+            border-right: 3px solid var(--accent) !important; 
+            border-bottom: 3px solid var(--accent) !important; 
+            opacity: 0.5;
+        }
+ 
+        /* ═══════════════════════════════════
+           CARDS — MOBILE
+           Em mobile as "janelas" são cards
+           estáticos empilhados verticalmente
+        ═══════════════════════════════════ */
+        #mobile-workspace {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px 16px calc(80px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+            height: 100%;
+        }
+        .mobile-card {
+            background: var(--window-bg);
+            border: 1px solid var(--win-border);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+        .mobile-card-header {
+            background: var(--win-header);
+            border-bottom: 1px solid var(--win-border);
+            padding: 10px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mobile-card-header span { font-size: 9px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+        .mobile-card-header button { color: #6b7280; background: none; border: none; font-size: 16px; cursor: pointer; line-height: 1; padding: 0; }
+        .mobile-card-body { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 110px; }
+        .mobile-sensor-val { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1; }
+        .mobile-camera-body { height: 220px; background: black; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .mobile-camera-body img { width: 100%; height: 100%; object-fit: cover; }
+ 
+        /* ═══════════════════════════════════
+           ROVER BADGE
+        ═══════════════════════════════════ */
+        #rover-badge {
+            position: fixed; z-index: 2000;
+            display: flex; align-items: center; gap: 8px;
+            background: var(--window-bg); border: 1px solid var(--win-border);
+            border-radius: 999px; padding: 8px 16px;
+            font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            /* Desktop: canto inferior direito */
+            bottom: 20px; right: 20px;
+        }
+        #rover-dot { width: 8px; height: 8px; border-radius: 50%; background: #6b7280; transition: background 0.4s; flex-shrink: 0; }
+        #rover-dot.online { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse-dot 2s infinite; }
+        #rover-dot.offline { background: #f85149; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+ 
+        /* ═══════════════════════════════════
+           BREAKPOINT MOBILE ≤ 768px
+        ═══════════════════════════════════ */
+        @media (max-width: 768px) {
+            body { overflow: hidden; }
+ 
+            /* Esconde sidebar lateral */
+            #sidebar { display: none !important; }
+ 
+            /* Mostra bottom nav e workspace mobile */
+            #bottom-nav { display: flex; }
+            #mobile-workspace { display: flex; }
+ 
+            /* Esconde workspace desktop */
+            #workspace { display: none; }
+ 
+            /* Badge fica acima do bottom nav */
+            #rover-badge { 
+                bottom: calc(68px + env(safe-area-inset-bottom)); 
+                right: 12px; 
+                font-size: 9px;
+                padding: 6px 12px;
+            }
+ 
+            /* Layout: coluna única */
+            body.flex { flex-direction: column; }
+        }
     </style>
 </head>
 <body class="flex h-screen">
-
+ 
     <div class="grid-canvas"></div>
-
-    <aside id="sidebar" class="flex flex-col py-8">
+ 
+    <!-- ══════════════════════════════════════
+         SIDEBAR (desktop)
+    ══════════════════════════════════════ -->
+    <aside id="sidebar" class="py-8" onmouseleave="closeFolderAuto()" onmouseenter="openFolderAuto()">
         <div class="px-5 mb-10 text-[#3ecf8e]">
             {% if role == 'admin' %}
-                <a href="/admin" title="Aceder à Consola Admin" class="block hover:text-white transition-colors cursor-pointer group">
-                    <svg class="w-10 h-10 transition-transform group-hover:scale-105 filter group-hover:drop-shadow-[0_0_8px_rgba(62,207,142,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="/admin" class="block hover:text-white group">
+                    <svg class="w-10 h-10 transition-transform group-hover:scale-105 filter group-hover:drop-shadow-[0_0_10px_rgba(62,207,142,0.8)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
                 </a>
             {% else %}
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                </svg>
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             {% endif %}
         </div>
-
+ 
         <nav class="flex flex-col gap-1">
-            <button onclick="createWindow('camera', 'LIVE_FEED')" class="nav-item">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <button onclick="createWindow('camera','LIVE_FEED')" class="nav-item">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                 <span class="nav-text">Câmera Rover</span>
             </button>
-            <button onclick="createWindow('dist', 'TELEMETRY')" class="nav-item">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-                <span class="nav-text">Distância</span>
-            </button>
-            <button onclick="createWindow('smoke', 'GAS_ANALYSIS')" class="nav-item">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="nav-text">Sensor MQ2</span>
-            </button>
+            <div>
+                <button onclick="toggleFolderManual()" class="nav-item">
+                    <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                    <span class="nav-text">Sensores <span id="folder-arrow" class="text-[8px] opacity-40 ml-1">▼</span></span>
+                </button>
+                <div id="sensor-folder" class="sensor-group">
+                    <button onclick="createWindow('dist','DISTANCE')" class="nav-item sub-item">
+                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+                        <span class="nav-text">Ultrassónico</span>
+                    </button>
+                    <button onclick="createWindow('smoke','MQ2_GAS')" class="nav-item sub-item">
+                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="nav-text">MQ2 Gas</span>
+                    </button>
+                    <button onclick="createWindow('imu','IMU_DATA')" class="nav-item sub-item">
+                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="nav-text">MPU6050</span>
+                    </button>
+                    <button onclick="createWindow('env','BMP280')" class="nav-item sub-item">
+                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                        <span class="nav-text">Ambiente</span>
+                    </button>
+                </div>
+            </div>
+            <a href="/logs" class="nav-item text-orange-400">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="nav-text">Mission Logs</span>
+            </a>
             <button onclick="autoTile()" class="nav-item text-blue-400">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                <span class="nav-text">Arrumar Janelas</span>
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="nav-text">Auto Tile</span>
             </button>
         </nav>
-
+ 
         <div class="mt-auto border-t border-gray-800/30 pt-4">
             <button class="nav-item" onclick="toggleTheme()">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="nav-text">Mudar Tema</span>
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="nav-text">Interface Color</span>
             </button>
             <a href="/logout" class="nav-item text-red-400">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
-                <span class="nav-text">Sair</span>
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
+                <span class="nav-text">Logout</span>
             </a>
         </div>
     </aside>
-
+ 
+    <!-- ══════════════════════════════════════
+         WORKSPACE DESKTOP (janelas drag)
+    ══════════════════════════════════════ -->
     <main id="workspace" class="flex-1 relative"></main>
-
+ 
+    <!-- ══════════════════════════════════════
+         WORKSPACE MOBILE (cards estáticos)
+    ══════════════════════════════════════ -->
+    <main id="mobile-workspace"></main>
+ 
+    <!-- ══════════════════════════════════════
+         BOTTOM NAV (mobile)
+    ══════════════════════════════════════ -->
+    <nav id="bottom-nav">
+        <button class="bnav-item" onclick="mobileOpen('camera','LIVE_FEED')">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            Câmera
+        </button>
+        <button class="bnav-item" onclick="toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+            Sensores
+        </button>
+        <button class="bnav-item text-blue-400" onclick="mobileScrollTop()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            Topo
+        </button>
+        <button class="bnav-item" onclick="toggleTheme()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            Tema
+        </button>
+        <a href="/logout" class="bnav-item text-red-400">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
+            Sair
+        </a>
+    </nav>
+ 
+    <!-- Drawer mobile de sensores -->
+    <div id="mobile-sensor-drawer">
+        <button class="drawer-btn" onclick="mobileOpen('dist','DISTANCE'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+            Ultrassónico
+        </button>
+        <button class="drawer-btn" onclick="mobileOpen('smoke','MQ2_GAS'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            MQ2 Gas
+        </button>
+        <button class="drawer-btn" onclick="mobileOpen('imu','IMU_DATA'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            MPU6050
+        </button>
+        <button class="drawer-btn" onclick="mobileOpen('env','BMP280'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+            Ambiente
+        </button>
+    </div>
+ 
+    <!-- Rover badge -->
+    <div id="rover-badge">
+        <span id="rover-dot"></span>
+        <span id="rover-status-text">A AGUARDAR</span>
+    </div>
+ 
     <script>
         const socket = io();
         let zIdx = 100;
-        const chaveUsuario = 'grid_janelas_ativas_' + '{{ username }}';
-
-        // --- IP DO ROVER (Substitui pelo IP real do teu ESP32-CAM ou Raspberry Pi se necessário) ---
-        // Se usares um fluxo local, podes definir a URL diretamente aqui
-        const STREAM_URL = "http://172.20.10.4:81/stream"; // ALTERA ESTE IP PARA O DO TEU ROVER
-
+        let folderOpenState = false;
+        let drawerOpen = false;
+ 
+        const isMobile = () => window.innerWidth <= 768;
+ 
+        // ── Tema ────────────────────────────────────────────────
         function toggleTheme() { 
             document.body.classList.toggle('light-mode'); 
-            const tema = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-            localStorage.setItem('grid_theme', tema);
+            localStorage.setItem('grid_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         }
-
-        function restaurarTema() {
-            const temaGuardado = localStorage.getItem('grid_theme');
-            if (temaGuardado === 'light') document.body.classList.add('light-mode');
+ 
+        // ── Sidebar desktop: pasta de sensores ──────────────────
+        function toggleFolderManual() {
+            folderOpenState = !folderOpenState;
+            const arrow = document.getElementById('folder-arrow');
+            if (folderOpenState) { $('#sensor-folder').slideDown(300); if(arrow) arrow.textContent='▲'; }
+            else                 { $('#sensor-folder').slideUp(300);   if(arrow) arrow.textContent='▼'; }
         }
-
+        function closeFolderAuto() { $('#sensor-folder').slideUp(250); }
+        function openFolderAuto()  { if (folderOpenState) $('#sensor-folder').slideDown(250); }
+ 
+        // ── Drawer mobile de sensores ───────────────────────────
+        function toggleMobileDrawer() {
+            drawerOpen = !drawerOpen;
+            const drawer = document.getElementById('mobile-sensor-drawer');
+            if (drawerOpen) {
+                drawer.style.display = 'grid';
+                requestAnimationFrame(() => drawer.style.opacity = '1');
+            } else {
+                drawer.style.display = 'none';
+            }
+        }
+ 
+        // ── Auto Tile (desktop) ─────────────────────────────────
         function autoTile() {
             const janelas = $('.window-node:visible');
             if (janelas.length === 0) return;
-
-            const gap = 25; 
-            const paddingSuperior = 50;
-            const paddingEsquerdo = 100; 
-            
-            const workspaceW = $('#workspace').width();
-            const workspaceH = $('#workspace').height();
-            
-            const slotLargura = 380; 
-            const slotAltura = 250;
-
-            let col = 0;
-            let row = 0;
-            zIdx = 100;
-
+            const gap = 20, padT = 40, padL = 90, sW = 350, sH = 220;
+            const workW = $('#workspace').width();
+            let col = 0, row = 0;
             janelas.each(function() {
-                const win = $(this);
-                zIdx++;
-                win.css('z-index', zIdx);
-
-                let posX = paddingEsquerdo + (col * (slotLargura + gap));
-                let posY = paddingSuperior + (row * (slotAltura + gap));
-
-                if (posX + 200 > workspaceW + paddingEsquerdo) { 
-                    col = 0;
-                    row++;
-                    posX = paddingEsquerdo + (col * (slotLargura + gap));
-                    posY = paddingSuperior + (row * (slotAltura + gap));
-                }
-
-                if (posY + 100 > workspaceH) {
-                    row = 0;
-                    col = 0;
-                    posX = paddingEsquerdo + 30; 
-                    posY = paddingSuperior + 30;
-                }
-
-                win.stop().animate({ 
-                    left: posX + 'px', 
-                    top: posY + 'px'
-                }, 500, 'swing');
-
-                col++; 
+                let x = padL + col * (sW + gap);
+                if (x + sW > workW) { col = 0; row++; x = padL; }
+                $(this).stop().animate({ left: x + 'px', top: (padT + row * (sH + gap)) + 'px' }, 500);
+                col++;
             });
-
-            setTimeout(salvarEstadoJanelas, 600);
         }
-
-        socket.on('mqtt_data', (data) => {
-            if(data.sensor === 'MQ2') $('#val-MQ2').text(data.valor);
-            if(data.sensor === 'Distancia') $('#val-Distancia').text(data.valor);
-        });
-
-        function focusWin(el) { zIdx++; el.css('z-index', zIdx); }
-
-        function salvarEstadoJanelas() {
-            let janelasAbertas = [];
-            $('.window-node').each(function() {
-                const type = this.id.replace('win-', '');
-                const title = $(this).find('.window-handle span').text();
-                janelasAbertas.push({ type: type, title: title });
-            });
-            localStorage.setItem(chaveUsuario, JSON.stringify(janelasAbertas));
+ 
+        function mobileScrollTop() {
+            document.getElementById('mobile-workspace').scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        function restaurarEstadoJanelas() {
-            const dados = localStorage.getItem(chaveUsuario);
-            if (dados) {
-                const janelas = JSON.parse(dados);
-                janelas.forEach(win => { createWindow(win.type, win.title); });
-                setTimeout(autoTile, 200);
-            }
-        }
-
+ 
+        // ── Mapa de dados dos sensores ──────────────────────────
+        const sensorMap = { dist: 'Distancia', smoke: 'MQ2', imu: 'imu', env: 'temp' };
+        const unitMap   = { dist: 'cm', smoke: 'raw', imu: 'm/s²', env: '°C' };
+        const labelMap  = { dist: 'Ultrassónico HC-SR04', smoke: 'Sensor de Gás MQ2', imu: 'Acelerómetro MPU6050', env: 'Barómetro BMP280' };
+ 
+        // ── Criar janela (desktop) ──────────────────────────────
         function createWindow(type, title) {
+            if (isMobile()) { mobileOpen(type, title); return; }
+ 
             const id = `win-${type}`;
-            if(document.getElementById(id)) { focusWin($(`#${id}`)); return; }
-
-            let contentBody = '';
-            if(type === 'camera') {
-                // Adicionada a tag <img> que carrega o fluxo de vídeo contínuo em MJPEG
-                contentBody = `
-                    <div class="window-content bg-black w-full h-full relative flex items-center justify-center overflow-hidden">
-                        <img id="rover-video-feed" src="${STREAM_URL}" 
-                             alt="LIVE_STREAM" 
-                             class="w-full h-full object-cover text-[10px] text-gray-500 font-bold" 
-                             onerror="this.style.display='none'; $('#camera-error').removeClass('hidden');" />
-                        <div id="camera-error" class="hidden text-[10px] text-red-500 font-mono font-bold animate-pulse">
-                            [ERRO]: LINK DA CÂMARA INDISPONÍVEL
-                        </div>
-                    </div>`;
-            } else {
-                const dataId = type === 'dist' ? 'Distancia' : 'MQ2';
-                const unit = type === 'dist' ? 'cm' : 'ppm';
-                contentBody = `<div class="window-content p-6"><div class="label-sub">Real-time Telemetry</div><div class="sensor-val"><span id="val-${dataId}">--</span><span class="text-xs ml-2 opacity-30">${unit}</span></div></div>`;
-            }
-
-            // Se for câmara, aumentamos um pouco o tamanho padrão para ficar retangular (proporção de vídeo)
-            const defaultW = type === 'camera' ? '450px' : '340px';
-            const defaultH = type === 'camera' ? '280px' : '200px';
-
-            const win = $(`
-                <div id="${id}" class="window-node" style="width:${defaultW}; height:${defaultH}; top:150px; left:150px;">
-                    <div class="window-handle flex justify-between items-center">
-                        <span class="text-[9px] font-bold text-[#3ecf8e] uppercase tracking-widest">${title}</span>
-                        <button onclick="$(this).closest('.window-node').remove(); salvarEstadoJanelas();" class="text-gray-500 hover:text-white transition-colors">✕</button>
+            if (document.getElementById(id)) { zIdx++; $(`#${id}`).css('z-index', zIdx); return; }
+ 
+            const body = type === 'camera' ?
+                `<div class="window-content bg-black w-full h-full flex items-center justify-center overflow-hidden">
+                    <img src="http://172.20.10.4:81/stream" class="w-full h-full object-cover"
+                         onerror="this.style.display='none';document.getElementById('cam-err').classList.remove('hidden')"/>
+                    <div id="cam-err" class="hidden text-[10px] text-red-500 font-bold animate-pulse">[NO SIGNAL]</div>
+                </div>` :
+                `<div class="window-content p-6">
+                    <div class="label-sub">${labelMap[type]||title}</div>
+                    <div class="sensor-val">
+                        <span id="val-${sensorMap[type]}">--</span>
+                        <span class="text-xs ml-2 opacity-30">${unitMap[type]}</span>
                     </div>
-                    ${contentBody}
+                </div>`;
+ 
+            const w = type === 'camera' ? '460px' : '340px';
+            const h = type === 'camera' ? '290px' : '200px';
+ 
+            $(`<div id="${id}" class="window-node" style="width:${w};height:${h};top:100px;left:100px;">
+                <div class="window-handle flex justify-between items-center">
+                    <span class="text-[9px] font-bold text-[#3ecf8e] uppercase tracking-widest">${title}</span>
+                    <button onclick="$(this).closest('.window-node').remove()" class="text-gray-400 hover:text-red-500 transition-colors">✕</button>
                 </div>
-            `).appendTo('#workspace')
-              .draggable({ 
-                  handle: ".window-handle", containment: "parent",
-                  start: function() { focusWin($(this)); $(this).addClass('active-win'); },
-                  stop: function() { $(this).removeClass('active-win'); salvarEstadoJanelas(); }
-              })
-              .resizable({ 
-                  handles: "se", minWidth: 240, minHeight: 180, containment: "parent",
-                  stop: function() { salvarEstadoJanelas(); } 
-              })
-              .mousedown(function() { focusWin($(this)); $(this).addClass('active-win'); })
-              .mouseup(function() { $(this).removeClass('active-win'); });
-
-            focusWin(win);
-            salvarEstadoJanelas();
+                ${body}
+            </div>`)
+            .appendTo('#workspace')
+            .draggable({ handle:'.window-handle', containment:'parent',
+                start: function(){ zIdx++; $(this).css('z-index',zIdx).addClass('dragging'); },
+                stop:  function(){ $(this).removeClass('dragging'); }
+            })
+            .resizable({ handles:'se', minWidth:240, minHeight:160, containment:'parent' })
+            .mousedown(function(){ zIdx++; $(this).css('z-index',zIdx); });
         }
-
-        $(document).ready(function() {
-            restaurarTema();
-            restaurarEstadoJanelas();
+ 
+        // ── Abrir card (mobile) ─────────────────────────────────
+        function mobileOpen(type, title) {
+            const id = `mcard-${type}`;
+            // Se já existe, scroll até ele
+            const existing = document.getElementById(id);
+            if (existing) { existing.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
+ 
+            const body = type === 'camera' ?
+                `<div class="mobile-camera-body">
+                    <img src="http://172.20.10.4:81/stream" style="width:100%;height:100%;object-fit:cover"
+                         onerror="this.style.display='none'"/>
+                    <span style="color:#f85149;font-size:10px;font-weight:700;display:none" class="anim-pulse">[NO SIGNAL]</span>
+                </div>` :
+                `<div class="mobile-card-body">
+                    <div class="label-sub" style="font-size:9px;text-transform:uppercase;letter-spacing:2px;opacity:.4;margin-bottom:8px">${labelMap[type]||title}</div>
+                    <div class="mobile-sensor-val">
+                        <span id="mval-${sensorMap[type]}">--</span>
+                        <span style="font-size:.75rem;margin-left:.5rem;opacity:.3">${unitMap[type]}</span>
+                    </div>
+                </div>`;
+ 
+            const card = $(`
+                <div id="${id}" class="mobile-card">
+                    <div class="mobile-card-header">
+                        <span>${title}</span>
+                        <button onclick="document.getElementById('${id}').remove()">✕</button>
+                    </div>
+                    ${body}
+                </div>
+            `).appendTo('#mobile-workspace');
+ 
+            card[0].scrollIntoView({ behavior:'smooth', block:'start' });
+        }
+ 
+        // ── WebSocket: dados sensores ───────────────────────────
+        socket.on('mqtt_data', (data) => {
+            const mqttMap = { MQ2:'MQ2', Distancia:'Distancia', Acel_X:'imu', Temperatura:'temp' };
+            const key = mqttMap[data.sensor];
+            if (!key) return;
+            $(`#val-${key}`).text(data.valor);       // desktop
+            $(`#mval-${key}`).text(data.valor);      // mobile
+        });
+ 
+        // ── WebSocket: status rover ─────────────────────────────
+        socket.on('rover_status_update', (data) => {
+            const dot  = document.getElementById('rover-dot');
+            const text = document.getElementById('rover-status-text');
+            if (data.status === 'online') {
+                dot.className = 'online';
+                text.textContent = 'ROVER ONLINE';
+            } else {
+                dot.className = 'offline';
+                text.textContent = 'ROVER OFFLINE';
+            }
+        });
+ 
+        // ── Init ────────────────────────────────────────────────
+        $(document).ready(() => {
+            if (localStorage.getItem('grid_theme') === 'light') document.body.classList.add('light-mode');
         });
     </script>
 </body>

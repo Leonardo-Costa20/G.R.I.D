@@ -1,0 +1,56 @@
+{
+  "name": "G.R.I.D OS — Mission Control",
+  "short_name": "G.R.I.D",
+  "description": "Ground Recon & Intelligent Detection — Painel de Controlo",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0c10",
+  "theme_color": "#3ecf8e",
+  "lang": "pt",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "utilities",
+    "productivity"
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Abrir painel de controlo",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "short_name": "Admin",
+      "description": "Painel de administração",
+      "url": "/admin",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

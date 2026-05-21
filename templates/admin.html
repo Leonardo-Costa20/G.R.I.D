@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#3ecf8e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="G.R.I.D">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <title>G.R.I.D OS | Admin Panel</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,7 +29,7 @@
             --danger: #f85149;
             --grid-color: rgba(62, 207, 142, 0.05);
         }
-
+ 
         body { font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); color: var(--text-main); margin: 0; overflow-x: hidden; }
         .grid-canvas { background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px); background-size: 30px 30px; position: fixed; inset: 0; z-index: 0; pointer-events: none; }
         
@@ -36,14 +43,14 @@
         .terminal-line.info { border-left-color: #3b82f6; }
         .terminal-line.success { border-left-color: var(--accent); }
         .terminal-line.danger { border-left-color: var(--danger); }
-
+ 
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body class="flex h-screen z-10 relative">
-
+ 
     <div class="grid-canvas"></div>
-
+ 
     <aside id="sidebar" class="w-[70px] bg-[#161b22] border-r border-[var(--win-border)] flex flex-col py-8 items-center gap-8 z-10">
         <div class="text-[#3ecf8e]">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +66,7 @@
             </a>
         </nav>
     </aside>
-
+ 
     <main class="flex-1 p-8 flex flex-col gap-6 overflow-y-auto z-10">
         <header class="flex justify-between items-center border-b border-[var(--win-border)] pb-4">
             <div>
@@ -73,7 +80,7 @@
                 </div>
             </div>
         </header>
-
+ 
         <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="admin-card p-4">
                 <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Contas Ativas</div>
@@ -95,7 +102,7 @@
                 <div class="text-3xl font-bold text-yellow-500 mt-1" id="websocket-count">0</div>
             </div>
         </section>
-
+ 
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
             <div class="admin-card p-6 lg:col-span-2 flex flex-col gap-4">
                 <h2 class="text-xs font-bold uppercase tracking-widest text-white border-b border-[var(--win-border)] pb-2">Gestão de Permissões</h2>
@@ -147,7 +154,7 @@
                     </table>
                 </div>
             </div>
-
+ 
             <div class="flex flex-col gap-4">
                 <div class="admin-card p-4 border-emerald-500/20">
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)] mb-3">Rover Telemetry Diagnostics</h3>
@@ -166,7 +173,7 @@
                         </div>
                     </div>
                 </div>
-
+ 
                 <div class="admin-card p-4 border-blue-500/20">
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-3">Database & Site Analytics</h3>
                     <div class="space-y-2 text-[11px]">
@@ -184,7 +191,7 @@
                         </div>
                     </div>
                 </div>
-
+ 
                 <div class="admin-card p-4 flex-1 flex flex-col bg-black/60 min-h-[220px]">
                     <div class="text-[10px] font-bold uppercase tracking-widest text-[#3ecf8e] border-b border-gray-800 pb-2 flex justify-between items-center">
                         <span>Live Access Logs</span>
@@ -198,14 +205,14 @@
             </div>
         </section>
     </main>
-
+ 
     <script>
         const socket = io();
         
         socket.on('rover_status_update', (data) => {
             const statusEl = $('#rover-status');
             const indicator = $('#status-indicator');
-
+ 
             if (data.status === 'online') {
                 statusEl.text('ONLINE').removeClass('text-gray-500 text-red-500').addClass('text-[var(--accent)]');
                 indicator.removeClass('bg-gray-500 bg-red-500').addClass('bg-green-500 animate-pulse');
@@ -216,7 +223,7 @@
                 logToTerminal("Conexão interrompida com o dispositivo.", "danger");
             }
         });
-
+ 
         // Escuta os pacotes contínuos do Python para animar as latências e contadores
         socket.on('server_metrics', (data) => {
             $('#websocket-count').text(data.ws_clients);
@@ -231,7 +238,7 @@
                 $('#db-latency').text(data.db_latency + ' ms').removeClass('text-red-500').addClass('text-green-400');
                 $('#supabase-status').text("CONNECTED").removeClass('text-red-500').addClass('text-green-500');
             }
-
+ 
             // Injeção da velocidade de resposta do Rover
             if (data.rover_active_time !== "Never") {
                 $('#rover-last-active').text(data.rover_active_time);
@@ -249,13 +256,13 @@
                 $('#rover-latency').text("--").removeClass('text-green-400').addClass('text-red-400');
             }
         });
-
+ 
         function logToTerminal(message, type = 'info') {
             const time = new Date().toLocaleTimeString();
             $('#admin-terminal').append(`<div class="terminal-line ${type}">[${time}] ${message}</div>`);
             const term = document.getElementById('admin-terminal'); term.scrollTop = term.scrollHeight;
         }
-
+ 
         function approveUser(username) { $.post('/admin/approve', { username: username }, function(r) { if(r.status === 'success') { logToTerminal(`Utilizador '${username}' aprovado.`, 'success'); setTimeout(() => { location.reload(); }, 800); } }); }
         function changeRole(username, newRole) { $.post('/admin/change-role', { username: username, role: newRole }, function(r) { if(r.status === 'success') logToTerminal(`Cargo alterado: '${username}' -> ${newRole.toUpperCase()}.`, 'info'); }); }
         function bindRover(username, roverId) { $.post('/admin/bind-rover', { username: username, rover_id: roverId }, function(r) { if(r.status === 'success') logToTerminal(`Vínculo de hardware alterado para '${username}'.`, 'success'); }); }
