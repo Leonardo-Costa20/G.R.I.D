@@ -1,11 +1,21 @@
 import os
 import time
 import threading
+from datetime import datetime
 import paho.mqtt.client as mqtt
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
 from flask_socketio import SocketIO
 from supabase import create_client, Client
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import io
 
 load_dotenv()
 
@@ -161,7 +171,6 @@ try:
 except Exception as e:
     print(f"[MQTT] Falha de Ligação: {e}")
 
-# --- ROTAS FLASK ECOSSISTEMA ---
 
 # --- ROTAS DE LOGS DE MISSÃO ---
 
@@ -186,20 +195,24 @@ def api_logs():
         return jsonify({"error": "Database unavailable"}), 503
     
     try:
+        # Usar data_hora em vez de created_at
         query = supabase.table("logs_operacao").select("*", count="exact")
         
-        # Filtro por sensor (origem)
+        # Filtro por sensor (origem) - excluir 'mapa'
         if sensor_filter:
             query = query.eq("origem", sensor_filter)
+        else:
+            # Por defeito, excluir o sensor 'mapa'
+            query = query.neq("origem", "mapa")
         
-        # Filtro por data
+        # Filtro por data - usar data_hora
         if start_date:
-            query = query.gte("created_at", start_date + "T00:00:00")
+            query = query.gte("data_hora", start_date + "T00:00:00")
         if end_date:
-            query = query.lte("created_at", end_date + "T23:59:59")
+            query = query.lte("data_hora", end_date + "T23:59:59")
         
-        # Ordenação decrescente (mais recente primeiro)
-        query = query.order("created_at", desc=True)
+        # Ordenação decrescente - usar data_hora
+        query = query.order("data_hora", desc=True)
         
         # Paginação
         offset = (page - 1) * per_page
@@ -223,7 +236,7 @@ def api_logs():
 
 @app.route('/api/logs/sensors')
 def api_logs_sensors():
-    """Retorna lista única de sensores para os filtros"""
+    """Retorna lista única de sensores para os filtros - exclui 'mapa'"""
     if not session.get('logged_in'):
         return jsonify({"error": "Unauthorized"}), 401
     
@@ -232,14 +245,18 @@ def api_logs_sensors():
     
     try:
         res = supabase.table("logs_operacao").select("origem").execute()
-        sensors = list(set([item['origem'] for item in res.data if item.get('origem')]))
+        # Filtrar: excluir 'mapa', só sensores reais do rover
+        sensors = list(set([
+            item['origem'] for item in res.data 
+            if item.get('origem') and item['origem'] != 'mapa'
+        ]))
         return jsonify({"sensors": sorted(sensors)})
     except:
         return jsonify({"sensors": []}), 500
 
 @app.route('/api/logs/export')
 def api_logs_export():
-    """Exporta logs para CSV"""
+    """Exporta logs para CSV simplificado"""
     if not session.get('logged_in'):
         return jsonify({"error": "Unauthorized"}), 401
     
@@ -251,14 +268,17 @@ def api_logs_export():
         return jsonify({"error": "Database unavailable"}), 503
     
     try:
-        query = supabase.table("logs_operacao").select("*").order("created_at", desc=True)
+        query = supabase.table("logs_operacao").select("*").order("data_hora", desc=True)
         
         if sensor_filter:
             query = query.eq("origem", sensor_filter)
+        else:
+            query = query.neq("origem", "mapa")
+            
         if start_date:
-            query = query.gte("created_at", start_date + "T00:00:00")
+            query = query.gte("data_hora", start_date + "T00:00:00")
         if end_date:
-            query = query.lte("created_at", end_date + "T23:59:59")
+            query = query.lte("data_hora", end_date + "T23:59:59")
         
         res = query.limit(1000).execute()
         
@@ -268,28 +288,182 @@ def api_logs_export():
         
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(['ID', 'Categoria', 'Origem', 'Valor', 'Mensagem', 'Nível Alerta', 'Data/Hora'])
+        
+        # Header simples
+        writer.writerow(['Sensor', 'Valor', 'Hora'])
         
         for log in res.data:
             writer.writerow([
-                log.get('id', ''),
-                log.get('categoria', ''),
-                log.get('origem', ''),
+                log.get('origem', 'N/A'),
                 log.get('valor', ''),
-                log.get('mensagem', ''),
-                log.get('nivel_alerta', ''),
-                log.get('created_at', '')
+                log.get('data_hora', '')
             ])
         
         output.seek(0)
+        
+        from datetime import datetime
+        filename = f"GRID_Logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        
         return Response(
             output,
-            mimetype="text/csv",
-            headers={"Content-Disposition": "attachment; filename=grid_mission_logs.csv"}
+            mimetype="text/csv; charset=utf-8",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}",
+                "Content-Type": "text/csv; charset=utf-8"
+            }
         )
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+
+#rota de pdf
+@app.route('/api/logs/export/pdf')
+def api_logs_export_pdf():
+    """Exporta logs para PDF formatado"""
+    if not session.get('logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    sensor_filter = request.args.get('sensor', '', type=str)
+    start_date = request.args.get('start', '', type=str)
+    end_date = request.args.get('end', '', type=str)
+    
+    if not supabase:
+        return jsonify({"error": "Database unavailable"}), 503
+    
+    try:
+        query = supabase.table("logs_operacao").select("*").order("data_hora", desc=True)
+        
+        if sensor_filter:
+            query = query.eq("origem", sensor_filter)
+        else:
+            query = query.neq("origem", "mapa")
+            
+        if start_date:
+            query = query.gte("data_hora", start_date + "T00:00:00")
+        if end_date:
+            query = query.lte("data_hora", end_date + "T23:59:59")
+        
+        res = query.limit(500).execute()
+        
+        # Criar PDF em memória
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, 
+                              rightMargin=2*cm, leftMargin=2*cm,
+                              topMargin=2*cm, bottomMargin=2*cm)
+        
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Título
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            textColor=colors.HexColor('#3ecf8e'),
+            spaceAfter=20,
+            alignment=1  # Centro
+        )
+        elements.append(Paragraph("G.R.I.D OS - MISSION LOGS", title_style))
+        elements.append(Spacer(1, 0.3*cm))
+        
+        # Info da missão
+        info_style = ParagraphStyle(
+            'InfoStyle',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.grey,
+            spaceAfter=5
+        )
+        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        elements.append(Paragraph(f"<b>Operador:</b> {session.get('username', 'N/A')}", info_style))
+        elements.append(Paragraph(f"<b>Gerado em:</b> {now}", info_style))
+        elements.append(Paragraph(f"<b>Total de registos:</b> {len(res.data)}", info_style))
+        elements.append(Spacer(1, 0.5*cm))
+        
+        # Dados da tabela
+        table_data = [['Sensor', 'Valor', 'Hora']]
+        
+        unidades = {
+            'MQ2': 'ppm',
+            'Distancia': 'cm',
+            'Acel_X': 'm/s²', 'Acel_Y': 'm/s²', 'Acel_Z': 'm/s²',
+            'Gyro_X': '°/s', 'Gyro_Y': '°/s', 'Gyro_Z': '°/s',
+            'Temperatura': '°C',
+            'Pressao': 'hPa'
+        }
+        
+        for log in res.data:
+            origem = log.get('origem', 'N/A')
+            valor = log.get('valor', '')
+            unidade = unidades.get(origem, '')
+            hora = log.get('data_hora', '')[:16]  # Só data e hora, sem segundos
+            
+            valor_str = f"{valor} {unidade}" if unidade else str(valor)
+            table_data.append([origem, valor_str, hora])
+        
+        # Criar tabela
+        table = Table(table_data, colWidths=[6*cm, 4*cm, 5*cm])
+        table.setStyle(TableStyle([
+            # Header
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#161b22')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#3ecf8e')),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
+            
+            # Corpo
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#0d1117')),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.white),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+            ('TOPPADDING', (0, 1), (-1, -1), 8),
+            
+            # Grid
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#30363d')),
+            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.HexColor('#3ecf8e')),
+            
+            # Alternar cores de linha
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.HexColor('#0d1117'), colors.HexColor('#161b22')]),
+        ]))
+        
+        elements.append(table)
+        elements.append(Spacer(1, 1*cm))
+        
+        # Rodapé
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor=colors.grey,
+            alignment=1
+        )
+        elements.append(Paragraph("G.R.I.D OS | Ground Recon & Intelligent Detection", footer_style))
+        
+        # Gerar PDF
+        doc.build(elements)
+        buffer.seek(0)
+        
+        filename = f"GRID_Mission_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        
+        return Response(
+            buffer,
+            mimetype="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}",
+                "Content-Type": "application/pdf"
+            }
+        )
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+# --- ROTAS FLASK ECOSSISTEMA ---
 
 @app.route('/')
 def landing():

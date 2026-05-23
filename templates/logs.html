@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G.R.I.D OS | Mission Logs</title>
     
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#3ecf8e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="G.R.I.D">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
@@ -68,6 +76,8 @@
         }
         .badge-mq2 { background: rgba(240, 136, 62, 0.1); color: var(--warning); border-color: rgba(240, 136, 62, 0.3); }
         .badge-dist { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); }
+        .badge-mpu { background: rgba(168, 85, 247, 0.1); color: #a855f7; border-color: rgba(168, 85, 247, 0.3); }
+        .badge-bmp { background: rgba(6, 182, 212, 0.1); color: #06b6d4; border-color: rgba(6, 182, 212, 0.3); }
         .badge-default { background: rgba(62, 207, 142, 0.1); color: var(--accent); border-color: rgba(62, 207, 142, 0.3); }
         
         .alert-indicator { 
@@ -133,7 +143,21 @@
             border-left: 2px solid var(--accent); 
         }
         
-        /* Scrollbar personalizada */
+        .export-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid;
+        }
+        
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: var(--win-border); border-radius: 3px; }
@@ -189,9 +213,15 @@
                 <p class="text-xs text-gray-400 mt-1">Sessão activa como: <span class="text-[var(--accent)] font-bold">{{ username }}</span></p>
             </div>
             <div class="flex gap-3">
-                <button onclick="exportLogs()" class="px-4 py-2 bg-[var(--accent-dim)] border border-[var(--accent)]/30 text-[var(--accent)] rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--accent)] hover:text-black transition-all flex items-center gap-2">
+                <!-- Exportar CSV -->
+                <button onclick="exportCSV()" class="export-btn bg-[var(--accent-dim)] border-[var(--accent)]/30 text-[var(--accent)] hover:bg-[var(--accent)] hover:text-black">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Exportar CSV
+                    CSV
+                </button>
+                <!-- Exportar PDF -->
+                <button onclick="exportPDF()" class="export-btn bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    PDF
                 </button>
             </div>
         </header>
@@ -207,7 +237,7 @@
                 <div class="text-2xl font-bold text-[var(--accent)] mt-1" id="stat-page">--</div>
             </div>
             <div>
-                <span class="text-gray-500 uppercase tracking-widest text-[10px]">Sensores Activos</span>
+                <span class="text-gray-500 uppercase tracking-widest text-[10px]">Sensores Disponíveis</span>
                 <div class="text-2xl font-bold text-blue-400 mt-1" id="stat-sensors">--</div>
             </div>
             <div class="ml-auto flex items-center gap-2">
@@ -331,6 +361,15 @@
             });
         }
 
+        function getSensorBadgeClass(origem) {
+            if (!origem) return 'badge-default';
+            if (origem === 'MQ2') return 'badge-mq2';
+            if (origem === 'Distancia') return 'badge-dist';
+            if (origem.startsWith('Acel_') || origem.startsWith('Gyro_')) return 'badge-mpu';
+            if (origem === 'Temperatura' || origem === 'Pressao') return 'badge-bmp';
+            return 'badge-default';
+        }
+
         function renderLogs(data) {
             const tbody = $('#logs-table-body');
             tbody.empty();
@@ -351,11 +390,9 @@
                 const alertLabel = (log.nivel_alerta || 0) === 0 ? 'NORMAL' : 
                                   (log.nivel_alerta || 0) === 1 ? 'ATENÇÃO' : 'CRÍTICO';
                 
-                let badgeClass = 'badge-default';
-                if (log.origem === 'MQ2') badgeClass = 'badge-mq2';
-                else if (log.origem === 'Distancia') badgeClass = 'badge-dist';
+                const badgeClass = getSensorBadgeClass(log.origem);
 
-                const date = new Date(log.created_at);
+                const date = new Date(log.data_hora);
                 const timeStr = date.toLocaleString('pt-PT', {
                     day: '2-digit', month: '2-digit', year: 'numeric',
                     hour: '2-digit', minute: '2-digit', second: '2-digit'
@@ -397,14 +434,12 @@
 
             $('#pagination-info').text(`Página ${data.page} de ${data.total_pages}`);
 
-            // Botão Anterior
             container.append(`
                 <button class="pagination-btn" onclick="loadLogs(${data.page - 1})" ${!data.has_prev ? 'disabled' : ''}>
                     ← Anterior
                 </button>
             `);
 
-            // Números de página (simplificado)
             const maxButtons = 5;
             let startPage = Math.max(1, data.page - Math.floor(maxButtons / 2));
             let endPage = Math.min(data.total_pages, startPage + maxButtons - 1);
@@ -431,7 +466,6 @@
                 container.append(`<<button class="pagination-btn" onclick="loadLogs(${data.total_pages})">${data.total_pages}</button>`);
             }
 
-            // Botão Próximo
             container.append(`
                 <button class="pagination-btn" onclick="loadLogs(${data.page + 1})" ${!data.has_next ? 'disabled' : ''}>
                     Próximo →
@@ -446,7 +480,7 @@
             loadLogs(1);
         }
 
-        function exportLogs() {
+        function exportCSV() {
             const params = new URLSearchParams({
                 sensor: currentFilters.sensor,
                 start: currentFilters.start,
@@ -455,12 +489,20 @@
             window.open(`/api/logs/export?${params.toString()}`, '_blank');
         }
 
+        function exportPDF() {
+            const params = new URLSearchParams({
+                sensor: currentFilters.sensor,
+                start: currentFilters.start,
+                end: currentFilters.end
+            });
+            window.open(`/api/logs/export/pdf?${params.toString()}`, '_blank');
+        }
+
         // Auto-refresh a cada 30 segundos
         setInterval(() => {
             loadLogs(currentPage);
         }, 30000);
 
-        // Inicialização
         $(document).ready(function() {
             loadSensors();
             loadLogs(1);

@@ -172,8 +172,6 @@
  
         /* ═══════════════════════════════════
            CARDS — MOBILE
-           Em mobile as "janelas" são cards
-           estáticos empilhados verticalmente
         ═══════════════════════════════════ */
         #mobile-workspace {
             display: none;
@@ -214,7 +212,6 @@
             font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
             backdrop-filter: blur(10px);
             transition: all 0.4s ease;
-            /* Desktop: canto inferior direito */
             bottom: 20px; right: 20px;
         }
         #rover-dot { width: 8px; height: 8px; border-radius: 50%; background: #6b7280; transition: background 0.4s; flex-shrink: 0; }
@@ -227,26 +224,16 @@
         ═══════════════════════════════════ */
         @media (max-width: 768px) {
             body { overflow: hidden; }
- 
-            /* Esconde sidebar lateral */
             #sidebar { display: none !important; }
- 
-            /* Mostra bottom nav e workspace mobile */
             #bottom-nav { display: flex; }
             #mobile-workspace { display: flex; }
- 
-            /* Esconde workspace desktop */
             #workspace { display: none; }
- 
-            /* Badge fica acima do bottom nav */
             #rover-badge { 
                 bottom: calc(68px + env(safe-area-inset-bottom)); 
                 right: 12px; 
                 font-size: 9px;
                 padding: 6px 12px;
             }
- 
-            /* Layout: coluna única */
             body.flex { flex-direction: column; }
         }
     </style>
@@ -282,24 +269,29 @@
                     <span class="nav-text">Sensores <span id="folder-arrow" class="text-[8px] opacity-40 ml-1">▼</span></span>
                 </button>
                 <div id="sensor-folder" class="sensor-group">
-                    <button onclick="createWindow('dist','DISTANCE')" class="nav-item sub-item">
-                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-                        <span class="nav-text">Ultrassónico</span>
-                    </button>
-                    <button onclick="createWindow('smoke','MQ2_GAS')" class="nav-item sub-item">
+                    <!-- MQ2 -->
+                    <button onclick="createWindow('mq2','MQ2_GAS')" class="nav-item sub-item">
                         <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span class="nav-text">MQ2 Gas</span>
                     </button>
-                    <button onclick="createWindow('imu','IMU_DATA')" class="nav-item sub-item">
+                    <!-- HC-SR04 -->
+                    <button onclick="createWindow('dist','HCSR04')" class="nav-item sub-item">
+                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+                        <span class="nav-text">HC-SR04</span>
+                    </button>
+                    <!-- MPU6050 -->
+                    <button onclick="createWindow('mpu','MPU6050')" class="nav-item sub-item">
                         <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span class="nav-text">MPU6050</span>
                     </button>
-                    <button onclick="createWindow('env','BMP280')" class="nav-item sub-item">
+                    <!-- BMP280 -->
+                    <button onclick="createWindow('bmp','BMP280')" class="nav-item sub-item">
                         <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
-                        <span class="nav-text">Ambiente</span>
+                        <span class="nav-text">BMP280</span>
                     </button>
                 </div>
             </div>
+            <!-- Mission Logs -->
             <a href="/logs" class="nav-item text-orange-400">
                 <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 <span class="nav-text">Mission Logs</span>
@@ -344,6 +336,10 @@
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
             Sensores
         </button>
+        <a href="/logs" class="bnav-item text-orange-400">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Logs
+        </a>
         <button class="bnav-item text-blue-400" onclick="mobileScrollTop()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
             Topo
@@ -360,21 +356,21 @@
  
     <!-- Drawer mobile de sensores -->
     <div id="mobile-sensor-drawer">
-        <button class="drawer-btn" onclick="mobileOpen('dist','DISTANCE'); toggleMobileDrawer()">
-            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-            Ultrassónico
-        </button>
-        <button class="drawer-btn" onclick="mobileOpen('smoke','MQ2_GAS'); toggleMobileDrawer()">
+        <button class="drawer-btn" onclick="mobileOpen('mq2','MQ2_GAS'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             MQ2 Gas
         </button>
-        <button class="drawer-btn" onclick="mobileOpen('imu','IMU_DATA'); toggleMobileDrawer()">
+        <button class="drawer-btn" onclick="mobileOpen('dist','HCSR04'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+            HC-SR04
+        </button>
+        <button class="drawer-btn" onclick="mobileOpen('mpu','MPU6050'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             MPU6050
         </button>
-        <button class="drawer-btn" onclick="mobileOpen('env','BMP280'); toggleMobileDrawer()">
+        <button class="drawer-btn" onclick="mobileOpen('bmp','BMP280'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
-            Ambiente
+            BMP280
         </button>
     </div>
  
@@ -439,10 +435,26 @@
             document.getElementById('mobile-workspace').scrollTo({ top: 0, behavior: 'smooth' });
         }
  
-        // ── Mapa de dados dos sensores ──────────────────────────
-        const sensorMap = { dist: 'Distancia', smoke: 'MQ2', imu: 'imu', env: 'temp' };
-        const unitMap   = { dist: 'cm', smoke: 'raw', imu: 'm/s²', env: '°C' };
-        const labelMap  = { dist: 'Ultrassónico HC-SR04', smoke: 'Sensor de Gás MQ2', imu: 'Acelerómetro MPU6050', env: 'Barómetro BMP280' };
+        // ── Mapa de dados dos sensores (tópicos MQTT reais) ─────
+        // MQTT: G.R.I.D/MQ2, G.R.I.D/Distancia, G.R.I.D/Acel_X, G.R.I.D/Gyro_X, G.R.I.D/Temperatura, G.R.I.D/Pressao
+        const sensorMap = { 
+            mq2: 'MQ2', 
+            dist: 'Distancia', 
+            mpu: 'Acel_X',      // MPU6050 envia Acel_X, Acel_Y, Acel_Z, Gyro_X, Gyro_Y, Gyro_Z
+            bmp: 'Temperatura'  // BMP280 envia Temperatura e Pressao
+        };
+        const unitMap   = { 
+            mq2: 'ppm', 
+            dist: 'cm', 
+            mpu: 'm/s²', 
+            bmp: '°C' 
+        };
+        const labelMap  = { 
+            mq2: 'Sensor de Gás MQ2', 
+            dist: 'Ultrassónico HC-SR04', 
+            mpu: 'Acelerómetro MPU6050', 
+            bmp: 'Barómetro BMP280' 
+        };
  
         // ── Criar janela (desktop) ──────────────────────────────
         function createWindow(type, title) {
@@ -487,7 +499,6 @@
         // ── Abrir card (mobile) ─────────────────────────────────
         function mobileOpen(type, title) {
             const id = `mcard-${type}`;
-            // Se já existe, scroll até ele
             const existing = document.getElementById(id);
             if (existing) { existing.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
  
@@ -519,12 +530,39 @@
         }
  
         // ── WebSocket: dados sensores ───────────────────────────
+        // O servidor Flask emite: {sensor: 'MQ2', valor: '123.45'} ou {sensor: 'Distancia', valor: '45.2'}
+        // MPU6050: Acel_X, Acel_Y, Acel_Z, Gyro_X, Gyro_Y, Gyro_Z
+        // BMP280: Temperatura, Pressao
         socket.on('mqtt_data', (data) => {
-            const mqttMap = { MQ2:'MQ2', Distancia:'Distancia', Acel_X:'imu', Temperatura:'temp' };
-            const key = mqttMap[data.sensor];
-            if (!key) return;
-            $(`#val-${key}`).text(data.valor);       // desktop
-            $(`#mval-${key}`).text(data.valor);      // mobile
+            // Atualiza todos os displays que correspondem a este sensor
+            const sensor = data.sensor;
+            const valor = data.valor;
+            
+            // MQ2
+            if (sensor === 'MQ2') {
+                $('#val-MQ2').text(valor);
+                $('#mval-MQ2').text(valor);
+            }
+            // HC-SR04
+            else if (sensor === 'Distancia') {
+                $('#val-Distancia').text(valor);
+                $('#mval-Distancia').text(valor);
+            }
+            // MPU6050 - Aceleração
+            else if (sensor.startsWith('Acel_') || sensor.startsWith('Gyro_')) {
+                $('#val-Acel_X').text(valor);
+                $('#mval-Acel_X').text(valor);
+            }
+            // BMP280 - Temperatura
+            else if (sensor === 'Temperatura') {
+                $('#val-Temperatura').text(valor);
+                $('#mval-Temperatura').text(valor);
+            }
+            // BMP280 - Pressão
+            else if (sensor === 'Pressao') {
+                $('#val-Pressao').text(valor);
+                $('#mval-Pressao').text(valor);
+            }
         });
  
         // ── WebSocket: status rover ─────────────────────────────

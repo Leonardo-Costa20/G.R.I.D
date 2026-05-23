@@ -34,6 +34,26 @@
             background: #3ecf8e; color: #000;
             box-shadow: 0 0 40px rgba(62, 207, 142, 0.3); border-color: #3ecf8e;
         }
+        
+        /* Logo styling */
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 20px rgba(62, 207, 142, 0.3));
+            animation: logo-pulse 3s ease-in-out infinite;
+        }
+        
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        @keyframes logo-pulse {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(62, 207, 142, 0.3)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 35px rgba(62, 207, 142, 0.5)); transform: scale(1.02); }
+        }
     </style>
 </head>
 <body class="overflow-hidden">
@@ -42,8 +62,9 @@
  
     <div class="relative z-10 flex flex-col items-center justify-center h-screen">
         
-        <div class="mb-8 text-[#3ecf8e] animate-pulse">
-            <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <!-- LOGO G.R.I.D (substitui o raio) -->
+        <div class="logo-container">
+            <img src="/static/logo.png" alt="G.R.I.D Logo">
         </div>
  
         <div class="text-center space-y-2 mb-16">
@@ -61,10 +82,10 @@
         <div class="absolute bottom-10 text-[9px] text-slate-600 tracking-widest uppercase font-bold">
             G.R.I.D OS | PAP 2026 | Centro de Comando
         </div>
+
     </div>
  
     <script>
-        // Registo do Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/static/service-worker.js')
