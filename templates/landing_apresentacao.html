@@ -165,6 +165,7 @@
 
         /* ── Install button (hidden until event fires) ── */
         #btn-install { display: inline-flex; }
+        #btn-install-2 { display: inline-flex; }
 
         /* ── Stats row ──────────────────────── */
         .stats-row {
@@ -384,7 +385,7 @@
 
     <div class="cta-group">
         <!-- Botão de instalar PWA — só aparece quando o evento beforeinstallprompt dispara -->
-        <button id="btn-install" class="btn btn-primary">
+        <button id="btn-install" class="btn btn-primary btn-install-pwa">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             Instalar App
         </button>
@@ -521,7 +522,7 @@
             <p>Inicia sessão na plataforma web ou instala a app diretamente no teu dispositivo para acesso imediato ao Mission Control.</p>
 
             <div class="cta-buttons">
-                <button id="btn-install-2" class="btn btn-primary">
+                <button id="btn-install-2" class="btn btn-primary btn-install-pwa">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Instalar App
                 </button>
@@ -555,65 +556,75 @@
     <span>Ground Recon &amp; Intelligent Detection</span>
 </footer>
 
+
 <script>
     let deferredPrompt = null;
-    const btnsInstall = [
-        document.getElementById('btn-install'),
-        document.getElementById('btn-install-2')
-    ].filter(Boolean);
-
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isAndroid = /Android/.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    // Captura o evento logo que o browser o dispara
+    // Capturar o prompt logo que o browser o lança
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
     });
 
-    // Após instalação confirmada
     window.addEventListener('appinstalled', () => {
         deferredPrompt = null;
-        btnsInstall.forEach(b => {
-            b.innerHTML = '✓ &nbsp;Instalado!';
+        document.querySelectorAll('.btn-install-pwa').forEach(b => {
+            b.textContent = '✓ Instalado!';
             b.style.opacity = '0.5';
             b.style.pointerEvents = 'none';
         });
     });
 
-    btnsInstall.forEach(b => {
-        b.addEventListener('click', async (e) => {
-            e.preventDefault();
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+    }
 
-            if (deferredPrompt) {
-                // Caminho ideal — diálogo nativo do browser
-                await deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                return;
-            }
+    document.addEventListener('DOMContentLoaded', () => {
+        // Se já está em modo standalone (PWA aberta), esconder botão de instalar
+        if (isStandalone) {
+            document.querySelectorAll('.btn-install-pwa').forEach(b => b.style.display = 'none');
+            return;
+        }
 
-            // Sem prompt disponível — redireciona para instrução correta
-            if (isIOS) {
-                // iOS só instala pelo Safari — abre página de ajuda Apple
-                window.location.href = 'https://support.apple.com/guide/iphone/bookmark-favorite-webpages-iph42ab2f3a7/ios';
-            } else if (isAndroid) {
-                // Android Chrome — abre o menu de instalação via intent
-                // Se não funcionar, vai para as definições do Chrome
-                window.location.href = 'intent://install#Intent;scheme=https;package=com.android.chrome;end';
-            } else {
-                // Desktop Chrome/Edge — o ícone ⊕ aparece na barra de endereço
-                // Não há como acionar programaticamente, por isso abre ajuda
-                window.open('https://support.google.com/chrome/answer/9658361', '_blank');
-            }
+        document.querySelectorAll('.btn-install-pwa').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                if (deferredPrompt) {
+                    // Prompt nativo disponível — usar diretamente
+                    await deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    if (outcome === 'accepted') {
+                        btn.textContent = '✓ A instalar...';
+                        btn.style.opacity = '0.5';
+                        btn.style.pointerEvents = 'none';
+                    }
+                    return;
+                }
+
+                // Sem prompt — mostrar instrução para o dispositivo
+                const isAndroid = /Android/.test(navigator.userAgent);
+                const msg = isIOS
+                    ? '📱 Safari → toca em Partilhar ⬆ → "Adicionar ao ecrã principal"'
+                    : isAndroid
+                        ? '📱 Chrome → menu ⋮ → "Adicionar ao ecrã inicial"'
+                        : '💻 Chrome/Edge → clica no ícone ⊕ na barra de endereço';
+
+                let tip = document.getElementById('install-tip');
+                if (!tip) {
+                    tip = document.createElement('div');
+                    tip.id = 'install-tip';
+                    tip.style.cssText = 'margin-top:10px;padding:10px 14px;background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.3);border-radius:10px;font-size:12px;color:#c9d1d9;text-align:center;max-width:320px;';
+                    btn.insertAdjacentElement('afterend', tip);
+                }
+                tip.textContent = msg;
+                setTimeout(() => tip && tip.remove(), 7000);
+            });
         });
     });
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/static/sw.js')
-            .then(r => console.log('[SW] registado:', r.scope))
-            .catch(e => console.warn('[SW] falha:', e));
-    }
 </script>
 </body>
 </html>

@@ -4,12 +4,13 @@
  // Cache-first para assets estáticos (CSS, JS, fontes).
  //
  
-const CACHE_NAME   = 'grid-os-v1';
-const CACHE_STATIC = 'grid-static-v1';
+const CACHE_NAME   = 'grid-os-v3';
+const CACHE_STATIC = 'grid-static-v3';
  
 // Assets estáticos que devem ser cacheados na instalação
 const STATIC_ASSETS = [
   '/',
+  '/app',
   '/login',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png',
@@ -64,7 +65,7 @@ self.addEventListener('fetch', (event) => {
     (path) => url.pathname === path || url.pathname.startsWith('/admin/')
   );
   if (isNetworkOnly) {
-    event.respondWith(fetch(request).catch(() => caches.match('/')));
+    event.respondWith(fetch(request).catch(() => caches.match('/app') || caches.match('/')));
     return;
   }
  

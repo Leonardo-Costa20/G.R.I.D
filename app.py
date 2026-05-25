@@ -480,6 +480,13 @@ def api_logs_export_pdf():
 def landing_apresentacao():
     if session.get('logged_in'):
         return redirect(url_for('index'))
+    # Quando aberta como PWA instalada, o Chrome faz um navigate para '/'
+    # sem Referer e com Sec-Fetch-Mode: navigate — redirecionar para /app (welcome)
+    referer = request.headers.get('Referer', '')
+    sec_fetch_site = request.headers.get('Sec-Fetch-Site', '')
+    # 'none' = navegação direta (barra de endereço ou PWA launcher)
+    if not referer and sec_fetch_site == 'none':
+        return redirect(url_for('welcome'))
     return render_template('landing_apresentacao.html')
 
 @app.route('/app')
