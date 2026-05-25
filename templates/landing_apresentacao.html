@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.R.I.D OS — Ground Recon & Intelligent Detection</title>
+
+    <!-- PWA — o manifest aponta start_url para /app, não para aqui -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0a0c10">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="G.R.I.D">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+
+    <!-- SEO / Open Graph -->
+    <meta name="description" content="G.R.I.D OS — Plataforma de monitorização de rovers de reconhecimento terrestre em tempo real.">
+    <meta property="og:title" content="G.R.I.D OS">
+    <meta property="og:description" content="Ground Recon & Intelligent Detection — Missão em tempo real.">
+    <meta property="og:type" content="website">
+
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --accent:      #3ecf8e;
+            --accent-dim:  rgba(62, 207, 142, 0.12);
+            --accent-glow: rgba(62, 207, 142, 0.25);
+            --bg:          #0a0c10;
+            --bg2:         #0d1117;
+            --card:        rgba(22, 27, 34, 0.7);
+            --border:      rgba(48, 54, 61, 0.8);
+            --text:        #c9d1d9;
+            --muted:       #8b949e;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ── Grid de fundo ─────────────────────── */
+        .grid-canvas {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: radial-gradient(rgba(62,207,142,0.07) 1.5px, transparent 1.5px);
+            background-size: 50px 50px;
+        }
+
+        /* ── Gradiente de profundidade ─────────── */
+        .depth-gradient {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(62,207,142,0.06) 0%, transparent 70%);
+        }
+
+        /* ── Secções ───────────────────────────── */
+        section { position: relative; z-index: 1; }
+
+        /* ══════════════════════════════════════
+           HERO
+        ══════════════════════════════════════ */
+        #hero {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center;
+            padding: 40px 24px 80px;
+            gap: 0;
+        }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 16px;
+            font-size: 9px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 40px;
+            background: var(--accent-dim);
+        }
+        .hero-badge-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent);
+            animation: blink 2s ease-in-out infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+        .hero-logo {
+            width: 100px; height: 100px;
+            margin-bottom: 32px;
+            filter: drop-shadow(0 0 30px var(--accent-glow));
+            animation: logo-float 4s ease-in-out infinite;
+        }
+        @keyframes logo-float {
+            0%,100% { transform: translateY(0); filter: drop-shadow(0 0 30px var(--accent-glow)); }
+            50%      { transform: translateY(-8px); filter: drop-shadow(0 0 50px rgba(62,207,142,0.4)); }
+        }
+
+        h1 {
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: #fff;
+            text-shadow: 0 0 60px rgba(62,207,142,0.2);
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+        h1 span { color: var(--accent); }
+
+        .hero-sub {
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 4px; text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 48px;
+        }
+
+        /* ── CTA buttons ───────────────────── */
+        .cta-group {
+            display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+            margin-bottom: 64px;
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            cursor: pointer; text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .btn svg { width: 16px; height: 16px; flex-shrink: 0; stroke: currentColor; fill: none; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            background: #34b37a;
+            box-shadow: 0 0 50px rgba(62,207,142,0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border-color: var(--border);
+            backdrop-filter: blur(12px);
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ── Install button (hidden until event fires) ── */
+        #btn-install { display: inline-flex; }
+
+        /* ── Stats row ──────────────────────── */
+        .stats-row {
+            display: flex; gap: 32px; flex-wrap: wrap; justify-content: center;
+        }
+        .stat {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .stat-val {
+            font-size: 1.4rem; font-weight: 800; color: var(--accent);
+        }
+        .stat-label {
+            font-size: 8px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+        }
+        .stat-divider {
+            width: 1px; height: 40px; background: var(--border);
+            align-self: center;
+        }
+
+        /* ── Scroll indicator ───────────────── */
+        .scroll-hint {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+            animation: fade-up 2s ease-in-out infinite;
+        }
+        @keyframes fade-up { 0%,100%{opacity:.3;transform:translateX(-50%) translateY(0)} 50%{opacity:1;transform:translateX(-50%) translateY(-4px)} }
+        .scroll-hint svg { width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2; }
+
+        /* ══════════════════════════════════════
+           FEATURES
+        ══════════════════════════════════════ */
+        #features {
+            padding: 100px 24px;
+            max-width: 1100px; margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 9px; font-weight: 700;
+            letter-spacing: 4px; text-transform: uppercase;
+            color: var(--accent); margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: clamp(1.6rem, 4vw, 2.6rem);
+            font-weight: 800; color: #fff;
+            letter-spacing: -0.03em;
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px 28px;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feature-card:hover { border-color: rgba(62,207,142,0.3); transform: translateY(-4px); }
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 44px; height: 44px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(62,207,142,0.2);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+        }
+        .feature-icon svg { width: 22px; height: 22px; stroke: var(--accent); fill: none; }
+
+        .feature-title {
+            font-size: 13px; font-weight: 700;
+            color: #fff; margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        .feature-desc {
+            font-size: 10px; line-height: 1.8;
+            color: var(--muted); font-weight: 400;
+        }
+
+        /* ══════════════════════════════════════
+           TECH STACK
+        ══════════════════════════════════════ */
+        #tech {
+            padding: 80px 24px;
+            background: linear-gradient(180deg, transparent, rgba(22,27,34,0.4), transparent);
+        }
+        #tech .inner { max-width: 1100px; margin: 0 auto; }
+
+        .tech-pills {
+            display: flex; flex-wrap: wrap; gap: 12px;
+            justify-content: center; margin-top: 40px;
+        }
+        .tech-pill {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 18px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 10px; font-weight: 700; color: var(--text);
+            letter-spacing: 1px; text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .tech-pill:hover { border-color: var(--accent); color: var(--accent); }
+        .tech-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+        /* ══════════════════════════════════════
+           INSTALL / CTA FINAL
+        ══════════════════════════════════════ */
+        #cta-final {
+            padding: 100px 24px;
+            text-align: center;
+        }
+        #cta-final .inner { max-width: 680px; margin: 0 auto; }
+
+        .cta-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 60px 40px;
+            backdrop-filter: blur(16px);
+            position: relative; overflow: hidden;
+        }
+        .cta-card::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--accent-dim), transparent);
+            pointer-events: none;
+        }
+
+        .cta-card h2 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 800; color: #fff;
+            letter-spacing: -0.03em; margin-bottom: 16px;
+        }
+        .cta-card p {
+            font-size: 10px; line-height: 1.9;
+            color: var(--muted); margin-bottom: 36px;
+        }
+        .cta-buttons {
+            display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+        }
+
+        /* ── Nota de plataforma ──────────────── */
+        .platform-note {
+            margin-top: 24px;
+            font-size: 9px; color: var(--muted);
+            letter-spacing: 1px;
+        }
+        .platform-note span { color: var(--accent); }
+
+        /* ══════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════ */
+        footer {
+            position: relative; z-index: 1;
+            border-top: 1px solid var(--border);
+            padding: 32px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 16px;
+            font-size: 9px; color: var(--muted);
+            letter-spacing: 1.5px; text-transform: uppercase;
+        }
+        footer a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+        footer a:hover { color: var(--accent); }
+
+        /* ══════════════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════════════ */
+        @media (max-width: 600px) {
+            .stats-row { gap: 20px; }
+            .stat-divider { display: none; }
+            .cta-card { padding: 40px 24px; }
+            footer { justify-content: center; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="grid-canvas"></div>
+<div class="depth-gradient"></div>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section id="hero">
+
+    <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Sistema Operacional
+    </div>
+
+    <!-- Logo / ícone animado -->
+    <svg class="hero-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" stroke="rgba(62,207,142,0.15)" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="36" stroke="rgba(62,207,142,0.1)" stroke-width="1"/>
+        <polygon points="56,18 30,54 50,54 44,82 70,46 50,46" fill="#3ecf8e" opacity="0.95"/>
+    </svg>
+
+    <h1>G.R.I.D <span>OS</span></h1>
+    <p class="hero-sub">Ground Recon &amp; Intelligent Detection</p>
+
+    <div class="cta-group">
+        <!-- Botão de instalar PWA — só aparece quando o evento beforeinstallprompt dispara -->
+        <button id="btn-install" class="btn btn-primary">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            Instalar App
+        </button>
+
+        <!-- Entrar na app (browser) -->
+        <a href="/login" class="btn btn-primary" id="btn-entrar">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            Abrir App
+        </a>
+
+        <!-- Saber mais -->
+        <a href="#features" class="btn btn-secondary">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            Saber Mais
+        </a>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat">
+            <span class="stat-val">RT</span>
+            <span class="stat-label">Tempo Real</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+            <span class="stat-val">MQTT</span>
+            <span class="stat-label">Protocolo IoT</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+            <span class="stat-val">TLS</span>
+            <span class="stat-label">Encriptado</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+            <span class="stat-val">PWA</span>
+            <span class="stat-label">Instalável</span>
+        </div>
+    </div>
+
+    <div class="scroll-hint">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"></path></svg>
+        Explorar
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FEATURES
+══════════════════════════════════════ -->
+<section id="features">
+    <p class="section-label">Capacidades</p>
+    <h2 class="section-title">Tudo o que o rover precisa,<br>numa só plataforma.</h2>
+
+    <div class="features-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </div>
+            <p class="feature-title">Live Video Feed</p>
+            <p class="feature-desc">Transmissão de vídeo em tempo real via stream MJPEG diretamente do ESP32-CAM do rover. Visão tática sem latência perceptível.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z"></path></svg>
+            </div>
+            <p class="feature-title">Telemetria de Sensores</p>
+            <p class="feature-desc">Monitorização contínua de distância (HC-SR04), gás (MQ2), aceleração (MPU6050) e dados ambientais (BMP280) via MQTT TLS.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </div>
+            <p class="feature-title">Mission Logs</p>
+            <p class="feature-desc">Histórico completo de leituras persistido na Supabase. Filtragem por sensor, nível de alerta e intervalo de tempo com exportação CSV e PDF.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+            </div>
+            <p class="feature-title">Dashboard Modular</p>
+            <p class="feature-desc">Interface drag-and-drop no desktop com janelas redimensionáveis. No telemóvel adapta-se automaticamente a cards estáticos com bottom navigation.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <p class="feature-title">Controlo de Acesso</p>
+            <p class="feature-desc">Sistema de utilizadores com roles (viewer / operator / admin), aprovação manual de contas e passwords encriptadas com bcrypt.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            </div>
+            <p class="feature-title">PWA Instalável</p>
+            <p class="feature-desc">Instala como app nativa no Android, iOS e desktop. Funciona offline para visualização de dados em cache. Suporte a Push Notifications.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     TECH STACK
+══════════════════════════════════════ -->
+<section id="tech">
+    <div class="inner" style="text-align:center">
+        <p class="section-label">Stack Tecnológico</p>
+        <h2 class="section-title" style="margin-bottom:0">Construído com tecnologia de produção.</h2>
+        <div class="tech-pills">
+            <div class="tech-pill"><span class="tech-pill-dot"></span>Flask + SocketIO</div>
+            <div class="tech-pill"><span class="tech-pill-dot"></span>MQTT / HiveMQ TLS</div>
+            <div class="tech-pill"><span class="tech-pill-dot"></span>Supabase PostgreSQL</div>
+            <div class="tech-pill"><span class="tech-pill-dot"></span>ESP32-CAM MJPEG</div>
+            <div class="tech-pill"><span class="tech-pill-dot"></span>bcrypt Auth</div>
+            <div class="tech-pill"><span class="tech-pill-dot"></span>Service Worker</div>
+            <div class="tech-pill"><span class="tech-pill-dot"></span>WebSocket RT</div>
+            <div class="tech-pill"><span class="tech-pill-dot"></span>Tailwind CSS</div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CTA FINAL
+══════════════════════════════════════ -->
+<section id="cta-final">
+    <div class="inner">
+        <div class="cta-card">
+            <p class="section-label" style="margin-bottom:12px">Pronto para iniciar</p>
+            <h2>Começa a monitorizar<br>o teu rover agora.</h2>
+            <p>Inicia sessão na plataforma web ou instala a app diretamente no teu dispositivo para acesso imediato ao Mission Control.</p>
+
+            <div class="cta-buttons">
+                <button id="btn-install-2" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Instalar App
+                </button>
+                <a href="/login" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Entrar na Plataforma
+                </a>
+                <a href="/register" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24"><path stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                    Criar Conta
+                </a>
+            </div>
+
+            <p class="platform-note">
+                Disponível em <span>Android</span> · <span>iOS</span> · <span>Desktop</span> — instala via browser, sem loja de apps.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer>
+    <span>G.R.I.D OS &copy; 2026 — PAP</span>
+    <div style="display:flex;gap:24px">
+        <a href="/login">App</a>
+        <a href="/register">Registro</a>
+        <a href="#hero">Topo</a>
+    </div>
+    <span>Ground Recon &amp; Intelligent Detection</span>
+</footer>
+
+<script>
+    let deferredPrompt = null;
+    const btnsInstall = [
+        document.getElementById('btn-install'),
+        document.getElementById('btn-install-2')
+    ].filter(Boolean);
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isAndroid = /Android/.test(navigator.userAgent);
+
+    // Captura o evento logo que o browser o dispara
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
+    // Após instalação confirmada
+    window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        btnsInstall.forEach(b => {
+            b.innerHTML = '✓ &nbsp;Instalado!';
+            b.style.opacity = '0.5';
+            b.style.pointerEvents = 'none';
+        });
+    });
+
+    btnsInstall.forEach(b => {
+        b.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            if (deferredPrompt) {
+                // Caminho ideal — diálogo nativo do browser
+                await deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                return;
+            }
+
+            // Sem prompt disponível — redireciona para instrução correta
+            if (isIOS) {
+                // iOS só instala pelo Safari — abre página de ajuda Apple
+                window.location.href = 'https://support.apple.com/guide/iphone/bookmark-favorite-webpages-iph42ab2f3a7/ios';
+            } else if (isAndroid) {
+                // Android Chrome — abre o menu de instalação via intent
+                // Se não funcionar, vai para as definições do Chrome
+                window.location.href = 'intent://install#Intent;scheme=https;package=com.android.chrome;end';
+            } else {
+                // Desktop Chrome/Edge — o ícone ⊕ aparece na barra de endereço
+                // Não há como acionar programaticamente, por isso abre ajuda
+                window.open('https://support.google.com/chrome/answer/9658361', '_blank');
+            }
+        });
+    });
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/sw.js')
+            .then(r => console.log('[SW] registado:', r.scope))
+            .catch(e => console.warn('[SW] falha:', e));
+    }
+</script>
+</body>
+</html>

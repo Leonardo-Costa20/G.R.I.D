@@ -2,6 +2,7 @@ import os
 import time
 import threading
 from datetime import datetime
+import bcrypt
 import paho.mqtt.client as mqtt
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
@@ -28,6 +29,16 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 url = os.getenv('SUPABASE_URL')
 key = os.getenv('SUPABASE_KEY')
 supabase: Client = create_client(url, key) if url and key else None
+
+
+def hash_password(plain: str) -> str:
+    return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
+
+def check_password(plain: str, hashed: str) -> bool:
+    try:
+        return bcrypt.checkpw(plain.encode(), hashed.encode())
+    except Exception:
+        return False
 
 # --- CONFIGURAÇÃO MQTT ---
 MQTT_BROKER = "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud"
@@ -466,8 +477,16 @@ def api_logs_export_pdf():
 # --- ROTAS FLASK ECOSSISTEMA ---
 
 @app.route('/')
-def landing():
-    return render_template('landing.html')
+def landing_apresentacao():
+    if session.get('logged_in'):
+        return redirect(url_for('index'))
+    return render_template('landing_apresentacao.html')
+
+@app.route('/app')
+def welcome():
+    if session.get('logged_in'):
+        return redirect(url_for('index'))
+    return render_template('welcome.html')
 
 @app.route('/dashboard')
 def index():
@@ -482,15 +501,30 @@ def login():
         pass_input = request.form.get('password')
         if supabase:
             try:
-                res = supabase.table("users").select("*").or_(f"username.eq.{login_input},email.eq.{login_input}").eq("password", pass_input).execute()
+                res = supabase.table("users").select("*").or_(f"username.eq.{login_input},email.eq.{login_input}").execute()
                 if res.data:
                     user = res.data[0]
-                    if not user.get('aprovado', False):
-                        return render_template('login.html', error="ACESSO RETIDO: AGUARDE APROVAÇÃO.")
-                    session['logged_in'] = True
-                    session['username'] = user['username']
-                    session['role'] = str(user.get('role', 'viewer')).strip().lower()
-                    return redirect(url_for('index'))
+                    stored_pw = user.get('password', '')
+
+                    # Suporta bcrypt e texto plano (migração automática)
+                    if stored_pw.startswith('$2b$') or stored_pw.startswith('$2a$'):
+                        pw_ok = check_password(pass_input, stored_pw)
+                    else:
+                        # Ainda em texto plano: verifica e migra para bcrypt
+                        pw_ok = (pass_input == stored_pw)
+                        if pw_ok:
+                            try:
+                                supabase.table("users").update({"password": hash_password(pass_input)}).eq("id", user['id']).execute()
+                            except:
+                                pass
+
+                    if pw_ok:
+                        if not user.get('aprovado', False):
+                            return render_template('login.html', error="ACESSO RETIDO: AGUARDE APROVAÇÃO.")
+                        session['logged_in'] = True
+                        session['username'] = user['username']
+                        session['role'] = str(user.get('role', 'viewer')).strip().lower()
+                        return redirect(url_for('index'))
                 error = "ACESSO NEGADO: CREDENCIAIS INVÁLIDAS."
             except: error = "ERRO NA LIGAÇÃO À BASE DE DADOS."
     return render_template('login.html', error=error)
@@ -502,7 +536,7 @@ def register():
         data = {
             "email": request.form.get('email', '').strip().lower(),
             "username": request.form.get('username', '').strip(),
-            "password": request.form.get('password'),
+            "password": hash_password(request.form.get('password', '')),
             "aprovado": False,      
             "role": "viewer",        
             "rover_vinculado": "Nenhum"
@@ -517,7 +551,7 @@ def register():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('landing'))
+    return redirect(url_for('landing_apresentacao'))
 
 @app.route('/admin')
 def admin_panel():
