@@ -608,10 +608,10 @@
                 // Sem prompt — mostrar instrução para o dispositivo
                 const isAndroid = /Android/.test(navigator.userAgent);
                 const msg = isIOS
-                    ? '📱 Safari → toca em Partilhar ⬆ → "Adicionar ao ecrã principal"'
+                    ? ' Safari → toca em Partilhar ⬆ → "Adicionar ao ecrã principal"'
                     : isAndroid
-                        ? '📱 Chrome → menu ⋮ → "Adicionar ao ecrã inicial"'
-                        : '💻 Chrome/Edge → clica no ícone ⊕ na barra de endereço';
+                        ? ' Chrome → menu ⋮ → "Adicionar ao ecrã inicial"'
+                        : ' Chrome/Edge → clica no ícone ⊕ na barra de endereço';
 
                 let tip = document.getElementById('install-tip');
                 if (!tip) {
