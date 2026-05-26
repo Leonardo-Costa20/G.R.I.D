@@ -558,7 +558,7 @@ def register():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('landing_apresentacao'))
+    return redirect(url_for('welcome'))
 
 @app.route('/admin')
 def admin_panel():
