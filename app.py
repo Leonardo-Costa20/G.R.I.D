@@ -1,6 +1,10 @@
 import os
 import time
 import threading
+import secrets
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import bcrypt
 import paho.mqtt.client as mqtt
@@ -38,6 +42,44 @@ def check_password(plain: str, hashed: str) -> bool:
     try:
         return bcrypt.checkpw(plain.encode(), hashed.encode())
     except Exception:
+        return False
+
+# --- CONFIGURAÇÃO SMTP ---
+SMTP_EMAIL    = os.getenv('SMTP_EMAIL')
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+
+def enviar_email_reset(destinatario: str, link: str) -> bool:
+    """Envia o email de recuperação via Gmail SMTP TLS."""
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = 'G.R.I.D OS — Recuperação de Acesso'
+        msg['From']    = SMTP_EMAIL
+        msg['To']      = destinatario
+
+        html = f"""
+        <div style="background:#0a0c10;padding:40px;font-family:monospace;color:#c9d1d9;">
+            <h1 style="color:#3ecf8e;letter-spacing:4px;font-size:20px;">G.R.I.D OS</h1>
+            <p style="color:#6b7280;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Recuperação de Acesso</p>
+            <hr style="border-color:#30363d;margin:24px 0;">
+            <p>Recebemos um pedido para redefinir a tua password.</p>
+            <p>Clica no botão abaixo. O link expira em <strong style="color:#3ecf8e;">30 minutos</strong>.</p>
+            <a href="{link}" style="display:inline-block;margin:24px 0;padding:14px 28px;background:#3ecf8e;color:#000;font-weight:800;text-decoration:none;border-radius:12px;letter-spacing:2px;font-size:11px;text-transform:uppercase;">
+                Redefinir Password
+            </a>
+            <p style="color:#6b7280;font-size:10px;">Se não pediste isto, ignora este email.</p>
+            <hr style="border-color:#30363d;margin:24px 0;">
+            <p style="color:#374151;font-size:9px;letter-spacing:2px;">G.R.I.D OS · PAP 2026</p>
+        </div>
+        """
+        msg.attach(MIMEText(html, 'html'))
+
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            server.sendmail(SMTP_EMAIL, destinatario, msg.as_string())
+        return True
+    except Exception as e:
+        print(f"[EMAIL] Erro ao enviar: {e}")
         return False
 
 # --- CONFIGURAÇÃO MQTT ---
@@ -609,6 +651,70 @@ def admin_bind_rover():
         supabase.table("users").update({"rover_vinculado": rover_id}).eq("username", username).execute()
         return jsonify({"status": "success"})
     except: return jsonify({"status": "error"}), 500
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    msg, msg_type = None, 'info'
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        if supabase and email:
+            try:
+                res = supabase.table("users").select("id,email,aprovado").eq("email", email).execute()
+                if res.data:
+                    token = secrets.token_urlsafe(32)
+                    created_at = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+                    supabase.table("password_resets").upsert({
+                        "email": email,
+                        "token": token,
+                        "created_at": created_at
+                    }, on_conflict="email").execute()
+                    link = f"{request.host_url}reset-password/{token}"
+                    enviar_email_reset(email, link)
+            except Exception as e:
+                print(f"[FORGOT] Erro: {e}")
+        # Resposta sempre igual para não revelar se o email existe
+        msg = "SE O EMAIL EXISTIR, RECEBERÁS UM LINK EM BREVE."
+        msg_type = 'success'
+    return render_template('forgot_password.html', msg=msg, msg_type=msg_type)
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    error = None
+    valid_token = False
+    email = None
+
+    if supabase:
+        try:
+            res = supabase.table("password_resets").select("*").eq("token", token).execute()
+            if res.data:
+                record = res.data[0]
+                created = datetime.strptime(record['created_at'], '%Y-%m-%dT%H:%M:%S')
+                delta = (datetime.utcnow() - created).total_seconds()
+                if delta <= 1800:  # 30 minutos
+                    valid_token = True
+                    email = record['email']
+        except Exception as e:
+            print(f"[RESET GET] Erro: {e}")
+
+    if request.method == 'POST' and valid_token and email:
+        nova_pw = request.form.get('password', '')
+        confirmar = request.form.get('confirm_password', '')
+        if len(nova_pw) < 6:
+            error = "A PASSWORD DEVE TER PELO MENOS 6 CARACTERES."
+        elif nova_pw != confirmar:
+            error = "AS PASSWORDS NÃO COINCIDEM."
+        else:
+            try:
+                supabase.table("users").update({"password": hash_password(nova_pw)}).eq("email", email).execute()
+                supabase.table("password_resets").delete().eq("token", token).execute()
+                return render_template('login.html', error=None, success="PASSWORD REDEFINIDA. FAZ LOGIN.")
+            except Exception as e:
+                error = "ERRO AO ATUALIZAR A PASSWORD."
+                print(f"[RESET POST] Erro: {e}")
+
+    return render_template('reset_password.html', token=token, valid_token=valid_token, error=error)
+
 
 @socketio.on('connect')
 def on_connect():

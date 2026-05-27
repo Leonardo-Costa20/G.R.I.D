@@ -42,6 +42,12 @@
                 <span class="text-[10px] font-black uppercase tracking-widest">{{ error }}</span>
             </div>
             {% endif %}
+
+            {% if success %}
+            <div class="mb-6 p-4 bg-[#3ecf8e]/10 border-l-4 border-[#3ecf8e] text-[#3ecf8e] rounded flex items-center gap-3">
+                <span class="text-[10px] font-black uppercase tracking-widest">{{ success }}</span>
+            </div>
+            {% endif %}
  
             <form action="/login" method="POST" class="space-y-5">
                 <div>

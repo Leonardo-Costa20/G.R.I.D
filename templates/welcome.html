@@ -28,7 +28,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 60px 32px calc(48px + env(safe-area-inset-bottom));
+            padding: 40px 32px calc(32px + env(safe-area-inset-bottom));
         }
 
         .grid-bg {
@@ -74,7 +74,7 @@
         .subtitle {
             font-size: 9px; font-weight: 700;
             letter-spacing: 4px; text-transform: uppercase;
-            color: #4b5563;
+            color: #4b5563; white-space: nowrap;
         }
 
         .buttons {
@@ -135,43 +135,37 @@
     <div class="grid-bg"></div>
     <div class="glow-bg"></div>
 
-    <div class="center">
-        <div class="logo-wrap">
-            <img src="/static/logo.png" alt="G.R.I.D"
-                 onerror="this.style.display='none'; document.getElementById('logo-svg').style.display='block'">
-            <svg id="logo-svg" class="logo-svg" style="display:none" viewBox="0 0 100 100" fill="none">
-                <circle cx="50" cy="50" r="48" stroke="rgba(62,207,142,0.15)" stroke-width="1.5"/>
-                <circle cx="50" cy="50" r="36" stroke="rgba(62,207,142,0.08)" stroke-width="1"/>
-                <polygon points="56,18 30,54 50,54 44,82 70,46 50,46" fill="#3ecf8e" opacity="0.95"/>
-            </svg>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:48px;width:100%;position:relative;z-index:1;">
+        <div class="center" style="flex:unset;">
+            <div class="logo-wrap">
+                <img src="/static/logo.png" alt="G.R.I.D"
+                     onerror="this.style.display='none'; document.getElementById('logo-svg').style.display='block'">
+                <svg id="logo-svg" class="logo-svg" style="display:none" viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="48" stroke="rgba(62,207,142,0.15)" stroke-width="1.5"/>
+                    <circle cx="50" cy="50" r="36" stroke="rgba(62,207,142,0.08)" stroke-width="1"/>
+                    <polygon points="56,18 30,54 50,54 44,82 70,46 50,46" fill="#3ecf8e" opacity="0.95"/>
+                </svg>
+            </div>
+            <h1 class="title">G.R.I.D <span class="title-accent">OS</span></h1>
+            <p class="subtitle">Ground Recon &amp; Intelligent Detection</p>
         </div>
 
-        <h1 class="title">G.R.I.D <span class="title-accent">OS</span></h1>
-        <p class="subtitle">Ground Recon &amp; Intelligent Detection</p>
-    </div>
-
-    <div class="buttons">
-        <a href="/login" class="btn btn-signin">
-            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-            Sign In
-        </a>
-
-        <div class="divider">ou</div>
-
-        <a href="/register" class="btn btn-signup">
-            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-            Sign Up
-        </a>
+        <div class="buttons">
+            <a href="/login" class="btn btn-signin">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                Sign In
+            </a>
+            <div class="divider">ou</div>
+            <a href="/register" class="btn btn-signup">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                Sign Up
+            </a>
+        </div>
     </div>
 
     <p class="footer-note">G.R.I.D OS &middot; PAP 2026</p>
 
     <script>
-        // Se aberta como PWA instalada, vai direto para login
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            window.location.replace('/login');
-        }
-
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/static/sw.js').catch(() => {});
         }
