@@ -204,16 +204,6 @@
         /* ═══════════════════════════════════
            ROVER BADGE
         ═══════════════════════════════════ */
-        #rover-badge {
-            position: fixed; z-index: 2000;
-            display: flex; align-items: center; gap: 8px;
-            background: var(--window-bg); border: 1px solid var(--win-border);
-            border-radius: 999px; padding: 8px 16px;
-            font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-            backdrop-filter: blur(10px);
-            transition: all 0.4s ease;
-            bottom: 20px; right: 20px;
-        }
         #rover-dot { width: 8px; height: 8px; border-radius: 50%; background: #6b7280; transition: background 0.4s; flex-shrink: 0; }
         #rover-dot.online { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse-dot 2s infinite; }
         #rover-dot.offline { background: #f85149; }
@@ -228,11 +218,8 @@
             #bottom-nav { display: flex; }
             #mobile-workspace { display: flex; }
             #workspace { display: none; }
-            #rover-badge { 
-                bottom: calc(68px + env(safe-area-inset-bottom)); 
-                right: 12px; 
-                font-size: 9px;
-                padding: 6px 12px;
+            #rover-badge-gone {
+                display: none;
             }
             body.flex { flex-direction: column; }
         }
@@ -316,14 +303,26 @@
          WORKSPACE DESKTOP (janelas drag)
     ══════════════════════════════════════ -->
     <main id="workspace" class="flex-1 relative">
-        <!-- Título do dashboard -->
-        <div style="position:absolute;top:20px;left:28px;z-index:10;pointer-events:none;user-select:none;">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.25em;color:rgba(62,207,142,0.5);text-transform:uppercase;">G.R.I.D</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:400;letter-spacing:0.15em;color:rgba(100,116,139,0.5);text-transform:uppercase;"> // Dashboard</span>
+        <!-- Header do dashboard — estilo Admin Panel -->
+        <div style="position:absolute;top:0;left:0;right:0;z-index:10;pointer-events:none;user-select:none;padding:14px 28px 12px;border-bottom:1px solid rgba(48,54,61,0.8);display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;letter-spacing:0.08em;color:#fff;text-transform:uppercase;">G.R.I.D OS <span style="color:#fff;font-weight:300;opacity:0.5;">//</span> Dashboard</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;color:#6b7280;margin-top:2px;letter-spacing:0.1em;">Sessão activa como: <span style="color:#3ecf8e;font-weight:700;">{{ username }}</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(48,54,61,0.8);border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
+                    <span id="rover-dot"></span>
+                    <span style="color:#6b7280;">ROVER_01:</span>
+                    <span id="rover-status-text" style="color:#6b7280;">A AGUARDAR</span>
+                </div>
+                <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(48,54,61,0.8);border-radius:10px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;color:#3ecf8e;">
+                    <span id="dashboard-clock">--:--:--</span>
+                </div>
+            </div>
         </div>
-        <!-- Watermark fundo -->
-        <div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:0;pointer-events:none;user-select:none;white-space:nowrap;">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:clamp(3rem,8vw,7rem);font-weight:800;letter-spacing:0.1em;color:rgba(62,207,142,0.04);text-transform:uppercase;">G.R.I.D</span>
+        <!-- Watermark central desfocada -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;user-select:none;white-space:nowrap;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:clamp(4rem,12vw,10rem);font-weight:800;letter-spacing:0.15em;color:rgba(62,207,142,0.06);text-transform:uppercase;filter:blur(6px);">G.R.I.D</span>
         </div>
     </main>
  
@@ -388,11 +387,7 @@
         </button>
     </div>
  
-    <!-- Rover badge -->
-    <div id="rover-badge">
-        <span id="rover-dot"></span>
-        <span id="rover-status-text">A AGUARDAR</span>
-    </div>
+
  
     <script>
         const socket = io();
@@ -595,6 +590,18 @@
         // ── Init ────────────────────────────────────────────────
         $(document).ready(() => {
             if (localStorage.getItem('grid_theme') === 'light') document.body.classList.add('light-mode');
+
+            // Relógio em tempo real
+            function updateClock() {
+                const now = new Date();
+                const h = String(now.getHours()).padStart(2,'0');
+                const m = String(now.getMinutes()).padStart(2,'0');
+                const s = String(now.getSeconds()).padStart(2,'0');
+                const el = document.getElementById('dashboard-clock');
+                if (el) el.textContent = h + ':' + m + ':' + s;
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
         });
     </script>
 </body>
