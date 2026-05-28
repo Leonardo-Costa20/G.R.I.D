@@ -1,8 +1,8 @@
 flask
 flask-socketio
-gunicorn
 bcrypt
 paho-mqtt
 python-dotenv
 supabase
 reportlab
+eventlet
