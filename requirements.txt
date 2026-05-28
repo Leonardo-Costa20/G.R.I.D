@@ -1,7 +1,6 @@
 flask
 flask-socketio
 gunicorn
-eventlet
 bcrypt
 paho-mqtt
 python-dotenv
