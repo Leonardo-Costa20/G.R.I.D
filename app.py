@@ -652,66 +652,91 @@ def admin_bind_rover():
         return jsonify({"status": "success"})
     except: return jsonify({"status": "error"}), 500
 
+from datetime import datetime, timezone
+
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
-    msg, msg_type = None, 'info'
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
-        if supabase and email:
-            try:
-                res = supabase.table("users").select("id,email,aprovado").eq("email", email).execute()
-                if res.data:
-                    token = secrets.token_urlsafe(32)
-                    created_at = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-                    supabase.table("password_resets").upsert({
-                        "email": email,
-                        "token": token,
-                        "created_at": created_at
-                    }, on_conflict="email").execute()
-                    link = f"{request.host_url}reset-password/{token}"
-                    enviar_email_reset(email, link)
-            except Exception as e:
-                print(f"[FORGOT] Erro: {e}")
-        # Resposta sempre igual para não revelar se o email existe
-        msg = "SE O EMAIL EXISTIR, RECEBERÁS UM LINK EM BREVE."
-        msg_type = 'success'
-    return render_template('forgot_password.html', msg=msg, msg_type=msg_type)
+        
+        try:
+            # Busca direta pelo utilizador
+            user = supabase.table("users").select("email").eq("email", email).maybe_single().execute()
+            
+            if user.data:
+                token = secrets.token_urlsafe(32)
+                # Versão moderna do UTC para evitar DeprecationWarning
+                created_at = datetime.now(timezone.utc).isoformat()
+                
+                # Regista o pedido de reset
+                supabase.table("password_resets").upsert({
+                    "email": email,
+                    "token": token,
+                    "created_at": created_at
+                }, on_conflict="email").execute()
+                
+                # Envia o link
+                base_url = os.getenv('BASE_URL', request.host_url).rstrip('/')
+                link = f"{base_url}/reset-password/{token}"
+                enviar_email_reset(email, link)
+                
+        except Exception as e:
+            print(f"[FORGOT ERROR] {e}")
+
+        # Mensagem genérica por segurança (sempre success)
+        return render_template('forgot_password.html', 
+                               msg="Se o email existir, receberás um link em breve.", 
+                               msg_type='success')
+                               
+    return render_template('forgot_password.html')
 
 
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    error = None
-    valid_token = False
-    email = None
+    error, valid_token, email = None, False, None
 
-    if supabase:
-        try:
-            res = supabase.table("password_resets").select("*").eq("token", token).execute()
-            if res.data:
-                record = res.data[0]
-                created = datetime.strptime(record['created_at'], '%Y-%m-%dT%H:%M:%S')
-                delta = (datetime.utcnow() - created).total_seconds()
-                if delta <= 1800:  # 30 minutos
-                    valid_token = True
-                    email = record['email']
-        except Exception as e:
-            print(f"[RESET GET] Erro: {e}")
+    try:
+        # Busca o token no Supabase
+        res = supabase.table("password_resets").select("*").eq("token", token).maybe_single().execute()
+        
+        if res.data:
+            # Converter a string ISO do Supabase para objeto datetime real
+            # O .fromisoformat lida com milissegundos automaticamente
+            created = datetime.fromisoformat(res.data['created_at'].replace('Z', '+00:00'))
+            
+            # Comparar com agora (UTC)
+            agora = datetime.now(timezone.utc)
+            delta = (agora - created).total_seconds()
 
-    if request.method == 'POST' and valid_token and email:
+            if delta <= 1800:  # 30 minutos
+                valid_token = True
+                email = res.data['email']
+            else:
+                error = "ESTE LINK EXPIROU (MÁX. 30 MIN)."
+        else:
+            error = "LINK INVÁLIDO OU JÁ UTILIZADO."
+
+    except Exception as e:
+        print(f"[RESET ERROR] {e}")
+        error = "ERRO AO VALIDAR O TOKEN."
+
+    if request.method == 'POST' and valid_token:
         nova_pw = request.form.get('password', '')
         confirmar = request.form.get('confirm_password', '')
+
         if len(nova_pw) < 6:
             error = "A PASSWORD DEVE TER PELO MENOS 6 CARACTERES."
         elif nova_pw != confirmar:
             error = "AS PASSWORDS NÃO COINCIDEM."
         else:
             try:
+                # Atualiza a password e apaga o token
                 supabase.table("users").update({"password": hash_password(nova_pw)}).eq("email", email).execute()
                 supabase.table("password_resets").delete().eq("token", token).execute()
-                return render_template('login.html', error=None, success="PASSWORD REDEFINIDA. FAZ LOGIN.")
+                
+                return render_template('login.html', success="PASSWORD ATUALIZADA! FAZ LOGIN.")
             except Exception as e:
-                error = "ERRO AO ATUALIZAR A PASSWORD."
-                print(f"[RESET POST] Erro: {e}")
+                error = "ERRO AO ATUALIZAR A BASE DE DADOS."
 
     return render_template('reset_password.html', token=token, valid_token=valid_token, error=error)
 

@@ -232,11 +232,11 @@
     <!-- ══════════════════════════════════════
          SIDEBAR (desktop)
     ══════════════════════════════════════ -->
-    <aside id="sidebar" class="py-3" onmouseleave="closeFolderAuto()" onmouseenter="openFolderAuto()">
+    <aside id="sidebar" class="py-4" onmouseleave="closeFolderAuto()" onmouseenter="openFolderAuto()">
         <div style="display:flex;align-items:center;padding-left:8px;margin-bottom:20px;overflow:hidden;white-space:nowrap;">
-            <div style="width:54px;height:54px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+            <a href="/landing" style="width:54px;height:54px;flex-shrink:0;display:flex;align-items:center;justify-content:center;text-decoration:none;">
                 <img src="/static/logo.png" alt="G.R.I.D" style="width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(62,207,142,0.6));">
-            </div>
+            </a>
             <span class="nav-text" style="font-size:14px;font-weight:800;letter-spacing:0.25em;color:#3ecf8e;margin-left:14px;">G.R.I.D</span>
         </div>
  
@@ -432,14 +432,35 @@
         function autoTile() {
             const janelas = $('.window-node:visible');
             if (janelas.length === 0) return;
-            const gap = 20, padT = 40, padL = 90, sW = 350, sH = 220;
-            const workW = $('#workspace').width();
-            let col = 0, row = 0;
+
+            const hh    = $('.dash-header').outerHeight() || 65;
+            const gap   = 12;
+            const padL  = 10, padT = hh + 10;
+            const ws    = document.getElementById('workspace');
+            const workW = ws.clientWidth;
+            const workH = ws.clientHeight;
+
+            let x = padL, y = padT, rowH = 0;
+
             janelas.each(function() {
-                let x = padL + col * (sW + gap);
-                if (x + sW > workW) { col = 0; row++; x = padL; }
-                $(this).stop().animate({ left: x + 'px', top: (padT + row * (sH + gap)) + 'px' }, 500);
-                col++;
+                let w = $(this).outerWidth();
+                let h = $(this).outerHeight();
+
+                // Reduz só se for mais larga que o workspace
+                if (w > workW - padL * 2) w = workW - padL * 2;
+
+                // Passa para próxima linha se não couber
+                if (x + w > workW - padL && x > padL) {
+                    x = padL; y += rowH + gap; rowH = 0;
+                }
+
+                // Reduz altura só se sair abaixo do ecrã
+                const maxH = workH - y - 10;
+                if (h > maxH) h = Math.max(160, maxH);
+
+                $(this).stop().animate({ left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px' }, 400);
+                x += w + gap;
+                if (h > rowH) rowH = h;
             });
         }
  
@@ -492,7 +513,8 @@
             const w = type === 'camera' ? '460px' : '340px';
             const h = type === 'camera' ? '290px' : '200px';
  
-            $(`<div id="${id}" class="window-node" style="width:${w};height:${h};top:80px;left:100px;">
+            const hh2 = $('.dash-header').outerHeight() || 65;
+            $(`<div id="${id}" class="window-node" style="width:${w};height:${h};top:${hh2+10}px;left:100px;">
                 <div class="window-handle flex justify-between items-center">
                     <span class="text-[9px] font-bold text-[#3ecf8e] uppercase tracking-widest">${title}</span>
                     <button onclick="$(this).closest('.window-node').remove()" class="text-gray-400 hover:text-red-500 transition-colors">✕</button>
@@ -502,7 +524,10 @@
             .appendTo('#workspace')
             .draggable({ handle:'.window-handle', containment:'parent',
                 start: function(){ zIdx++; $(this).css('z-index',zIdx).addClass('dragging'); },
-                drag:  function(e, ui){ if(ui.position.top < 65) ui.position.top = 65; },
+                drag:  function(e, ui){
+                    const hh = $('.dash-header').outerHeight() || 65;
+                    if(ui.position.top < hh) ui.position.top = hh;
+                },
                 stop:  function(){ $(this).removeClass('dragging'); }
             })
             .resizable({ handles:'se', minWidth:240, minHeight:160, containment:'parent' })
