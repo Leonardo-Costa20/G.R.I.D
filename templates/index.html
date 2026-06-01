@@ -60,33 +60,7 @@
         /* ═══════════════════════════════════
            SIDEBAR — DESKTOP
         ═══════════════════════════════════ */
-        #sidebar {
-            width: 70px;
-            background-color: var(--sidebar-bg); 
-            border-right: 1px solid var(--win-border);
-            z-index: 1000;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        #sidebar:hover { width: 260px; }
- 
-        .nav-item {
-            width: 100%; display: flex; align-items: center; padding: 14px 24px;
-            color: var(--text-nav); font-size: 11px; font-weight: 700;
-            transition: 0.2s; white-space: nowrap; border: none; background: none; cursor: pointer;
-            text-decoration: none;
-        }
-        .nav-item:hover { color: var(--accent); background: rgba(62, 207, 142, 0.05); }
-        .nav-item svg { min-width: 22px; height: 22px; margin-right: 20px; flex-shrink: 0; stroke: currentColor; fill: none; }
-        .logo-link { -webkit-tap-highlight-color: transparent; outline: none; border-radius: 0; }
-        .logo-link:hover img { filter: drop-shadow(0 0 18px rgba(62,207,142,0.8)) !important; }
-        .nav-text { opacity: 0; transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 1px; color: inherit; }
-        #sidebar:hover .nav-text { opacity: 1; }
- 
-        .sensor-group { display: none; background: rgba(0,0,0,0.1); flex-direction: column; }
-        .nav-item.sub-item { padding-left: 24px; font-size: 10px; }
+        /* sidebar CSS moved to _sidebar.html include */
  
         /* ═══════════════════════════════════
            BOTTOM NAV — MOBILE
@@ -234,75 +208,8 @@
     <!-- ══════════════════════════════════════
          SIDEBAR (desktop)
     ══════════════════════════════════════ -->
-    <aside id="sidebar" class="py-4" onmouseleave="closeFolderAuto()" onmouseenter="openFolderAuto()">
-        <div style="display:flex;align-items:center;padding-left:8px;margin-bottom:20px;overflow:hidden;white-space:nowrap;">
-            <div onclick="window.location='/landing'" style="flex-shrink:0;cursor:pointer;">
-                <img src="/static/logo.png" alt="G.R.I.D" style="width:54px;height:54px;object-fit:contain;display:block;">
-            </div>
-            <span class="nav-text" style="font-size:14px;font-weight:800;letter-spacing:0.25em;color:#3ecf8e;margin-left:14px;">G.R.I.D</span>
-        </div>
- 
-        <nav class="flex flex-col gap-1">
-            <button onclick="createWindow('camera','LIVE_FEED')" class="nav-item">
-                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                <span class="nav-text">Câmera Rover</span>
-            </button>
-            <div>
-                <button onclick="toggleFolderManual()" class="nav-item">
-                    <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                    <span class="nav-text">Sensores <span id="folder-arrow" class="text-[8px] opacity-40 ml-1">▼</span></span>
-                </button>
-                <div id="sensor-folder" class="sensor-group">
-                    <!-- MQ2 -->
-                    <button onclick="createWindow('mq2','MQ2_GAS')" class="nav-item sub-item">
-                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="nav-text">MQ2 Gas</span>
-                    </button>
-                    <!-- HC-SR04 -->
-                    <button onclick="createWindow('dist','HCSR04')" class="nav-item sub-item">
-                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-                        <span class="nav-text">HC-SR04</span>
-                    </button>
-                    <!-- MPU6050 -->
-                    <button onclick="createWindow('mpu','MPU6050')" class="nav-item sub-item">
-                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="nav-text">MPU6050</span>
-                    </button>
-                    <!-- BMP280 -->
-                    <button onclick="createWindow('bmp','BMP280')" class="nav-item sub-item">
-                        <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
-                        <span class="nav-text">BMP280</span>
-                    </button>
-                </div>
-            </div>
-            <!-- Mission Logs -->
-            <a href="/logs" class="nav-item text-orange-400">
-                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                <span class="nav-text">Mission Logs</span>
-            </a>
-            {% if role == 'admin' %}
-            <a href="/admin" class="nav-item text-purple-400">
-                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="nav-text">Admin</span>
-            </a>
-            {% endif %}
-            <button onclick="autoTile()" class="nav-item text-blue-400">
-                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                <span class="nav-text">Auto Tile</span>
-            </button>
-        </nav>
- 
-        <div class="mt-auto border-t border-gray-800/30 pt-4">
-            <button class="nav-item" onclick="toggleTheme()">
-                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="nav-text">Interface Color</span>
-            </button>
-            <a href="/logout" class="nav-item text-red-400">
-                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
-                <span class="nav-text">Logout</span>
-            </a>
-        </div>
-    </aside>
+    {% set active_page = 'dashboard' %}
+    {% include '_sidebar.html' %}
  
     <!-- ══════════════════════════════════════
          WORKSPACE DESKTOP (janelas drag)
@@ -415,8 +322,7 @@
             if (folderOpenState) { $('#sensor-folder').slideDown(300); if(arrow) arrow.textContent='▲'; }
             else                 { $('#sensor-folder').slideUp(300);   if(arrow) arrow.textContent='▼'; }
         }
-        function closeFolderAuto() { $('#sensor-folder').slideUp(250); }
-        function openFolderAuto()  { if (folderOpenState) $('#sensor-folder').slideDown(250); }
+
  
         // ── Drawer mobile de sensores ───────────────────────────
         function toggleMobileDrawer() {
