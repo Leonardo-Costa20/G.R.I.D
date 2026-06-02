@@ -673,13 +673,15 @@ def forgot_password():
                 codigo = f"{secrets.randbelow(1000000):06d}"
                 created_at = datetime.now(timezone.utc).isoformat()
 
-                # Guarda o código (reutiliza a tabela password_resets, campo token)
-                supabase.table("password_resets").upsert({
+                # Delete + insert para garantir que o código novo é sempre guardado
+                supabase.table("password_resets").delete().eq("email", email).execute()
+                supabase.table("password_resets").insert({
                     "email": email,
                     "token": codigo,
                     "created_at": created_at
-                }, on_conflict="email").execute()
+                }).execute()
 
+                print(f"[RESET] Código gerado para {email}: {codigo}")  # debug temporário
                 enviar_email_reset(email, codigo)
 
         except Exception as e:
@@ -698,7 +700,7 @@ def forgot_password():
 @app.route('/verify-code', methods=['POST'])
 def verify_code():
     email = request.form.get('email', '').strip().lower()
-    codigo = request.form.get('codigo', '').strip()
+    codigo = request.form.get('codigo', '').replace(' ', '').strip()
 
     error = None
     try:
@@ -711,7 +713,7 @@ def verify_code():
 
             if delta > 900:  # 15 minutos
                 error = "CÓDIGO EXPIRADO. SOLICITA UM NOVO."
-            elif res.data['token'] != codigo:
+            elif str(res.data['token']).strip() != codigo:
                 error = "CÓDIGO INVÁLIDO. TENTA NOVAMENTE."
             else:
                 # Código correto — guarda na sessão e redireciona para reset
