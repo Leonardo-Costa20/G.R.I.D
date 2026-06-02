@@ -26,8 +26,8 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'grid_secret_key_123')
-# O modo threading garante que os eventos WebSocket não bloqueiam as leituras MQTT
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+# O modo --------- garante que os eventos WebSocket não bloqueiam as leituras MQTT
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # --- CONFIGURAÇÃO SUPABASE ---
 url = os.getenv('SUPABASE_URL')
@@ -782,4 +782,9 @@ if __name__ == '__main__':
     inicializar_contador_logs()
     t = threading.Thread(target=monitor_infraestrutura_loop, daemon=True)
     t.start()
-    socketio.run(app, debug=True, port=5000)
+    
+    # O Railway fornece a porta através da variável de ambiente PORT
+    port = int(os.environ.get("PORT", 5000))
+    
+    # O host '0.0.0.0' é essencial para que o servidor seja acessível externamente
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)

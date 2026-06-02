@@ -8,3 +8,5 @@ supabase==2.29.0
 reportlab==4.5.1
 python-engineio==4.13.1
 python-socketio==5.16.1
+eventlet
+gunicorn
