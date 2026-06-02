@@ -27,7 +27,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'grid_secret_key_123')
 # O modo --------- garante que os eventos WebSocket não bloqueiam as leituras MQTT
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # --- CONFIGURAÇÃO SUPABASE ---
 url = os.getenv('SUPABASE_URL')
