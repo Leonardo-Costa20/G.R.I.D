@@ -10,4 +10,4 @@ python-engineio==4.13.1
 python-socketio==5.16.1
 eventlet
 gunicorn
-bycrypt
+bcrypt
