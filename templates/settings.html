@@ -1,0 +1,455 @@
+{# ═══════════════════════════════════════════════════════
+   MODAL DE DEFINIÇÕES DE PERFIL
+   Incluir em qualquer página com:
+   {% include 'settings.html' %}
+   Requer: variável {{ username }} no contexto Jinja
+═══════════════════════════════════════════════════════ #}
+
+<style>
+    /* ── Overlay ── */
+    #profile-overlay {
+        display: none; position: fixed; inset: 0; z-index: 9999;
+        background: rgba(0,0,0,0.65); backdrop-filter: blur(5px);
+        align-items: center; justify-content: center;
+    }
+    #profile-overlay.open { display: flex; }
+
+    /* ── Modal ── */
+    #profile-modal {
+        background: var(--sidebar-bg);
+        border: 1px solid var(--win-border);
+        border-radius: 14px;
+        width: 500px; max-width: 95vw; max-height: 90vh;
+        font-family: 'JetBrains Mono', monospace;
+        overflow: hidden;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+        display: flex; flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .pm-header {
+        background: var(--win-header);
+        border-bottom: 1px solid var(--win-border);
+        padding: 16px 20px;
+        display: flex; align-items: center; justify-content: space-between;
+        flex-shrink: 0;
+    }
+    .pm-title {
+        font-size: 11px; font-weight: 800;
+        letter-spacing: 2px; text-transform: uppercase;
+        color: #fbbf24;
+    }
+    .pm-close {
+        background: none; border: none; cursor: pointer;
+        color: var(--text-nav); font-size: 18px; line-height: 1;
+        padding: 2px 6px; border-radius: 4px; transition: color 0.2s;
+    }
+    .pm-close:hover { color: #f87171; }
+
+    /* ── Tabs ── */
+    .pm-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--win-border);
+        background: var(--win-header);
+        flex-shrink: 0;
+    }
+    .pm-tab {
+        flex: 1; padding: 11px 4px;
+        font-size: 9px; font-weight: 700;
+        letter-spacing: 1px; text-transform: uppercase;
+        border: none; background: none; cursor: pointer;
+        color: var(--text-nav);
+        border-bottom: 2px solid transparent;
+        transition: color 0.2s, border-color 0.2s;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .pm-tab:hover { color: var(--text-main); }
+    .pm-tab.active { color: #fbbf24; border-bottom-color: #fbbf24; }
+
+    /* ── Body ── */
+    .pm-body {
+        padding: 24px 22px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    /* ── Sections ── */
+    .pm-section { display: none; }
+    .pm-section.active { display: block; }
+
+    /* ── Fields ── */
+    .pm-field { margin-bottom: 16px; }
+    .pm-label {
+        display: block;
+        font-size: 9px; font-weight: 700;
+        letter-spacing: 1.5px; text-transform: uppercase;
+        color: var(--text-nav); margin-bottom: 6px;
+    }
+    .pm-input {
+        width: 100%;
+        background: var(--window-bg);
+        border: 1px solid var(--win-border);
+        border-radius: 6px; padding: 9px 12px;
+        font-size: 11px; font-family: 'JetBrains Mono', monospace;
+        color: var(--text-main); outline: none;
+        transition: border-color 0.2s;
+    }
+    .pm-input:focus { border-color: #fbbf24; }
+
+    /* ── Buttons ── */
+    .pm-btn {
+        width: 100%; padding: 10px 0;
+        border-radius: 6px; border: none; cursor: pointer;
+        font-size: 10px; font-weight: 800;
+        letter-spacing: 1.5px; text-transform: uppercase;
+        font-family: 'JetBrains Mono', monospace;
+        transition: opacity 0.2s, background 0.2s;
+        margin-top: 4px;
+    }
+    .pm-btn-primary { background: #fbbf24; color: #0d1117; }
+    .pm-btn-primary:hover { opacity: 0.85; }
+    .pm-btn-danger  { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+    .pm-btn-danger:hover  { background: rgba(248,113,113,0.22); }
+    .pm-btn-green   { background: rgba(62,207,142,0.12); color: #3ecf8e; border: 1px solid rgba(62,207,142,0.3); }
+    .pm-btn-green:hover   { background: rgba(62,207,142,0.22); }
+
+    /* ── Info text ── */
+    .pm-info {
+        font-size: 10px; color: var(--text-nav);
+        margin-bottom: 16px; line-height: 1.7;
+    }
+
+    /* ── Toggle rows ── */
+    .pm-toggle-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 0; border-bottom: 1px solid var(--win-border);
+    }
+    .pm-toggle-row:last-of-type { border-bottom: none; }
+    .pm-toggle-label { font-size: 10px; font-weight: 700; color: var(--text-main); }
+    .pm-toggle-desc  { font-size: 9px; color: var(--text-nav); margin-top: 3px; }
+    .pm-toggle {
+        position: relative; width: 36px; height: 20px; flex-shrink: 0;
+    }
+    .pm-toggle input { opacity: 0; width: 0; height: 0; }
+    .pm-slider {
+        position: absolute; inset: 0;
+        background: var(--win-border);
+        border-radius: 20px; cursor: pointer; transition: 0.3s;
+    }
+    .pm-slider:before {
+        content: ''; position: absolute;
+        width: 14px; height: 14px; left: 3px; top: 3px;
+        background: white; border-radius: 50%; transition: 0.3s;
+    }
+    .pm-toggle input:checked + .pm-slider { background: #3ecf8e; }
+    .pm-toggle input:checked + .pm-slider:before { transform: translateX(16px); }
+
+    /* ── Feedback messages ── */
+    .pm-msg {
+        font-size: 10px; padding: 8px 12px;
+        border-radius: 6px; margin-top: 12px; display: none;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .pm-msg.ok  { background: rgba(62,207,142,0.1);  color: #3ecf8e; border: 1px solid rgba(62,207,142,0.3); }
+    .pm-msg.err { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+
+    /* ── Rover status ── */
+    .pm-rover-status {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid var(--win-border);
+        border-radius: 8px; margin-bottom: 18px;
+    }
+    .pm-rover-dot {
+        width: 9px; height: 9px; border-radius: 50%;
+        background: #f87171; flex-shrink: 0;
+        box-shadow: 0 0 6px rgba(248,113,113,0.5);
+    }
+    .pm-rover-dot.linked {
+        background: #3ecf8e;
+        box-shadow: 0 0 6px rgba(62,207,142,0.5);
+    }
+
+    /* ── Divider ── */
+    .pm-divider {
+        border: none; border-top: 1px solid var(--win-border);
+        margin: 18px 0;
+    }
+</style>
+
+
+<!-- ══════════════════════════════════════════
+     OVERLAY + MODAL
+══════════════════════════════════════════ -->
+<div id="profile-overlay" onclick="if(event.target===this) closeProfileModal()">
+    <div id="profile-modal">
+
+        <!-- Header -->
+        <div class="pm-header">
+            <span class="pm-title">⚙ Definições de Perfil</span>
+            <button class="pm-close" onclick="closeProfileModal()">✕</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="pm-tabs">
+            <button class="pm-tab active" onclick="switchPmTab('info')">Perfil</button>
+            <button class="pm-tab" onclick="switchPmTab('password')">Password</button>
+            <button class="pm-tab" onclick="switchPmTab('rover')">Rover</button>
+            <button class="pm-tab" onclick="switchPmTab('prefs')">Preferências</button>
+        </div>
+
+        <!-- Body -->
+        <div class="pm-body">
+
+            <!-- ── Tab: Perfil ── -->
+            <div id="pm-info" class="pm-section active">
+                <div class="pm-field">
+                    <label class="pm-label">Nome de utilizador</label>
+                    <input class="pm-input" type="text" id="pm-username"
+                           placeholder="username" value="{{ username }}">
+                </div>
+                <div class="pm-field">
+                    <label class="pm-label">Email</label>
+                    <input class="pm-input" type="email" id="pm-email"
+                           placeholder="email@exemplo.com">
+                </div>
+                <div class="pm-field">
+                    <label class="pm-label">Nome de exibição</label>
+                    <input class="pm-input" type="text" id="pm-display"
+                           placeholder="Como queres ser chamado">
+                </div>
+                <button class="pm-btn pm-btn-primary" onclick="saveProfileInfo()">
+                    Guardar alterações
+                </button>
+                <div id="pm-info-msg" class="pm-msg"></div>
+            </div>
+
+            <!-- ── Tab: Password ── -->
+            <div id="pm-password" class="pm-section">
+                <div class="pm-field">
+                    <label class="pm-label">Password atual</label>
+                    <input class="pm-input" type="password" id="pm-pass-current"
+                           placeholder="••••••••">
+                </div>
+                <div class="pm-field">
+                    <label class="pm-label">Nova password</label>
+                    <input class="pm-input" type="password" id="pm-pass-new"
+                           placeholder="••••••••">
+                </div>
+                <div class="pm-field">
+                    <label class="pm-label">Confirmar nova password</label>
+                    <input class="pm-input" type="password" id="pm-pass-confirm"
+                           placeholder="••••••••">
+                </div>
+                <button class="pm-btn pm-btn-primary" onclick="changePassword()">
+                    Alterar password
+                </button>
+                <div id="pm-pass-msg" class="pm-msg"></div>
+            </div>
+
+            <!-- ── Tab: Rover ── -->
+            <div id="pm-rover" class="pm-section">
+                <div class="pm-rover-status">
+                    <div class="pm-rover-dot" id="pm-rover-dot"></div>
+                    <div>
+                        <div class="pm-toggle-label" id="pm-rover-status-text">
+                            Rover não vinculado
+                        </div>
+                        <div class="pm-toggle-desc">Estado da ligação ao rover</div>
+                    </div>
+                </div>
+                <p class="pm-info">
+                    Para vincular um rover à tua conta, introduz o código de acesso
+                    fornecido pelo administrador. Isto permite-te controlar o rover
+                    e receber dados dos sensores em tempo real.
+                </p>
+                <div class="pm-field">
+                    <label class="pm-label">Código de vinculação</label>
+                    <input class="pm-input" type="text" id="pm-rover-code"
+                           placeholder="ROVER-XXXX-XXXX">
+                </div>
+                <button class="pm-btn pm-btn-green" onclick="requestRoverLink()"
+                        style="margin-bottom: 10px;">
+                    Enviar pedido de vinculação
+                </button>
+                <hr class="pm-divider">
+                <button class="pm-btn pm-btn-danger" onclick="unlinkRover()">
+                    Desvincular rover
+                </button>
+                <div id="pm-rover-msg" class="pm-msg"></div>
+            </div>
+
+            <!-- ── Tab: Preferências ── -->
+            <div id="pm-prefs" class="pm-section">
+                <div class="pm-toggle-row">
+                    <div>
+                        <div class="pm-toggle-label">Notificações de alertas</div>
+                        <div class="pm-toggle-desc">Receber alertas de sensores no browser</div>
+                    </div>
+                    <label class="pm-toggle">
+                        <input type="checkbox" id="pref-notif">
+                        <span class="pm-slider"></span>
+                    </label>
+                </div>
+                <div class="pm-toggle-row">
+                    <div>
+                        <div class="pm-toggle-label">Som de alertas</div>
+                        <div class="pm-toggle-desc">Reproduzir som quando há alertas</div>
+                    </div>
+                    <label class="pm-toggle">
+                        <input type="checkbox" id="pref-sound">
+                        <span class="pm-slider"></span>
+                    </label>
+                </div>
+                <div class="pm-toggle-row">
+                    <div>
+                        <div class="pm-toggle-label">Atualização automática</div>
+                        <div class="pm-toggle-desc">Atualizar dados dos sensores em tempo real</div>
+                    </div>
+                    <label class="pm-toggle">
+                        <input type="checkbox" id="pref-autoupdate">
+                        <span class="pm-slider"></span>
+                    </label>
+                </div>
+                <div class="pm-toggle-row">
+                    <div>
+                        <div class="pm-toggle-label">Modo compacto</div>
+                        <div class="pm-toggle-desc">Janelas mais pequenas por defeito</div>
+                    </div>
+                    <label class="pm-toggle">
+                        <input type="checkbox" id="pref-compact">
+                        <span class="pm-slider"></span>
+                    </label>
+                </div>
+                <button class="pm-btn pm-btn-primary" onclick="savePrefs()"
+                        style="margin-top: 18px;">
+                    Guardar preferências
+                </button>
+                <div id="pm-prefs-msg" class="pm-msg"></div>
+            </div>
+
+        </div><!-- /.pm-body -->
+    </div><!-- /#profile-modal -->
+</div><!-- /#profile-overlay -->
+
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+    function openProfileModal() {
+        document.getElementById('profile-overlay').classList.add('open');
+        // Carregar preferências guardadas
+        document.getElementById('pref-notif').checked      = localStorage.getItem('pref_notif')      !== 'false';
+        document.getElementById('pref-sound').checked      = localStorage.getItem('pref_sound')      === 'true';
+        document.getElementById('pref-autoupdate').checked = localStorage.getItem('pref_autoupdate') !== 'false';
+        document.getElementById('pref-compact').checked    = localStorage.getItem('pref_compact')    === 'true';
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profile-overlay').classList.remove('open');
+    }
+
+    // Fechar com ESC
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeProfileModal();
+    });
+
+    function switchPmTab(tab) {
+        const tabs = ['info', 'password', 'rover', 'prefs'];
+        document.querySelectorAll('.pm-tab').forEach((el, i) => {
+            el.classList.toggle('active', tabs[i] === tab);
+        });
+        document.querySelectorAll('.pm-section').forEach(s => s.classList.remove('active'));
+        document.getElementById('pm-' + tab).classList.add('active');
+    }
+
+    function showPmMsg(id, text, type) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.className = 'pm-msg ' + type;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }
+
+    // ── Perfil ──
+    function saveProfileInfo() {
+        const u = document.getElementById('pm-username').value.trim();
+        if (!u) return showPmMsg('pm-info-msg', 'O nome de utilizador não pode estar vazio.', 'err');
+        fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: u,
+                email:    document.getElementById('pm-email').value.trim(),
+                display:  document.getElementById('pm-display').value.trim()
+            })
+        })
+        .then(r => r.ok ? showPmMsg('pm-info-msg', 'Informações guardadas com sucesso.', 'ok')
+                        : showPmMsg('pm-info-msg', 'Erro ao guardar. Tenta novamente.', 'err'))
+        .catch(() => showPmMsg('pm-info-msg', 'Sem ligação ao servidor.', 'err'));
+    }
+
+    // ── Password ──
+    function changePassword() {
+        const cur = document.getElementById('pm-pass-current').value;
+        const nw  = document.getElementById('pm-pass-new').value;
+        const cf  = document.getElementById('pm-pass-confirm').value;
+        if (!cur || !nw)    return showPmMsg('pm-pass-msg', 'Preenche todos os campos.', 'err');
+        if (nw !== cf)      return showPmMsg('pm-pass-msg', 'As passwords não coincidem.', 'err');
+        if (nw.length < 6)  return showPmMsg('pm-pass-msg', 'Mínimo de 6 caracteres.', 'err');
+        fetch('/api/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ current: cur, new_password: nw })
+        })
+        .then(r => {
+            if (r.ok) {
+                showPmMsg('pm-pass-msg', 'Password alterada com sucesso.', 'ok');
+                ['pm-pass-current','pm-pass-new','pm-pass-confirm'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+            } else {
+                showPmMsg('pm-pass-msg', 'Password atual incorreta.', 'err');
+            }
+        })
+        .catch(() => showPmMsg('pm-pass-msg', 'Sem ligação ao servidor.', 'err'));
+    }
+
+    // ── Rover ──
+    function requestRoverLink() {
+        const code = document.getElementById('pm-rover-code').value.trim();
+        if (!code) return showPmMsg('pm-rover-msg', 'Introduz um código de vinculação.', 'err');
+        fetch('/api/rover/link', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        })
+        .then(r => r.ok ? showPmMsg('pm-rover-msg', 'Pedido de vinculação enviado ao administrador.', 'ok')
+                        : showPmMsg('pm-rover-msg', 'Código inválido ou já utilizado.', 'err'))
+        .catch(() => showPmMsg('pm-rover-msg', 'Sem ligação ao servidor.', 'err'));
+    }
+
+    function unlinkRover() {
+        fetch('/api/rover/unlink', { method: 'POST' })
+        .then(r => {
+            if (r.ok) {
+                document.getElementById('pm-rover-dot').classList.remove('linked');
+                document.getElementById('pm-rover-status-text').textContent = 'Rover não vinculado';
+                showPmMsg('pm-rover-msg', 'Rover desvinculado com sucesso.', 'ok');
+            } else {
+                showPmMsg('pm-rover-msg', 'Erro ao desvincular.', 'err');
+            }
+        })
+        .catch(() => showPmMsg('pm-rover-msg', 'Sem ligação ao servidor.', 'err'));
+    }
+
+    // ── Preferências ──
+    function savePrefs() {
+        localStorage.setItem('pref_notif',      document.getElementById('pref-notif').checked);
+        localStorage.setItem('pref_sound',      document.getElementById('pref-sound').checked);
+        localStorage.setItem('pref_autoupdate', document.getElementById('pref-autoupdate').checked);
+        localStorage.setItem('pref_compact',    document.getElementById('pref-compact').checked);
+        showPmMsg('pm-prefs-msg', 'Preferências guardadas.', 'ok');
+    }
+</script>
