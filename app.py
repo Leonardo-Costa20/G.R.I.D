@@ -807,16 +807,6 @@ def on_disconnect():
     if clientes_conectados_ws > 0:
         clientes_conectados_ws -= 1
 
-if __name__ == '__main__':
-    inicializar_contador_logs()
-    t = threading.Thread(target=monitor_infraestrutura_loop, daemon=True)
-    t.start()
-    
-    # O Railway fornece a porta através da variável de ambiente PORT
-    port = int(os.environ.get("PORT", 5000))
-    
-    # O host '0.0.0.0' é essencial para que o servidor seja acessível externamente
-    socketio.run(app, host='0.0.0.0', port=port, debug=False)
 
 # ─── DEFINIÇÕES ───────────────────────────────────────────
 
@@ -922,3 +912,14 @@ def api_rover_unlink():
         return jsonify({'status': 'ok'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    inicializar_contador_logs()
+    t = threading.Thread(target=monitor_infraestrutura_loop, daemon=True)
+    t.start()
+    
+    # O Railway fornece a porta através da variável de ambiente PORT
+    port = int(os.environ.get("PORT", 5000))
+    
+    # O host '0.0.0.0' é essencial para que o servidor seja acessível externamente
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)
