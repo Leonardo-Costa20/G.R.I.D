@@ -44,7 +44,7 @@
     /* Logo — alinha com os nav-items */
     .sidebar-logo-wrap {
         display: flex; align-items: center;
-        padding: 6px 24px 20px 24px;
+        padding: 1.5px 24px 20px 8px;
         overflow: hidden; white-space: nowrap;
         cursor: default;
         pointer-events: none;
@@ -68,7 +68,7 @@
 </style>
 
 
-<aside id="sidebar" class="py-4">
+<aside id="sidebar" class="py-2">
     <!-- Logo -->
     <div class="sidebar-logo-wrap" onclick="event.stopPropagation(); return false;" role="presentation" aria-hidden="true">
         <img src="/static/logo.png" alt="G.R.I.D">
@@ -89,7 +89,7 @@
                 <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
                 <span class="nav-text">Sensores <span id="folder-arrow" class="text-[8px] opacity-40 ml-1">▼</span></span>
             </button>
-            <div id="sensor-folder" class="sensor-group">
+            <div id="sensor-folder" class="sensor-group" style="display:none">
                 <button onclick="createWindow('mq2','MQ2_GAS')" class="nav-item sub-item">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span class="nav-text">MQ2 Gas</span>
@@ -154,6 +154,3 @@
         </a>
     </div>
 </aside>
-
-
-
