@@ -6,6 +6,7 @@
 <style>
     :root { --text-nav: #8b949e; }
 
+
     #sidebar {
         width: 70px;
         background-color: var(--sidebar-bg);
@@ -17,6 +18,7 @@
         flex-direction: column;
     }
     #sidebar:hover { width: 260px; }
+
 
     .nav-item {
         width: 100%; display: flex; align-items: center; padding: 14px 24px;
@@ -30,6 +32,7 @@
     .nav-text { opacity: 0; transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 1px; color: inherit; }
     #sidebar:hover .nav-text { opacity: 1; }
 
+
     /* Cores dos itens de navegação */
     .nav-logs   { color: #3ecf8e !important; }
     .nav-admin  { color: #a78bfa !important; }
@@ -37,16 +40,22 @@
     .nav-logout { color: #f87171 !important; }
     .nav-logs:hover, .nav-admin:hover, .nav-tile:hover, .nav-logout:hover { opacity: 0.85; }
 
+
     /* Logo — alinha com os nav-items */
     .sidebar-logo-wrap {
         display: flex; align-items: center;
         padding: 6px 24px 20px 24px;
-        overflow: hidden; white-space: nowrap; cursor: pointer;
+        overflow: hidden; white-space: nowrap;
+        cursor: default;
+        pointer-events: none;
+    }
+    .sidebar-logo-wrap, .sidebar-logo-wrap * {
+        pointer-events: none;
     }
     .sidebar-logo-wrap img {
-        min-width: 38px; width: 38px; height: 38px;
+        min-width: 56px; width: 56px; height: 56px;
         object-fit: contain; flex-shrink: 0;
-        filter: drop-shadow(0 0 6px rgba(62,207,142,0.5));
+        filter: drop-shadow(0 0 8px rgba(62,207,142,0.6));
         transition: filter 0.2s;
     }
     .sidebar-logo-wrap:hover img { filter: drop-shadow(0 0 14px rgba(62,207,142,0.9)); }
@@ -58,12 +67,14 @@
     #sidebar:hover .sidebar-logo-text { opacity: 1; }
 </style>
 
+
 <aside id="sidebar" class="py-4">
     <!-- Logo -->
-    <div class="sidebar-logo-wrap" onclick="window.location='/landing'">
+    <div class="sidebar-logo-wrap" onclick="event.stopPropagation(); return false;" role="presentation" aria-hidden="true">
         <img src="/static/logo.png" alt="G.R.I.D">
         <span class="sidebar-logo-text">G.R.I.D</span>
     </div>
+
 
     <nav class="flex flex-col gap-1">
         {% if active_page == 'dashboard' %}
@@ -102,6 +113,10 @@
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
             <span class="nav-text">Auto Tile</span>
         </button>
+        <button onclick="createWindow('joystick','Joystick')" class="nav-item">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v2m0 12v2m8-8h-2M6 12H4m11.314-5.314l-1.414 1.414M8.1 15.9l-1.414 1.414M15.9 15.9l-1.414-1.414M8.1 8.1L6.686 9.514"></path></svg>
+            <span class="nav-text">Joystick</span>
+        </button>
         {% else %}
         <!-- Dashboard link — nas outras páginas -->
         <a href="/" class="nav-item">
@@ -110,11 +125,13 @@
         </a>
         {% endif %}
 
+
         <!-- Mission Logs -->
         <a href="/logs" class="nav-item nav-logs {% if active_page == 'logs' %}active{% endif %}">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             <span class="nav-text">Mission Logs</span>
         </a>
+
 
         <!-- Admin — só para admins -->
         {% if role == 'admin' %}
@@ -124,6 +141,7 @@
         </a>
         {% endif %}
     </nav>
+
 
     <div class="mt-auto border-t border-gray-800/30 pt-4">
         <button class="nav-item" onclick="toggleTheme()">
@@ -136,3 +154,6 @@
         </a>
     </div>
 </aside>
+
+
+

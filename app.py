@@ -6,6 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
+import json
 import bcrypt
 import paho.mqtt.client as mqtt
 from dotenv import load_dotenv
@@ -33,6 +34,8 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 url = os.getenv('SUPABASE_URL')
 key = os.getenv('SUPABASE_KEY')
 supabase: Client = create_client(url, key) if url and key else None
+
+mqtt_client = None
 
 
 def hash_password(plain: str) -> str:
@@ -229,6 +232,32 @@ try:
     mqtt_client.loop_start()
 except Exception as e:
     print(f"[MQTT] Falha de Ligação: {e}")
+
+
+@socketio.on('drive_command')
+def handle_drive_command(data):
+    global mqtt_client
+    command = str(data.get('command', '')).strip().lower()
+    try:
+        speed = int(data.get('speed', 0))
+    except Exception:
+        speed = 0
+
+    if command not in ['forward', 'backward', 'left', 'right', 'stop', 'forward-left', 'forward-right', 'backward-left', 'backward-right']:
+        return {'status': 'error', 'message': 'invalid_command'}
+
+    speed = max(0, min(100, speed))
+    payload = json.dumps({"command": command, "speed": speed})
+    topic = "G.R.I.D/drive/command"
+
+    if mqtt_client:
+        try:
+            mqtt_client.publish(topic, payload, qos=1)
+            return {'status': 'ok', 'topic': topic, 'payload': payload}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+
+    return {'status': 'error', 'message': 'mqtt_unavailable'}
 
 
 # --- ROTAS DE LOGS DE MISSÃO ---

@@ -18,6 +18,8 @@
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="/static/js/joystick.js"></script>
+    <link rel="stylesheet" href="/static/joystick.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -409,6 +411,25 @@
                     <img src="http://172.20.10.4:81/stream" class="w-full h-full object-cover"
                          onerror="this.style.display='none';document.getElementById('cam-err').classList.remove('hidden')"/>
                     <div id="cam-err" class="hidden text-[10px] text-red-500 font-bold animate-pulse">[NO SIGNAL]</div>
+                </div>` : type === 'joystick' ?
+                `<div class="window-content p-6">
+                    <div class="joystick-panel">
+                        <div class="label-sub">Joystick de Controlo</div>
+                        <div class="joystick-frame" id="joystick-frame">
+                            <div class="joystick-stick" id="joystick-stick"></div>
+                        </div>
+                        <div class="drive-status">
+                            <span id="drive-direction">PARADO</span> · <strong id="drive-speed">60%</strong>
+                        </div>
+                        <div class="drive-controls">
+                            <button class="drive-button" onclick="sendDriveCommand('forward', currentSpeed)">Frente</button>
+                            <button class="drive-button" onclick="sendDriveCommand('left', currentSpeed)">Esq</button>
+                            <button class="drive-button" onclick="sendDriveCommand('right', currentSpeed)">Dir</button>
+                            <button class="drive-button" onclick="sendDriveCommand('backward', currentSpeed)">Ré</button>
+                            <button class="drive-button stop" onclick="sendDriveCommand('stop', 0)">STOP</button>
+                        </div>
+                        <input id="speed-slider" type="range" min="0" max="100" value="60" class="joystick-speed-slider">
+                    </div>
                 </div>` :
                 `<div class="window-content p-6">
                     <div class="label-sub">${labelMap[type]||title}</div>
@@ -417,12 +438,12 @@
                         <span class="text-xs ml-2 opacity-30">${unitMap[type]}</span>
                     </div>
                 </div>`;
- 
-            const w = type === 'camera' ? '460px' : '340px';
-            const h = type === 'camera' ? '290px' : '200px';
- 
+
+            const w = type === 'camera' ? '460px' : type === 'joystick' ? '360px' : '340px';
+            const h = type === 'camera' ? '290px' : type === 'joystick' ? '430px' : '200px';
             const hh2 = $('.dash-header').outerHeight() || 65;
-            $(`<div id="${id}" class="window-node" style="width:${w};height:${h};top:${hh2+10}px;left:100px;">
+
+            const windowNode = $(`<div id="${id}" class="window-node" style="width:${w};height:${h};top:${hh2+10}px;left:100px;">
                 <div class="window-handle flex justify-between items-center">
                     <span class="text-[9px] font-bold text-[#3ecf8e] uppercase tracking-widest">${title}</span>
                     <button onclick="$(this).closest('.window-node').remove()" class="text-gray-400 hover:text-red-500 transition-colors">✕</button>
@@ -438,10 +459,14 @@
                 },
                 stop:  function(){ $(this).removeClass('dragging'); }
             })
-            .resizable({ handles:'se', minWidth:240, minHeight:160, containment:'parent' })
+            .resizable({ handles:'se', minWidth: type === 'joystick' ? 320 : 240, minHeight: type === 'joystick' ? 340 : 160, containment:'parent' })
             .mousedown(function(){ zIdx++; $(this).css('z-index',zIdx); });
+
+            if (type === 'joystick') {
+                initJoystickWindow();
+            }
         }
- 
+
         // ── Abrir card (mobile) ─────────────────────────────────
         function mobileOpen(type, title) {
             const id = `mcard-${type}`;
