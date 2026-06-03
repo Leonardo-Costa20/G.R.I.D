@@ -324,7 +324,7 @@
                         </div>
                         <div class="s-field">
                             <label class="s-label">Email</label>
-                            <input class="s-input" type="email" id="s-email" placeholder="email@grid.pt">
+                            <input class="s-input" type="email" id="s-email" value="{{ email }}" placeholder="email@grid.pt">
                         </div>
                         <div style="display:flex;gap:10px;margin-top:4px;">
                             <button class="s-btn s-btn-primary" onclick="saveProfile()">Guardar alterações</button>
@@ -404,7 +404,7 @@
                             <input class="s-input" type="text" id="s-rover-id" placeholder="ROVER-1">
                         </div>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <button class="s-btn s-btn-primary" onclick="linkRover()">Vincular rover</button>
+                            <button class="s-btn s-btn-primary" id="btn-link-rover" onclick="linkRover()">Vincular rover</button>
                             <button class="s-btn s-btn-danger" onclick="unlinkRover()">Desvincular</button>
                         </div>
                         <div id="msg-rover" class="s-msg"></div>
@@ -451,7 +451,7 @@
                         <div class="s-toggle-row">
                             <div class="s-toggle-info">
                                 <div class="s-toggle-label">Tema claro</div>
-                                <div class="s-toggle-desc">Alternar entre tema escuro e claro</div>
+                                <div class="s-toggle-desc">Ativado = tema claro · Desativado = tema escuro</div>
                             </div>
                             <label class="s-toggle">
                                 <input type="checkbox" id="pref-light" onchange="toggleTheme()">
@@ -573,23 +573,36 @@
                 const dot  = document.getElementById('rover-badge-dot');
                 const name = document.getElementById('rover-badge-name');
                 const sub  = document.getElementById('rover-badge-sub');
+                const btn  = document.getElementById('btn-link-rover');
                 if (d.rover && d.rover !== 'Nenhum') {
                     dot.classList.add('linked');
                     name.textContent = d.rover;
                     sub.textContent  = 'Rover vinculado';
                     document.getElementById('s-rover-id').value = d.rover;
+                    btn.textContent = 'Trocar rover';
                 } else {
                     dot.classList.remove('linked');
                     name.textContent = 'Sem rover vinculado';
                     sub.textContent  = 'Nenhum rover associado à conta';
+                    document.getElementById('s-rover-id').value = '';
+                    btn.textContent = 'Vincular rover';
                 }
             })
             .catch(() => {});
         }
 
         function linkRover() {
-            const rover_id = document.getElementById('s-rover-id').value.trim();
+            const rover_id   = document.getElementById('s-rover-id').value.trim();
             if (!rover_id) return showMsg('msg-rover', 'Introduz o ID do rover.', 'err');
+
+            const nomeAtual  = document.getElementById('rover-badge-name').textContent;
+            const jaTemRover = nomeAtual !== 'Sem rover vinculado' && nomeAtual !== 'A verificar...';
+
+            if (jaTemRover && rover_id === document.getElementById('s-rover-id').defaultValue) {
+                return showMsg('msg-rover', 'Este rover já está vinculado.', 'err');
+            }
+            if (jaTemRover && !confirm(`O rover "${nomeAtual}" está atualmente vinculado.\nQueres substituir por "${rover_id}"?`)) return;
+
             fetch('/api/rover/link', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

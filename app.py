@@ -814,7 +814,16 @@ def on_disconnect():
 def settings_page():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    return render_template('settings.html', username=session.get('username'), role=session.get('role'))
+
+    email = ''
+    if supabase:
+        try:
+            res = supabase.table('users').select('email').eq('username', session['username']).single().execute()
+            email = res.data.get('email', '') if res.data else ''
+        except:
+            pass
+
+    return render_template('settings.html', username=session.get('username'), role=session.get('role'), email=email)
 
 
 @app.route('/api/profile', methods=['POST'])
