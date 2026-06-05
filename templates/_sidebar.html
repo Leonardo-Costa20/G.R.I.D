@@ -106,10 +106,12 @@
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
             <span class="nav-text">Auto Tile</span>
         </button>
+        {% if role in ['pilot', 'admin'] %}
         <button onclick="createWindow('joystick','Joystick')" class="nav-item">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v2m0 12v2m8-8h-2M6 12H4m11.314-5.314l-1.414 1.414M8.1 15.9l-1.414 1.414M15.9 15.9l-1.414-1.414M8.1 8.1L6.686 9.514"></path></svg>
             <span class="nav-text">Joystick</span>
         </button>
+        {% endif %}
         {% else %}
         <!-- Dashboard link — nas outras páginas -->
         <a href="/" class="nav-item">

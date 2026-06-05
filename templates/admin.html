@@ -43,6 +43,22 @@
         .terminal-line.info { border-left-color: #3b82f6; }
         .terminal-line.success { border-left-color: var(--accent); }
         .terminal-line.danger { border-left-color: var(--danger); }
+
+        /* Admin row highlight */
+        tr.row-admin {
+            background: linear-gradient(90deg, rgba(62,207,142,0.07) 0%, rgba(62,207,142,0.03) 60%, transparent 100%);
+            border-left: 3px solid var(--accent) !important;
+        }
+        tr.row-admin td:first-child { padding-left: 10px; }
+        .admin-crown {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(62,207,142,0.12);
+            border: 1px solid rgba(62,207,142,0.35);
+            color: var(--accent);
+            font-size: 9px; font-weight: 900; letter-spacing: .08em;
+            padding: 2px 7px; border-radius: 4px;
+            text-transform: uppercase;
+        }
  
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
     </style>
@@ -106,8 +122,8 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-800/50">
-                            {% for user in users %}
-                            <tr class="group" id="row-{{ user.username }}">
+                            {% for user in (users | selectattr('role', 'equalto', 'admin') | list) + (users | rejectattr('role', 'equalto', 'admin') | list) %}
+                            <tr class="group {% if user.role == 'admin' %}row-admin{% endif %}" id="row-{{ user.username }}">
                                 <td class="py-4 font-bold text-white">
                                     {{ user.username }}
                                     <span class="block text-[10px] font-normal text-gray-500">{{ user.email }}</span>
@@ -120,16 +136,25 @@
                                             <button onclick="revokeUser('{{ user.username }}')" class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[9px] font-bold uppercase hover:bg-red-500 hover:text-white transition-all" title="Bloquear conta">🔒 Bloquear</button>
                                             {% endif %}
                                         </div>
+                                    {% elif user.bloqueado %}
+                                        <div class="flex items-center gap-2">
+                                            <span class="status-badge bg-red-500/10 text-red-400 border border-red-500/30">Bloqueada</span>
+                                            <button onclick="approveUser('{{ user.username }}')" class="bg-green-500/10 text-green-400 border border-green-500/30 px-2 py-1 rounded text-[9px] font-bold uppercase hover:bg-green-500 hover:text-black transition-all" title="Desbloquear conta">🔓 Desbloquear</button>
+                                        </div>
                                     {% else %}
                                         <button onclick="approveUser('{{ user.username }}')" class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-2 py-1 rounded text-[9px] font-bold uppercase hover:bg-yellow-500 hover:text-black transition-all">Pendente</button>
                                     {% endif %}
                                 </td>
                                 <td class="py-4">
+                                    {% if user.role == 'admin' %}
+                                    <span class="text-[10px] font-bold text-[var(--accent)] uppercase">ADMIN</span>
+                                    {% else %}
                                     <select onchange="changeRole('{{ user.username }}', this.value)" class="bg-[#161b22] border border-[var(--win-border)] text-[10px] rounded p-1 text-[var(--accent)] font-bold focus:outline-none">
                                         <option value="viewer" {% if user.role == 'viewer' %}selected{% endif %}>VIEWER</option>
                                         <option value="pilot" {% if user.role == 'pilot' %}selected{% endif %}>PILOT</option>
                                         <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>ADMIN</option>
                                     </select>
+                                    {% endif %}
                                 </td>
                                 <td class="py-4">
                                     <select onchange="bindRover('{{ user.username }}', this.value)" class="bg-[#161b22] border border-[var(--win-border)] text-[10px] rounded p-1 text-gray-400 focus:outline-none">

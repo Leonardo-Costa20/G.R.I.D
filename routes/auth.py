@@ -28,6 +28,8 @@ def login():
 
                     if pw_ok:
                         if not user.get('aprovado', False):
+                            if user.get('bloqueado', False):
+                                return render_template('login.html', error='ACESSO NEGADO: CONTA BLOQUEADA.')
                             return render_template('login.html', error='ACESSO RETIDO: AGUARDE APROVAÇÃO.')
                         session['logged_in'] = True
                         session['username'] = user['username']
