@@ -114,7 +114,12 @@
                                 </td>
                                 <td class="py-4">
                                     {% if user.aprovado %}
-                                        <span class="status-badge bg-approved">Ativo</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="status-badge bg-approved">Ativo</span>
+                                            {% if user.role != 'admin' %}
+                                            <button onclick="revokeUser('{{ user.username }}')" class="bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[9px] font-bold uppercase hover:bg-red-500 hover:text-white transition-all" title="Bloquear conta">🔒 Bloquear</button>
+                                            {% endif %}
+                                        </div>
                                     {% else %}
                                         <button onclick="approveUser('{{ user.username }}')" class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-2 py-1 rounded text-[9px] font-bold uppercase hover:bg-yellow-500 hover:text-black transition-all">Pendente</button>
                                     {% endif %}
@@ -134,7 +139,9 @@
                                     </select>
                                 </td>
                                 <td class="py-4 text-right">
+                                    {% if user.role != 'admin' %}
                                     <button onclick="deleteUser('{{ user.username }}')" class="text-gray-600 hover:text-[var(--danger)] text-[9px] font-bold uppercase transition-colors">Remover</button>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -252,6 +259,7 @@
         }
  
         function approveUser(username) { $.post('/admin/approve', { username: username }, function(r) { if(r.status === 'success') { logToTerminal(`Utilizador '${username}' aprovado.`, 'success'); setTimeout(() => { location.reload(); }, 800); } }); }
+        function revokeUser(username) { if(confirm(`Bloquear acesso de ${username}?`)) { $.post('/admin/revoke', { username: username }, function(r) { if(r.status === 'success') { logToTerminal(`Conta bloqueada: '${username}'.`, 'danger'); setTimeout(() => { location.reload(); }, 800); } }); } }
         function changeRole(username, newRole) { $.post('/admin/change-role', { username: username, role: newRole }, function(r) { if(r.status === 'success') logToTerminal(`Cargo alterado: '${username}' -> ${newRole.toUpperCase()}.`, 'info'); }); }
         function bindRover(username, roverId) { $.post('/admin/bind-rover', { username: username, rover_id: roverId }, function(r) { if(r.status === 'success') logToTerminal(`Vínculo de hardware alterado para '${username}'.`, 'success'); }); }
         function deleteUser(username) { if(confirm(`Remover acesso de ${username}?`)) { $.post('/admin/reject', { username: username }, function(r) { if(r.status === 'success') { logToTerminal(`Acesso revogado: ${username}.`, 'danger'); $(`#row-${username}`).fadeOut(); } }); } }

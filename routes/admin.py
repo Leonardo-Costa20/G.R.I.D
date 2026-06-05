@@ -33,7 +33,24 @@ def admin_reject():
         return jsonify({'status': 'unauthorized'}), 403
     username = request.form.get('username')
     try:
+        user = supabase.table('users').select('role').eq('username', username).single().execute()
+        if user.data and user.data.get('role') == 'admin':
+            return jsonify({'status': 'forbidden', 'message': 'Não é possível remover uma conta admin.'}), 403
         supabase.table('users').delete().eq('username', username).execute()
+        return jsonify({'status': 'success'})
+    except Exception:
+        return jsonify({'status': 'error'}), 500
+
+
+def admin_revoke():
+    if session.get('role') != 'admin':
+        return jsonify({'status': 'unauthorized'}), 403
+    username = request.form.get('username')
+    try:
+        user = supabase.table('users').select('role').eq('username', username).single().execute()
+        if user.data and user.data.get('role') == 'admin':
+            return jsonify({'status': 'forbidden', 'message': 'Não é possível bloquear uma conta admin.'}), 403
+        supabase.table('users').update({'aprovado': False}).eq('username', username).execute()
         return jsonify({'status': 'success'})
     except Exception:
         return jsonify({'status': 'error'}), 500

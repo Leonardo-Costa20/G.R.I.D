@@ -23,6 +23,7 @@ def register_routes(app):
         admin_panel,
         admin_approve,
         admin_reject,
+        admin_revoke,
         admin_change_role,
         admin_bind_rover,
     )
@@ -56,6 +57,7 @@ def register_routes(app):
     app.add_url_rule('/admin', endpoint='admin_panel', view_func=admin_panel)
     app.add_url_rule('/admin/approve', endpoint='admin_approve', view_func=admin_approve, methods=['POST'])
     app.add_url_rule('/admin/reject', endpoint='admin_reject', view_func=admin_reject, methods=['POST'])
+    app.add_url_rule('/admin/revoke', endpoint='admin_revoke', view_func=admin_revoke, methods=['POST'])
     app.add_url_rule('/admin/change-role', endpoint='admin_change_role', view_func=admin_change_role, methods=['POST'])
     app.add_url_rule('/admin/bind-rover', endpoint='admin_bind_rover', view_func=admin_bind_rover, methods=['POST'])
 
