@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G.R.I.D - Autenticação</title>
- 
+
     <!-- PWA -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#3ecf8e">
@@ -12,59 +12,121 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="G.R.I.D">
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
- 
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
         body { font-family: 'JetBrains Mono', monospace; }
-        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(1000%); } }
-        .scanline { width: 100%; height: 100px; z-index: 5; background: linear-gradient(0deg, rgba(62,207,142,0.1) 0%, rgba(62,207,142,0) 100%); opacity: 0.1; position: absolute; bottom: 100%; animation: scanline 8s linear infinite; }
-        .grid-bg { background-image: radial-gradient(#3ecf8e 1px, transparent 1px); background-size: 30px 30px; }
+
+        @keyframes scanline {
+            0%   { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .scanline {
+            width: 100%; height: 100px; z-index: 5;
+            background: linear-gradient(0deg, rgba(62,207,142,0.1) 0%, rgba(62,207,142,0) 100%);
+            opacity: 0.1; position: absolute; bottom: 100%;
+            animation: scanline 8s linear infinite;
+        }
+        .grid-bg {
+            background-image: radial-gradient(#3ecf8e 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Input focus glow */
+        .field-input {
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .field-input:focus {
+            border-color: #3ecf8e;
+            box-shadow: 0 0 0 3px rgba(62,207,142,.12);
+        }
+        .field-input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239,68,68,.1);
+        }
+
+        /* Eye-toggle button */
+        .eye-btn { color: #4b5563; }
+        .eye-btn:hover { color: #3ecf8e; }
     </style>
 </head>
 <body class="bg-[#0a0c10] flex items-center justify-center h-screen overflow-hidden">
-    
+
     <div class="absolute inset-0 grid-bg opacity-10"></div>
     <div class="scanline"></div>
- 
-    <div class="relative w-full max-w-md p-1 z-10">
+
+    <div class="relative w-full max-w-md px-4 z-10">
         <div class="bg-[#12151a] border border-[#30363d] rounded-2xl shadow-2xl p-8 overflow-hidden relative">
-            
+
+            <!-- Header -->
             <div class="text-center mb-10">
                 <h1 class="text-white text-3xl font-black tracking-[0.4em] uppercase italic">
                     G.R.I.D <span class="text-[#3ecf8e] font-light not-italic">OS</span>
                 </h1>
                 <p class="text-[#3ecf8e]/60 text-[9px] font-bold tracking-[0.3em] mt-3 uppercase">Terminal de Acesso Restrito</p>
             </div>
- 
+
+            <!-- Erro -->
             {% if error %}
-            <div class="mb-6 p-4 bg-red-500/10 border-l-4 border-red-500 text-red-500 rounded flex items-center gap-3 animate-pulse">
+            <div class="mb-6 p-4 bg-red-500/10 border-l-4 border-red-500 text-red-400 rounded flex items-start gap-3 animate-pulse">
+                <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
                 <span class="text-[10px] font-black uppercase tracking-widest">{{ error }}</span>
             </div>
             {% endif %}
 
+            <!-- Sucesso -->
             {% if success %}
-            <div class="mb-6 p-4 bg-[#3ecf8e]/10 border-l-4 border-[#3ecf8e] text-[#3ecf8e] rounded flex items-center gap-3">
+            <div class="mb-6 p-4 bg-[#3ecf8e]/10 border-l-4 border-[#3ecf8e] text-[#3ecf8e] rounded flex items-start gap-3">
+                <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 <span class="text-[10px] font-black uppercase tracking-widest">{{ success }}</span>
             </div>
             {% endif %}
- 
-            <form action="/login" method="POST" class="space-y-5">
+
+            <!-- Form -->
+            <form action="/login" method="POST" class="space-y-5" id="login-form" novalidate>
+
+                <!-- Identificação -->
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Identificação (User ou Email)</label>
-                    <input type="text" name="login_identity" required autocomplete="username"
-                           placeholder="Ex: email@grid.com"
-                           class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3.5 text-white text-sm focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e]/30 outline-none transition-all placeholder:text-slate-700">
+                    <label for="login_identity" class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+                        Utilizador ou Email
+                    </label>
+                    <input
+                        type="text"
+                        id="login_identity"
+                        name="login_identity"
+                        required
+                        autocomplete="username"
+                        placeholder="user ou email@dominio.pt"
+                        class="field-input w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3.5 text-white text-sm outline-none placeholder:text-slate-700"
+                    >
+                    <p class="field-error text-[9px] text-red-400 mt-1 ml-1 hidden"></p>
                 </div>
- 
+
+                <!-- Password -->
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Password</label>
-                    <input type="password" name="password" required autocomplete="current-password"
-                           placeholder="••••••••"
-                           class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3.5 text-white text-sm tracking-[0.5em] text-center focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e]/30 outline-none transition-all placeholder:text-slate-700 placeholder:tracking-normal">
+                    <label for="password" class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="••••••••"
+                            class="field-input w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3.5 pr-12 text-white text-sm outline-none placeholder:text-slate-700"
+                        >
+                        <button type="button" onclick="togglePw('password', this)"
+                                class="eye-btn absolute right-3 top-1/2 -translate-y-1/2 transition-colors p-1">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
+                    <p class="field-error text-[9px] text-red-400 mt-1 ml-1 hidden"></p>
                 </div>
- 
-                <button type="submit" 
+
+                <button type="submit"
                         class="w-full bg-[#3ecf8e] hover:bg-[#34b37a] text-black font-black py-4 rounded-xl uppercase tracking-[0.2em] text-xs transition-all transform active:scale-[0.98] shadow-[0_0_20px_rgba(62,207,142,0.2)]">
                     Entrar
                 </button>
@@ -83,5 +145,46 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePw(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            const isHidden = inp.type === 'password';
+            inp.type = isHidden ? 'text' : 'password';
+            btn.style.color = isHidden ? '#3ecf8e' : '';
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            let ok = true;
+            const identity = document.getElementById('login_identity');
+            const password = document.getElementById('password');
+
+            clearErrors();
+
+            if (!identity.value.trim()) {
+                showError(identity, 'Preenche este campo.');
+                ok = false;
+            }
+            if (!password.value) {
+                showError(password, 'Introduz a tua password.');
+                ok = false;
+            }
+            if (!ok) e.preventDefault();
+        });
+
+        function showError(input, msg) {
+            input.classList.add('error');
+            const p = input.closest('div').querySelector('.field-error') ||
+                      input.parentElement.closest('div').querySelector('.field-error');
+            if (p) { p.textContent = msg; p.classList.remove('hidden'); }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.field-error').forEach(p => {
+                p.textContent = ''; p.classList.add('hidden');
+            });
+            document.querySelectorAll('.field-input').forEach(i => i.classList.remove('error'));
+        }
+    </script>
 </body>
 </html>
