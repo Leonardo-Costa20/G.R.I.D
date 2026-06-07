@@ -355,5 +355,106 @@
             }
         }
     </script>
+
+    <!-- ── Pop-up: Rover Vinculado ──────────────────────────────────────── -->
+    {% if rover_vinculado %}
+    <div id="rover-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div class="relative bg-[#12151a] border border-[#3ecf8e]/40 rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
+            <!-- Ícone -->
+            <div class="flex justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-[#3ecf8e]/10 border border-[#3ecf8e]/30 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-[#3ecf8e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-center text-white font-black text-sm tracking-widest uppercase mb-1">Rover Vinculado</h2>
+            <p class="text-center text-[10px] text-gray-400 mb-5">
+                Um rover foi associado à tua conta. Insere o código que recebeste no email para confirmar a vinculação.
+            </p>
+
+            <div id="rover-popup-error" class="hidden mb-3 p-2 bg-red-500/10 border border-red-500/30 rounded text-[9px] text-red-400 font-bold uppercase text-center"></div>
+
+            <!-- Input de código -->
+            <div class="flex gap-2 justify-center mb-4" id="code-inputs">
+                <input maxlength="1" class="code-digit w-10 h-12 text-center text-lg font-black text-[#3ecf8e] bg-black/40 border border-[#30363d] rounded-lg outline-none focus:border-[#3ecf8e] transition-colors" type="text" inputmode="numeric">
+                <input maxlength="1" class="code-digit w-10 h-12 text-center text-lg font-black text-[#3ecf8e] bg-black/40 border border-[#30363d] rounded-lg outline-none focus:border-[#3ecf8e] transition-colors" type="text" inputmode="numeric">
+                <input maxlength="1" class="code-digit w-10 h-12 text-center text-lg font-black text-[#3ecf8e] bg-black/40 border border-[#30363d] rounded-lg outline-none focus:border-[#3ecf8e] transition-colors" type="text" inputmode="numeric">
+                <span class="self-center text-gray-600 font-bold">·</span>
+                <input maxlength="1" class="code-digit w-10 h-12 text-center text-lg font-black text-[#3ecf8e] bg-black/40 border border-[#30363d] rounded-lg outline-none focus:border-[#3ecf8e] transition-colors" type="text" inputmode="numeric">
+                <input maxlength="1" class="code-digit w-10 h-12 text-center text-lg font-black text-[#3ecf8e] bg-black/40 border border-[#30363d] rounded-lg outline-none focus:border-[#3ecf8e] transition-colors" type="text" inputmode="numeric">
+                <input maxlength="1" class="code-digit w-10 h-12 text-center text-lg font-black text-[#3ecf8e] bg-black/40 border border-[#30363d] rounded-lg outline-none focus:border-[#3ecf8e] transition-colors" type="text" inputmode="numeric">
+            </div>
+
+            <button onclick="verificarCodigoRover()"
+                class="w-full border border-[#3ecf8e] text-[#3ecf8e] hover:bg-[#3ecf8e] hover:text-black font-black py-3 rounded-xl uppercase text-xs transition-all mb-3">
+                Confirmar Rover
+            </button>
+            <button onclick="document.getElementById('rover-popup').remove()"
+                class="w-full text-[9px] text-gray-600 hover:text-gray-400 uppercase font-bold transition-colors">
+                Fazer mais tarde
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ── Navegação entre dígitos ──────────────────────────────────────────
+        document.querySelectorAll('.code-digit').forEach((inp, i, all) => {
+            inp.addEventListener('input', () => {
+                inp.value = inp.value.replace(/[^0-9]/g, '');
+                if (inp.value && i < all.length - 1) all[i + 1].focus();
+            });
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !inp.value && i > 0) all[i - 1].focus();
+            });
+        });
+
+        function verificarCodigoRover() {
+            const digits = [...document.querySelectorAll('.code-digit')].map(i => i.value).join('');
+            if (digits.length < 6) {
+                mostrarErroRover('Insere os 6 dígitos do código.');
+                return;
+            }
+
+            const email = '{{ rover_email }}';
+            const fd = new FormData();
+            fd.append('email', email);
+            fd.append('codigo', digits);
+
+            fetch('/rover/verificar-codigo', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('rover-popup').innerHTML = `
+                            <div class="p-8 text-center">
+                                <div class="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-7 h-7 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <p class="text-white font-black uppercase text-sm tracking-widest">Rover Confirmado!</p>
+                                <p class="text-gray-400 text-[10px] mt-2">O teu rover foi vinculado com sucesso.</p>
+                                <button onclick="document.getElementById('rover-popup').remove()"
+                                    class="mt-5 border border-[#3ecf8e] text-[#3ecf8e] hover:bg-[#3ecf8e] hover:text-black font-black py-2 px-6 rounded-xl uppercase text-xs transition-all">
+                                    Fechar
+                                </button>
+                            </div>`;
+                    } else {
+                        mostrarErroRover(data.message || 'Código inválido. Tenta novamente.');
+                    }
+                })
+                .catch(() => mostrarErroRover('Erro de rede. Tenta novamente.'));
+        }
+
+        function mostrarErroRover(msg) {
+            const el = document.getElementById('rover-popup-error');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3500);
+        }
+    </script>
+    {% endif %}
+
 </body>
 </html>

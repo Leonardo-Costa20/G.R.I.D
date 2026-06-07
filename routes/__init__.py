@@ -26,6 +26,9 @@ def register_routes(app):
         admin_revoke,
         admin_change_role,
         admin_bind_rover,
+        admin_add_rover,
+        admin_list_rovers,
+        admin_delete_rover,
     )
     from .profile import (
         settings_page,
@@ -36,6 +39,7 @@ def register_routes(app):
         api_rover_unlink,
     )
     from . import rover
+    from .rover import rover_verificar_codigo
 
     app.add_url_rule('/', endpoint='landing_apresentacao', view_func=landing_apresentacao)
     app.add_url_rule('/app', endpoint='welcome', view_func=welcome)
@@ -60,6 +64,11 @@ def register_routes(app):
     app.add_url_rule('/admin/revoke', endpoint='admin_revoke', view_func=admin_revoke, methods=['POST'])
     app.add_url_rule('/admin/change-role', endpoint='admin_change_role', view_func=admin_change_role, methods=['POST'])
     app.add_url_rule('/admin/bind-rover', endpoint='admin_bind_rover', view_func=admin_bind_rover, methods=['POST'])
+    app.add_url_rule('/admin/add-rover', endpoint='admin_add_rover', view_func=admin_add_rover, methods=['POST'])
+    app.add_url_rule('/admin/list-rovers', endpoint='admin_list_rovers', view_func=admin_list_rovers)
+    app.add_url_rule('/admin/delete-rover', endpoint='admin_delete_rover', view_func=admin_delete_rover, methods=['POST'])
+
+    app.add_url_rule('/rover/verificar-codigo', endpoint='rover_verificar_codigo', view_func=rover_verificar_codigo, methods=['POST'])
 
     app.add_url_rule('/settings', endpoint='settings_page', view_func=settings_page)
     app.add_url_rule('/api/profile', endpoint='api_profile', view_func=api_profile, methods=['POST'])

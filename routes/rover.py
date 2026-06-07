@@ -40,3 +40,44 @@ def on_connect():
 def on_disconnect():
     if core.clientes_conectados_ws > 0:
         core.clientes_conectados_ws -= 1
+
+
+# ── Verificação de código de vinculação de rover ─────────────────────────────
+from flask import request, jsonify as _jsonify
+from core import supabase as _supabase
+
+
+def rover_verificar_codigo():
+    """
+    Valida o código enviado por email.
+    Consulta rovers pela coluna email_dono + ativo=False.
+    Após validação: ativo=True, users.rover_id = rovers.id.
+    """
+    email  = request.form.get('email', '').strip().lower()
+    codigo = request.form.get('codigo', '').strip()
+
+    if not email or not codigo:
+        return _jsonify({'status': 'error', 'message': 'Dados em falta.'}), 400
+
+    try:
+        rv = _supabase.table('rovers').select('id, codigo, nome') \
+            .eq('email_dono', email).eq('ativo', False).maybe_single().execute()
+
+        if not rv.data:
+            return _jsonify({'status': 'error', 'message': 'Nenhum rover pendente para este email.'})
+
+        if str(rv.data['codigo']).strip() != codigo:
+            return _jsonify({'status': 'error', 'message': 'Código inválido. Verifica o email.'})
+
+        rover_id = rv.data['id']
+
+        # Marcar rover como ativo
+        _supabase.table('rovers').update({'ativo': True}).eq('id', rover_id).execute()
+
+        # Ligar rover ao utilizador via rover_id (FK int8)
+        _supabase.table('users').update({'rover_id': rover_id}).eq('email', email).execute()
+
+        return _jsonify({'status': 'success', 'rover_nome': rv.data['nome']})
+    except Exception as e:
+        print(f'[ROVER VERIFY] {e}')
+        return _jsonify({'status': 'error', 'message': 'Erro interno.'}), 500

@@ -133,8 +133,24 @@ def register():
                     'role':            'viewer',
                 }
                 supabase.table('users').insert(data).execute()
+
+                # Verificar se existe um rover pendente para este email na BD
+                rover_pendente = None
+                try:
+                    rv = supabase.table('rovers').select('id, nome') \
+                        .eq('email_dono', email).eq('ativo', False).maybe_single().execute()
+                    if rv.data:
+                        rover_pendente = rv.data
+                except Exception:
+                    pass
+
                 msg      = 'CONTA CRIADA! AGUARDA APROVAÇÃO DO ADMINISTRADOR.'
                 msg_type = 'success'
+                return render_template('register.html',
+                                       msg=msg,
+                                       msg_type=msg_type,
+                                       rover_vinculado=rover_pendente,
+                                       rover_email=email if rover_pendente else None)
 
             except Exception as e:
                 print(f'[REGISTER ERROR] {e}')
