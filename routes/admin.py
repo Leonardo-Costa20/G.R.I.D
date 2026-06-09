@@ -1,23 +1,16 @@
 import secrets
 import threading
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 
 from flask import render_template, request, jsonify, redirect, url_for, session
-from core import supabase, SMTP_EMAIL, SMTP_PASSWORD
+from core import supabase, BREVO_API_KEY
 
 
 def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool:
-    """Envia em background via Gmail SMTP TLS."""
+    """Envia em background via Brevo API (HTTPS — funciona no Railway)."""
 
     def _send():
         try:
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = 'G.R.I.D OS — Rover Vinculado à tua Conta'
-            msg['From'] = SMTP_EMAIL
-            msg['To'] = destinatario
-
             codigo_fmt = f"{codigo[:3]} {codigo[3:]}"
 
             html = f"""
@@ -38,13 +31,25 @@ def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool
                 <p style="color:#374151;font-size:9px;letter-spacing:2px;">G.R.I.D OS · PAP 2026</p>
             </div>
             """
-            msg.attach(MIMEText(html, 'html'))
 
-            with smtplib.SMTP('smtp.gmail.com', 587) as server:
-                server.starttls()
-                server.login(SMTP_EMAIL, SMTP_PASSWORD)
-                server.sendmail(SMTP_EMAIL, destinatario, msg.as_string())
-            print(f"[EMAIL ROVER] Enviado para {destinatario}")
+            resp = requests.post(
+                'https://api.brevo.com/v3/smtp/email',
+                headers={
+                    'api-key': BREVO_API_KEY,
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'sender':      {'email': 'a14479@oficina.pt', 'name': 'GRID'},
+                    'to':          [{'email': destinatario}],
+                    'subject':     'G.R.I.D OS — Rover Vinculado à tua Conta',
+                    'htmlContent': html,
+                },
+                timeout=10
+            )
+            if resp.status_code in (200, 201):
+                print(f"[EMAIL ROVER] Enviado para {destinatario}")
+            else:
+                print(f"[EMAIL ROVER] Erro Brevo {resp.status_code}: {resp.text}")
         except Exception as e:
             print(f"[EMAIL ROVER] Erro: {e}")
 

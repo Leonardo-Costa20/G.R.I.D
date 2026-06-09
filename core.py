@@ -2,9 +2,7 @@ import os
 import time
 import threading
 import secrets
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 from datetime import datetime, timezone
 import json
 import bcrypt
@@ -23,8 +21,8 @@ SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
-SMTP_EMAIL = os.getenv('SMTP_EMAIL')
-SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+BREVO_API_KEY = os.getenv('BREVO_API_KEY')
+BREVO_FROM    = os.getenv('BREVO_FROM', 'GRID <a14479@oficina.pt>')
 
 MQTT_BROKER = "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud"
 MQTT_USER = "ROVER-1"
@@ -56,15 +54,10 @@ def check_password(plain: str, hashed: str) -> bool:
 
 
 def enviar_email_reset(destinatario: str, codigo: str) -> bool:
-    """Envia o email de recuperação em background via Gmail SMTP TLS."""
+    """Envia o email de recuperação em background via Brevo API (HTTPS — funciona no Railway)."""
 
     def _send():
         try:
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = 'G.R.I.D OS — Código de Recuperação'
-            msg['From'] = SMTP_EMAIL
-            msg['To'] = destinatario
-
             codigo_formatado = f"{codigo[:3]} {codigo[3:]}"
 
             html = f"""
@@ -85,13 +78,25 @@ def enviar_email_reset(destinatario: str, codigo: str) -> bool:
                 <p style="color:#374151;font-size:9px;letter-spacing:2px;">G.R.I.D OS · PAP 2026</p>
             </div>
             """
-            msg.attach(MIMEText(html, 'html'))
 
-            with smtplib.SMTP('smtp.gmail.com', 587) as server:
-                server.starttls()
-                server.login(SMTP_EMAIL, SMTP_PASSWORD)
-                server.sendmail(SMTP_EMAIL, destinatario, msg.as_string())
-            print(f"[EMAIL] Enviado para {destinatario}")
+            resp = requests.post(
+                'https://api.brevo.com/v3/smtp/email',
+                headers={
+                    'api-key': BREVO_API_KEY,
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'sender':     {'email': 'a14479@oficina.pt', 'name': 'GRID'},
+                    'to':         [{'email': destinatario}],
+                    'subject':    'G.R.I.D OS — Código de Recuperação',
+                    'htmlContent': html,
+                },
+                timeout=10
+            )
+            if resp.status_code in (200, 201):
+                print(f"[EMAIL] Enviado para {destinatario}")
+            else:
+                print(f"[EMAIL] Erro Brevo {resp.status_code}: {resp.text}")
         except Exception as e:
             print(f"[EMAIL] Erro ao enviar: {e}")
 
