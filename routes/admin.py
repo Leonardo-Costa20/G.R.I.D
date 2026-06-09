@@ -3,11 +3,11 @@ import threading
 import requests
 
 from flask import render_template, request, jsonify, redirect, url_for, session
-from core import supabase, BREVO_API_KEY
+from core import supabase, RESEND_API_KEY
 
 
 def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool:
-    """Envia em background via Brevo API (HTTPS — funciona no Railway)."""
+    """Envia em background via Resend API."""
 
     def _send():
         try:
@@ -33,28 +33,28 @@ def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool
             """
 
             resp = requests.post(
-                'https://api.brevo.com/v3/smtp/email',
+                'https://api.resend.com/emails',
                 headers={
-                    'api-key': BREVO_API_KEY,
+                    'Authorization': f'Bearer {RESEND_API_KEY}',
                     'Content-Type': 'application/json',
                 },
                 json={
-                    'sender':      {'email': 'a14479@oficina.pt', 'name': 'GRID'},
-                    'to':          [{'email': destinatario}],
-                    'subject':     'G.R.I.D OS — Rover Vinculado à tua Conta',
-                    'htmlContent': html,
+                    'from':    'G.R.I.D OS <onboarding@resend.dev>',
+                    'to':      [destinatario],
+                    'subject': 'G.R.I.D OS — Rover Vinculado à tua Conta',
+                    'html':    html,
                 },
                 timeout=10
             )
             if resp.status_code in (200, 201):
                 print(f"[EMAIL ROVER] Enviado para {destinatario}")
             else:
-                print(f"[EMAIL ROVER] Erro Brevo {resp.status_code}: {resp.text}")
+                print(f"[EMAIL ROVER] Erro Resend {resp.status_code}: {resp.text}")
         except Exception as e:
             print(f"[EMAIL ROVER] Erro: {e}")
 
     threading.Thread(target=_send, daemon=True).start()
-    return True  # retorna imediatamente — não bloqueia o request
+    return True
 
 
 # ── Painel ────────────────────────────────────────────────────────────────────
