@@ -1,3 +1,4 @@
+import email
 import re
 import secrets
 from datetime import datetime, timezone
@@ -179,11 +180,11 @@ def forgot_password():
             if user.data:
                 codigo     = f'{secrets.randbelow(1000000):06d}'
                 created_at = datetime.now(timezone.utc).isoformat()
-                supabase.table('password_resets').delete().eq('email', email).execute()
-                supabase.table('password_resets').insert({
-                    'email':      email,
-                    'token':      codigo,
-                    'created_at': created_at,
+
+                supabase.table('password_resets').upsert({
+                'email':      email,
+                'token':      codigo,
+                'created_at': created_at,
                 }).execute()
                 print(f'[RESET] Código gerado para {email}: {codigo}')
                 enviar_email_reset(email, codigo)
