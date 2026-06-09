@@ -21,9 +21,8 @@ SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
-MAILJET_API_KEY = os.getenv('MAILJET_API_KEY')
-MAILJET_SECRET  = os.getenv('MAILJET_SECRET')
-MAILJET_FROM    = os.getenv('MAILJET_FROM', 'g.r.i.d.support2026@gmail.com')
+BREVO_API_KEY = os.getenv('BREVO_API_KEY')
+BREVO_FROM    = os.getenv('BREVO_FROM', 'GRID <a14479@oficina.pt>')
 
 MQTT_BROKER = "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud"
 MQTT_USER = "ROVER-1"
@@ -55,7 +54,7 @@ def check_password(plain: str, hashed: str) -> bool:
 
 
 def enviar_email_reset(destinatario: str, codigo: str) -> bool:
-    """Envia o email de recuperação em background via Mailjet API."""
+    """Envia o email de recuperação em background via Brevo API (HTTPS — funciona no Railway)."""
 
     def _send():
         try:
@@ -81,27 +80,28 @@ def enviar_email_reset(destinatario: str, codigo: str) -> bool:
             """
 
             resp = requests.post(
-                'https://api.mailjet.com/v3.1/send',
-                auth=(MAILJET_API_KEY, MAILJET_SECRET),
+                'https://api.brevo.com/v3/smtp/email',
+                headers={
+                    'api-key': BREVO_API_KEY,
+                    'Content-Type': 'application/json',
+                },
                 json={
-                    'Messages': [{
-                        'From':     {'Email': MAILJET_FROM, 'Name': 'G.R.I.D OS'},
-                        'To':       [{'Email': destinatario}],
-                        'Subject':  'G.R.I.D OS — Código de Recuperação',
-                        'HTMLPart': html,
-                    }]
+                    'sender':     {'email': 'a14479@oficina.pt', 'name': 'GRID'},
+                    'to':         [{'email': destinatario}],
+                    'subject':    'G.R.I.D OS — Código de Recuperação',
+                    'htmlContent': html,
                 },
                 timeout=10
             )
-            if resp.status_code == 200:
+            if resp.status_code in (200, 201):
                 print(f"[EMAIL] Enviado para {destinatario}")
             else:
-                print(f"[EMAIL] Erro Mailjet {resp.status_code}: {resp.text}")
+                print(f"[EMAIL] Erro Brevo {resp.status_code}: {resp.text}")
         except Exception as e:
             print(f"[EMAIL] Erro ao enviar: {e}")
 
     threading.Thread(target=_send, daemon=True).start()
-    return True
+    return True  # retorna imediatamente — não bloqueia o request
 
 
 def inicializar_contador_logs():
