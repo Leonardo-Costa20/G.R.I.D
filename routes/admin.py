@@ -3,11 +3,11 @@ import threading
 import requests
 
 from flask import render_template, request, jsonify, redirect, url_for, session
-from core import supabase, BREVO_API_KEY
+from core import supabase, MAILJET_API_KEY, MAILJET_SECRET, MAILJET_FROM
 
 
 def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool:
-    """Envia em background via Brevo API (HTTPS — funciona no Railway)."""
+    """Envia em background via Mailjet API."""
 
     def _send():
         try:
@@ -33,28 +33,27 @@ def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool
             """
 
             resp = requests.post(
-                'https://api.brevo.com/v3/smtp/email',
-                headers={
-                    'api-key': BREVO_API_KEY,
-                    'Content-Type': 'application/json',
-                },
+                'https://api.mailjet.com/v3.1/send',
+                auth=(MAILJET_API_KEY, MAILJET_SECRET),
                 json={
-                    'sender':      {'email': 'a14479@oficina.pt', 'name': 'GRID'},
-                    'to':          [{'email': destinatario}],
-                    'subject':     'G.R.I.D OS — Rover Vinculado à tua Conta',
-                    'htmlContent': html,
+                    'Messages': [{
+                        'From':     {'Email': MAILJET_FROM, 'Name': 'G.R.I.D OS'},
+                        'To':       [{'Email': destinatario}],
+                        'Subject':  'G.R.I.D OS — Rover Vinculado à tua Conta',
+                        'HTMLPart': html,
+                    }]
                 },
                 timeout=10
             )
-            if resp.status_code in (200, 201):
+            if resp.status_code == 200:
                 print(f"[EMAIL ROVER] Enviado para {destinatario}")
             else:
-                print(f"[EMAIL ROVER] Erro Brevo {resp.status_code}: {resp.text}")
+                print(f"[EMAIL ROVER] Erro Mailjet {resp.status_code}: {resp.text}")
         except Exception as e:
             print(f"[EMAIL ROVER] Erro: {e}")
 
     threading.Thread(target=_send, daemon=True).start()
-    return True  # retorna imediatamente — não bloqueia o request
+    return True
 
 
 # ── Painel ────────────────────────────────────────────────────────────────────
