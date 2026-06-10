@@ -299,6 +299,26 @@
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
             BMP280
         </button>
+        <button class="drawer-btn" onclick="mobileOpen('gas','GAS'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2C8 2 5 5.5 5 9c0 2.5 1.5 4.7 3.5 5.8V17a1 1 0 001 1h5a1 1 0 001-1v-2.2C17.5 13.7 19 11.5 19 9c0-3.5-3-7-7-7z"></path></svg>
+            Gás
+        </button>
+        <button class="drawer-btn" onclick="mobileOpen('temperatura','TEMPERATURA'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
+            Temperatura
+        </button>
+        <button class="drawer-btn" onclick="mobileOpen('pressao','PRESSAO'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 4v4l3 3"></path></svg>
+            Pressão
+        </button>
+        <button class="drawer-btn" onclick="mobileOpen('altitude','ALTITUDE'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 17l4-8 4 4 4-6 4 4"></path></svg>
+            Altitude
+        </button>
+        <button class="drawer-btn" onclick="mobileOpen('tilt','TILT'); toggleMobileDrawer()">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2L2 19h20L12 2z"></path></svg>
+            Tilt
+        </button>
     </div>
  
 
@@ -380,23 +400,39 @@
  
         // ── Mapa de dados dos sensores (tópicos MQTT reais) ─────
         // MQTT: G.R.I.D/MQ2, G.R.I.D/Distancia, G.R.I.D/Acel_X, G.R.I.D/Gyro_X, G.R.I.D/Temperatura, G.R.I.D/Pressao
+        // Novos: G.R.I.D/gas, G.R.I.D/temperatura, G.R.I.D/pressao, G.R.I.D/altitude, G.R.I.D/tilt
         const sensorMap = { 
             mq2: 'MQ2', 
             dist: 'Distancia', 
-            mpu: 'Acel_X',      // MPU6050 envia Acel_X, Acel_Y, Acel_Z, Gyro_X, Gyro_Y, Gyro_Z
-            bmp: 'Temperatura'  // BMP280 envia Temperatura e Pressao
+            mpu: 'Acel_X',          // MPU6050 envia Acel_X, Acel_Y, Acel_Z, Gyro_X, Gyro_Y, Gyro_Z
+            bmp: 'Temperatura',     // BMP280 envia Temperatura e Pressao
+            gas: 'gas',
+            temperatura: 'temperatura',
+            pressao: 'pressao',
+            altitude: 'altitude',
+            tilt: 'tilt'
         };
         const unitMap   = { 
             mq2: 'ppm', 
             dist: 'cm', 
             mpu: 'm/s²', 
-            bmp: '°C' 
+            bmp: '°C',
+            gas: 'ppm',
+            temperatura: '°C',
+            pressao: 'hPa',
+            altitude: 'm',
+            tilt: '°'
         };
         const labelMap  = { 
             mq2: 'Sensor de Gás MQ2', 
             dist: 'Ultrassónico HC-SR04', 
             mpu: 'Acelerómetro MPU6050', 
-            bmp: 'Barómetro BMP280' 
+            bmp: 'Barómetro BMP280',
+            gas: 'Sensor de Gás',
+            temperatura: 'Temperatura',
+            pressao: 'Pressão',
+            altitude: 'Altitude',
+            tilt: 'Inclinação (Tilt)'
         };
  
         // ── Criar janela (desktop) ──────────────────────────────
@@ -504,6 +540,7 @@
         // O servidor Flask emite: {sensor: 'MQ2', valor: '123.45'} ou {sensor: 'Distancia', valor: '45.2'}
         // MPU6050: Acel_X, Acel_Y, Acel_Z, Gyro_X, Gyro_Y, Gyro_Z
         // BMP280: Temperatura, Pressao
+        // Novos: gas, temperatura, pressao, altitude, tilt
         socket.on('mqtt_data', (data) => {
             // Atualiza todos os displays que correspondem a este sensor
             const sensor = data.sensor;
@@ -533,6 +570,31 @@
             else if (sensor === 'Pressao') {
                 $('#val-Pressao').text(valor);
                 $('#mval-Pressao').text(valor);
+            }
+            // Sensor de Gás (G.R.I.D/gas)
+            else if (sensor === 'gas') {
+                $('#val-gas').text(valor);
+                $('#mval-gas').text(valor);
+            }
+            // Temperatura (G.R.I.D/temperatura)
+            else if (sensor === 'temperatura') {
+                $('#val-temperatura').text(valor);
+                $('#mval-temperatura').text(valor);
+            }
+            // Pressão (G.R.I.D/pressao)
+            else if (sensor === 'pressao') {
+                $('#val-pressao').text(valor);
+                $('#mval-pressao').text(valor);
+            }
+            // Altitude (G.R.I.D/altitude)
+            else if (sensor === 'altitude') {
+                $('#val-altitude').text(valor);
+                $('#mval-altitude').text(valor);
+            }
+            // Tilt (G.R.I.D/tilt)
+            else if (sensor === 'tilt') {
+                $('#val-tilt').text(valor);
+                $('#mval-tilt').text(valor);
             }
         });
  
