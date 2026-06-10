@@ -86,10 +86,11 @@ def register():
     errors   = []
 
     if request.method == 'POST':
-        email    = request.form.get('email', '').strip().lower()
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '')
-        confirm  = request.form.get('confirm_password', '')
+        email     = request.form.get('email', '').strip().lower()
+        username  = request.form.get('username', '').strip()
+        password  = request.form.get('password', '')
+        confirm   = request.form.get('confirm_password', '')
+        telemovel = request.form.get('telemovel', '').strip().replace(' ', '')
 
         # ── Validações front-end duplicadas no servidor ───────────────────────
         if not email:
@@ -101,6 +102,11 @@ def register():
             errors.append('O nome de utilizador é obrigatório.')
         elif not is_valid_username(username):
             errors.append('O username deve ter 3–20 caracteres e só pode conter letras, números, _ ou -.')
+
+        if not telemovel:
+            errors.append('O número de telemóvel é obrigatório.')
+        elif not re.match(r'^(\+351)?9[1236]\d{7}$|^\+?\d{7,15}$', telemovel):
+            errors.append('Número de telemóvel inválido. Ex: 912345678 ou +351912345678')
 
         pw_errors = validate_password(password)
         errors.extend(pw_errors)
@@ -130,6 +136,7 @@ def register():
                     'email':           email,
                     'username':        username,
                     'password':        hash_password(password),
+                    'telemovel':       telemovel,
                     'aprovado':        False,
                     'role':            'viewer',
                 }

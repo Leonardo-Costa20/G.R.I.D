@@ -94,23 +94,24 @@
             z-index: 999;
             background: var(--sidebar-bg);
             border-top: 1px solid var(--win-border);
-            padding: 16px;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            padding: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
         }
         .drawer-btn {
-            display: flex; align-items: center; gap: 10px;
-            padding: 12px 14px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+            padding: 12px 6px;
             background: rgba(62,207,142,0.05);
             border: 1px solid var(--win-border);
             border-radius: 12px;
-            color: var(--text-nav); font-size: 10px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.8px;
+            color: var(--text-nav); font-size: 9px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.6px;
             cursor: pointer;
             transition: all 0.2s;
+            aspect-ratio: 1;
         }
-        .drawer-btn:active { background: rgba(62,207,142,0.15); color: var(--accent); }
-        .drawer-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; flex-shrink: 0; }
+        .drawer-btn:active { background: rgba(62,207,142,0.15); color: var(--accent); border-color: var(--accent); }
+        .drawer-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; flex-shrink: 0; }
  
         /* ═══════════════════════════════════
            WORKSPACE & JANELAS — DESKTOP
@@ -159,23 +160,37 @@
             overflow-y: auto;
             height: 100%;
         }
+        #mobile-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
         .mobile-card {
             background: var(--window-bg);
             border: 1px solid var(--win-border);
-            border-radius: 16px;
+            border-radius: 14px;
             overflow: hidden;
             backdrop-filter: blur(12px);
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .mobile-card.wide {
+            grid-column: span 3;
+            aspect-ratio: unset;
         }
         .mobile-card-header {
             background: var(--win-header);
             border-bottom: 1px solid var(--win-border);
-            padding: 10px 16px;
+            padding: 6px 10px;
             display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
         }
-        .mobile-card-header span { font-size: 9px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
-        .mobile-card-header button { color: #6b7280; background: none; border: none; font-size: 16px; cursor: pointer; line-height: 1; padding: 0; }
-        .mobile-card-body { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 110px; }
-        .mobile-sensor-val { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1; }
+        .mobile-card-header span { font-size: 7px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; }
+        .mobile-card-header button { color: #6b7280; background: none; border: none; font-size: 14px; cursor: pointer; line-height: 1; padding: 0; }
+        .mobile-card-body { padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex: 1; }
+        .mobile-sensor-val { font-size: 1.6rem; font-weight: 800; color: var(--accent); line-height: 1; }
+        .mobile-sensor-unit { font-size: 8px; opacity: 0.35; margin-top: 4px; }
         .mobile-camera-body { height: 220px; background: black; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .mobile-camera-body img { width: 100%; height: 100%; object-fit: cover; }
  
@@ -249,6 +264,7 @@
             <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.25em;color:rgba(62,207,142,0.5);text-transform:uppercase;">G.R.I.D</span>
             <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;letter-spacing:0.15em;color:rgba(100,116,139,0.5);text-transform:uppercase;"> // Dashboard</span>
         </div>
+        <div id="mobile-cards-grid"></div>
     </main>
  
     <!-- ══════════════════════════════════════
@@ -262,14 +278,6 @@
         <button class="bnav-item" onclick="toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
             Sensores
-        </button>
-        <a href="/logs" class="bnav-item text-orange-400">
-            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            Logs
-        </a>
-        <button class="bnav-item text-blue-400" onclick="mobileScrollTop()">
-            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-            Topo
         </button>
         <button class="bnav-item" onclick="toggleTheme()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -508,31 +516,32 @@
             const id = `mcard-${type}`;
             const existing = document.getElementById(id);
             if (existing) { existing.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
- 
-            const body = type === 'camera' ?
+
+            const isCamera = type === 'camera';
+            const body = isCamera ?
                 `<div class="mobile-camera-body">
                     <img src="http://172.20.10.4:81/stream" style="width:100%;height:100%;object-fit:cover"
                          onerror="this.style.display='none'"/>
                     <span style="color:#f85149;font-size:10px;font-weight:700;display:none" class="anim-pulse">[NO SIGNAL]</span>
                 </div>` :
                 `<div class="mobile-card-body">
-                    <div class="label-sub" style="font-size:9px;text-transform:uppercase;letter-spacing:2px;opacity:.4;margin-bottom:8px">${labelMap[type]||title}</div>
+                    <div style="font-size:7px;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;margin-bottom:4px">${labelMap[type]||title}</div>
                     <div class="mobile-sensor-val">
                         <span id="mval-${sensorMap[type]}">--</span>
-                        <span style="font-size:.75rem;margin-left:.5rem;opacity:.3">${unitMap[type]}</span>
                     </div>
+                    <div class="mobile-sensor-unit">${unitMap[type]}</div>
                 </div>`;
- 
+
             const card = $(`
-                <div id="${id}" class="mobile-card">
+                <div id="${id}" class="mobile-card${isCamera ? ' wide' : ''}">
                     <div class="mobile-card-header">
                         <span>${title}</span>
                         <button onclick="document.getElementById('${id}').remove()">✕</button>
                     </div>
                     ${body}
                 </div>
-            `).appendTo('#mobile-workspace');
- 
+            `).appendTo('#mobile-cards-grid');
+
             card[0].scrollIntoView({ behavior:'smooth', block:'start' });
         }
  

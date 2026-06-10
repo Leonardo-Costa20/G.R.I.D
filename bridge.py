@@ -6,7 +6,7 @@ from supabase import create_client
  
 load_dotenv()
  
-# --- CONFIGURAÇÕES (via .env) ---
+# --- CONFIGURAÇÕES 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 supabase     = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -43,7 +43,7 @@ def guardar_no_supabase(sensor, valor_bruto):
         print(f"✅ GRAVADO (2min): {sensor} -> {valor_bruto}")
  
     except Exception as e:
-        print(f"❌ Erro ao guardar: {e}")
+        print(f" Erro ao guardar: {e}")
  
 def on_message(client, userdata, msg):
     try:

@@ -180,6 +180,28 @@
                     <p id="match-label" class="text-[9px] mt-1 ml-1 font-bold hidden"></p>
                 </div>
 
+                <!-- Telemóvel -->
+                <div>
+                    <label for="telemovel" class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
+                        Número de Telemóvel <span class="text-red-400">*</span>
+                    </label>
+                    <input
+                        type="tel"
+                        id="telemovel"
+                        name="telemovel"
+                        required
+                        autocomplete="tel"
+                        placeholder="+351 912 345 678"
+                        value="{{ form.telemovel if form else '' }}"
+                        maxlength="20"
+                        class="field-input w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3 text-white text-sm outline-none placeholder:text-slate-700"
+                        oninput="validateTelemovel(this)"
+                        onblur="validateTelemovel(this)"
+                    >
+                    <p id="telemovel-error" class="text-[9px] text-red-400 mt-1 ml-1 hidden"></p>
+                    <p class="text-[8px] text-slate-600 mt-1 ml-1">Formato: +351 9XX XXX XXX ou 9XX XXX XXX</p>
+                </div>
+
                 <button type="submit" id="submit-btn"
                         class="w-full border border-[#3ecf8e] text-[#3ecf8e] hover:bg-[#3ecf8e] hover:text-black font-black py-4 rounded-xl uppercase text-xs transition-all transform active:scale-95 shadow-[0_0_15px_rgba(62,207,142,0.1)] mt-2">
                     Gerar Credenciais
@@ -326,21 +348,39 @@
             btn.style.color = hidden ? '#3ecf8e' : '';
         }
 
+        // ── Validação de telemóvel ────────────────────────────────────────────
+        const TEL_RE = /^(\+351\s?)?9[1236]\d{7}$|^(\+351\s?)?\d{9}$/;
+        function validateTelemovel(inp) {
+            const err = document.getElementById('telemovel-error');
+            const val = inp.value.replace(/\s/g, '');
+            if (!val) {
+                setFieldState(inp, err, 'error', 'O telemóvel é obrigatório.');
+            } else if (!/^(\+351)?9[1236]\d{7}$/.test(val) && !/^\+?\d{7,15}$/.test(val)) {
+                setFieldState(inp, err, 'error', 'Número inválido. Ex: 912345678 ou +351912345678');
+            } else {
+                setFieldState(inp, err, 'ok');
+            }
+        }
+
         // ── Submit guard ──────────────────────────────────────────────────────
         document.getElementById('reg-form').addEventListener('submit', function(e) {
             const emailEl = document.getElementById('email');
             const userEl  = document.getElementById('username');
+            const telEl   = document.getElementById('telemovel');
             const pw1     = document.getElementById('pw1').value;
             const pw2     = document.getElementById('pw2').value;
             let ok = true;
 
             validateEmail(emailEl);
             validateUsername(userEl);
+            validateTelemovel(telEl);
 
             if (!EMAIL_RE.test(emailEl.value.trim())) ok = false;
             if (!USER_RE.test(userEl.value.trim()))   ok = false;
             if (pw1.length < 8 || !/[A-Z]/.test(pw1) || !/[0-9]/.test(pw1)) ok = false;
             if (pw1 !== pw2) ok = false;
+            const telVal = telEl.value.replace(/\s/g, '');
+            if (!telVal || (!/^(\+351)?9[1236]\d{7}$/.test(telVal) && !/^\+?\d{7,15}$/.test(telVal))) ok = false;
 
             if (!ok) e.preventDefault();
         });

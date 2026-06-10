@@ -120,11 +120,6 @@ def monitor_infraestrutura_loop():
     global rover_online_com_certeza, latencia_db
     while True:
         time.sleep(2)
-        agora = time.time()
-
-        if rover_online_com_certeza and (agora - ultimo_sinal_rover > 7):
-            rover_online_com_certeza = False
-            socketio.emit('rover_status_update', {'status': 'offline'})
 
         if supabase:
             try:
@@ -169,10 +164,6 @@ def on_message(client, userdata, msg):
                 rover_online_com_certeza = False
                 socketio.emit('rover_status_update', {'status': 'offline'})
             return
-
-        if not rover_online_com_certeza:
-            rover_online_com_certeza = True
-            socketio.emit('rover_status_update', {'status': 'online'})
 
         valor_limpo = valor.replace('\n', '').replace('\r', '').strip()
         if not valor_limpo:

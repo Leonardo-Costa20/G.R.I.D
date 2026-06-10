@@ -1,9 +1,4 @@
-//
- // G.R.I.D OS — Service Worker
- // Estratégia: Network-first para rotas dinâmicas Flask,
- // Cache-first para assets estáticos (CSS, JS, fontes).
- //
- 
+
 const CACHE_NAME   = 'grid-os-v4';
 const CACHE_STATIC = 'grid-static-v4';
  
