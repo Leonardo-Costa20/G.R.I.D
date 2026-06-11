@@ -236,6 +236,13 @@
         }
         .rover-badge-name { font-size: 12px; font-weight: 700; color: var(--text-main); }
         .rover-badge-sub  { font-size: 9px; color: var(--text-nav); margin-top: 2px; }
+        .rover-code-digit {
+            width: 40px; height: 48px; text-align: center;
+            font-size: 18px; font-weight: 800; color: var(--accent);
+            background: rgba(0,0,0,0.4); border: 1px solid var(--win-border);
+            border-radius: 10px; outline: none; transition: border-color .2s;
+        }
+        .rover-code-digit:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(62,207,142,.12); }
 
         /* ── Feedback ── */
         .s-msg {
@@ -395,18 +402,32 @@
                                 <div class="rover-badge-sub" id="rover-badge-sub">Estado da vinculação</div>
                             </div>
                         </div>
-                        <p style="font-size:10px;color:var(--text-nav);line-height:1.8;margin-bottom:16px;">
-                            Para vincular um rover, introduz o ID fornecido pelo administrador (ex: <span style="color:var(--accent);">ROVER-1</span>).
-                            Apenas um rover pode estar vinculado de cada vez.
-                        </p>
-                        <div class="s-field">
-                            <label class="s-label">ID do Rover</label>
-                            <input class="s-input" type="text" id="s-rover-id" placeholder="ROVER-1">
+
+                        <!-- Vincular por código (só aparece se não tiver rover) -->
+                        <div id="rover-link-section">
+                            <p style="font-size:10px;color:var(--text-nav);line-height:1.8;margin-bottom:16px;">
+                                Insere o código de 6 dígitos que recebeste no email para vincular o teu rover.
+                            </p>
+                            <div class="s-field">
+                                <label class="s-label">Código do Rover</label>
+                                <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:6px;" id="settings-code-inputs">
+                                    <input maxlength="1" class="rover-code-digit" type="text" inputmode="numeric">
+                                    <input maxlength="1" class="rover-code-digit" type="text" inputmode="numeric">
+                                    <input maxlength="1" class="rover-code-digit" type="text" inputmode="numeric">
+                                    <span style="align-self:center;color:var(--text-nav);font-weight:700;">·</span>
+                                    <input maxlength="1" class="rover-code-digit" type="text" inputmode="numeric">
+                                    <input maxlength="1" class="rover-code-digit" type="text" inputmode="numeric">
+                                    <input maxlength="1" class="rover-code-digit" type="text" inputmode="numeric">
+                                </div>
+                            </div>
+                            <button class="s-btn s-btn-primary" onclick="linkRoverCodigo()">Vincular rover</button>
                         </div>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <button class="s-btn s-btn-primary" id="btn-link-rover" onclick="linkRover()">Vincular rover</button>
-                            <button class="s-btn s-btn-danger" onclick="unlinkRover()">Desvincular</button>
+
+                        <!-- Desvincular (só aparece se tiver rover) -->
+                        <div id="rover-unlink-section" style="display:none;">
+                            <button class="s-btn s-btn-danger" onclick="unlinkRover()">Desvincular rover</button>
                         </div>
+
                         <div id="msg-rover" class="s-msg"></div>
                     </div>
                 </div>
@@ -566,52 +587,61 @@
         }
 
         // ── Rover ──
+        // Navegação entre dígitos do código
+        document.querySelectorAll('.rover-code-digit').forEach((inp, i, all) => {
+            inp.addEventListener('input', () => {
+                inp.value = inp.value.replace(/[^0-9]/g, '');
+                if (inp.value && i < all.length - 1) all[i + 1].focus();
+            });
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !inp.value && i > 0) all[i - 1].focus();
+            });
+        });
+
         function loadRoverStatus() {
             fetch('/api/rover/status')
             .then(r => r.json())
             .then(d => {
-                const dot  = document.getElementById('rover-badge-dot');
-                const name = document.getElementById('rover-badge-name');
-                const sub  = document.getElementById('rover-badge-sub');
-                const btn  = document.getElementById('btn-link-rover');
+                const dot         = document.getElementById('rover-badge-dot');
+                const name        = document.getElementById('rover-badge-name');
+                const sub         = document.getElementById('rover-badge-sub');
+                const linkSection = document.getElementById('rover-link-section');
+                const unlinkSec   = document.getElementById('rover-unlink-section');
+
                 if (d.rover && d.rover !== 'Nenhum') {
                     dot.classList.add('linked');
                     name.textContent = d.rover;
                     sub.textContent  = 'Rover vinculado';
-                    document.getElementById('s-rover-id').value = d.rover;
-                    btn.textContent = 'Trocar rover';
+                    linkSection.style.display   = 'none';
+                    unlinkSec.style.display     = 'block';
                 } else {
                     dot.classList.remove('linked');
                     name.textContent = 'Sem rover vinculado';
                     sub.textContent  = 'Nenhum rover associado à conta';
-                    document.getElementById('s-rover-id').value = '';
-                    btn.textContent = 'Vincular rover';
+                    linkSection.style.display   = 'block';
+                    unlinkSec.style.display     = 'none';
                 }
             })
             .catch(() => {});
         }
 
-        function linkRover() {
-            const rover_id   = document.getElementById('s-rover-id').value.trim();
-            if (!rover_id) return showMsg('msg-rover', 'Introduz o ID do rover.', 'err');
+        function linkRoverCodigo() {
+            const digits = [...document.querySelectorAll('.rover-code-digit')].map(i => i.value).join('');
+            if (digits.length < 6) return showMsg('msg-rover', 'Insere os 6 dígitos do código.', 'err');
 
-            const nomeAtual  = document.getElementById('rover-badge-name').textContent;
-            const jaTemRover = nomeAtual !== 'Sem rover vinculado' && nomeAtual !== 'A verificar...';
+            const fd = new FormData();
+            fd.append('email', '{{ email }}');
+            fd.append('codigo', digits);
 
-            if (jaTemRover && rover_id === document.getElementById('s-rover-id').defaultValue) {
-                return showMsg('msg-rover', 'Este rover já está vinculado.', 'err');
-            }
-            if (jaTemRover && !confirm(`O rover "${nomeAtual}" está atualmente vinculado.\nQueres substituir por "${rover_id}"?`)) return;
-
-            fetch('/api/rover/link', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ rover_id })
-            })
+            fetch('/rover/verificar-codigo', { method: 'POST', body: fd })
             .then(r => r.json())
             .then(d => {
-                if (d.status === 'ok') { showMsg('msg-rover', 'Rover vinculado com sucesso.', 'ok'); loadRoverStatus(); }
-                else showMsg('msg-rover', d.error || 'Erro ao vincular.', 'err');
+                if (d.status === 'success') {
+                    showMsg('msg-rover', '✓ Rover "' + d.rover_nome + '" vinculado com sucesso!', 'ok');
+                    loadRoverStatus();
+                } else {
+                    showMsg('msg-rover', d.message || 'Código inválido.', 'err');
+                }
             })
             .catch(() => showMsg('msg-rover', 'Sem ligação ao servidor.', 'err'));
         }

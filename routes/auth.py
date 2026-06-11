@@ -132,25 +132,30 @@ def register():
                                            errors=['Este nome de utilizador já está em uso.'],
                                            form=request.form)
 
-                data = {
-                    'email':           email,
-                    'username':        username,
-                    'password':        hash_password(password),
-                    'telemovel':       telemovel,
-                    'aprovado':        False,
-                    'role':            'viewer',
-                }
-                supabase.table('users').insert(data).execute()
-
-                # Verificar se existe um rover pendente para este email na BD
+                # Verificar se existe um rover pendente para este email antes de inserir
                 rover_pendente = None
+                rover_id_pendente = None
                 try:
                     rv = supabase.table('rovers').select('id, nome') \
                         .eq('email_dono', email).eq('ativo', False).maybe_single().execute()
                     if rv.data:
-                        rover_pendente = rv.data
+                        rover_pendente    = rv.data
+                        rover_id_pendente = rv.data['id']
                 except Exception:
                     pass
+
+                data = {
+                    'email':     email,
+                    'username':  username,
+                    'password':  hash_password(password),
+                    'telemovel': telemovel,
+                    'aprovado':  False,
+                    'role':      'viewer',
+                }
+                if rover_id_pendente:
+                    data['rover_id'] = rover_id_pendente
+
+                supabase.table('users').insert(data).execute()
 
                 msg      = 'CONTA CRIADA! AGUARDA APROVAÇÃO DO ADMINISTRADOR.'
                 msg_type = 'success'

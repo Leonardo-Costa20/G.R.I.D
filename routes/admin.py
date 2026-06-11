@@ -137,8 +137,6 @@ def admin_bind_rover():
     try:
         rid = int(rover_id) if rover_id and rover_id != 'Nenhum' else None
         supabase.table('users').update({'rover_id': rid}).eq('username', username).execute()
-        if rid:
-            supabase.table('rovers').update({'ativo': True}).eq('id', rid).execute()
         return jsonify({'status': 'success'})
     except Exception:
         return jsonify({'status': 'error'}), 500

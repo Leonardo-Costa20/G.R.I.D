@@ -150,7 +150,7 @@
                     <div id="strength-label" class="text-[9px] text-gray-600 mt-1 ml-1 font-bold"></div>
 
                     <!-- Requisitos -->
-                    <ul class="mt-2 space-y-0.5 ml-1">
+                    <ul id="pw-reqs" class="mt-2 space-y-0.5 ml-1 hidden">
                         <li id="req-len"   class="req-item unmet text-[8px] flex items-center gap-1"><span>·</span> Mínimo 8 caracteres</li>
                         <li id="req-upper" class="req-item unmet text-[8px] flex items-center gap-1"><span>·</span> Uma letra maiúscula</li>
                         <li id="req-num"   class="req-item unmet text-[8px] flex items-center gap-1"><span>·</span> Um número</li>
@@ -264,6 +264,15 @@
             setReq('req-len',   hasLen);
             setReq('req-upper', hasUpper);
             setReq('req-num',   hasNum);
+
+            // Mostra requisitos só se a password tiver algo E não cumprir tudo
+            const allMet = hasLen && hasUpper && hasNum;
+            const reqList = document.getElementById('pw-reqs');
+            if (pw.length > 0 && !allMet) {
+                reqList.classList.remove('hidden');
+            } else {
+                reqList.classList.add('hidden');
+            }
 
             let score = 0;
             if (hasLen)   score++;

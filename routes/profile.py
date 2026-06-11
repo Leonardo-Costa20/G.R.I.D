@@ -72,8 +72,13 @@ def api_rover_status():
     if not supabase:
         return jsonify({'rover': 'Nenhum'})
     try:
-        res = supabase.table('users').select('rover_vinculado').eq('username', session['username']).single().execute()
-        return jsonify({'rover': res.data.get('rover_vinculado', 'Nenhum') if res.data else 'Nenhum'})
+        res = supabase.table('users').select('rover_id').eq('username', session['username']).single().execute()
+        rover_id = res.data.get('rover_id') if res.data else None
+        if not rover_id:
+            return jsonify({'rover': 'Nenhum'})
+        rv = supabase.table('rovers').select('nome').eq('id', rover_id).single().execute()
+        nome = rv.data.get('nome', 'Nenhum') if rv.data else 'Nenhum'
+        return jsonify({'rover': nome})
     except Exception:
         return jsonify({'rover': 'Nenhum'})
 
@@ -103,7 +108,7 @@ def api_rover_unlink():
         return jsonify({'error': 'Database unavailable'}), 503
 
     try:
-        supabase.table('users').update({'rover_vinculado': 'Nenhum'}).eq('username', session['username']).execute()
+        supabase.table('users').update({'rover_id': None}).eq('username', session['username']).execute()
         return jsonify({'status': 'ok'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
