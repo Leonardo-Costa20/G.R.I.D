@@ -30,6 +30,42 @@
             --grid-color: rgba(62, 207, 142, 0.05);
         }
  
+        body.light-mode {
+            --bg-color: #f0f4f8;
+            --sidebar-bg: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --text-main: #1a202c;
+            --text-nav: #4a5568;
+            --win-border: rgba(0, 0, 0, 0.1);
+            --grid-color: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Light mode overrides para cores Tailwind hardcoded */
+        body.light-mode .text-white { color: var(--text-main) !important; }
+        body.light-mode .text-gray-400,
+        body.light-mode .text-gray-500 { color: var(--text-nav) !important; }
+        body.light-mode .text-gray-700 { color: #9ca3af !important; }
+
+        /* Inputs da Gestão de Rovers */
+        body.light-mode input[class*="bg-black"] {
+            background: var(--sidebar-bg) !important;
+            color: var(--text-main) !important;
+        }
+        body.light-mode input::placeholder { color: #a0aec0 !important; }
+
+        /* Dropdown role select (VIEWER) */
+        body.light-mode select[class*="bg-\[#161b22\]"],
+        body.light-mode select { background: var(--sidebar-bg) !important; color: var(--text-main) !important; }
+
+        /* Cards dos rovers e terminal */
+        body.light-mode [class*="bg-black"] {
+            background: var(--card-bg) !important;
+        }
+        body.light-mode #admin-terminal { color: var(--text-nav) !important; }
+
+        /* Linhas da tabela */
+        body.light-mode tbody tr { border-color: var(--win-border) !important; }
+
         body { font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); color: var(--text-main); margin: 0; overflow-x: hidden; }
         .grid-canvas { background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px); background-size: 30px 30px; position: fixed; inset: 0; z-index: 0; pointer-events: none; }
         
@@ -74,8 +110,8 @@
     <main class="flex-1 p-8 flex flex-col gap-6 overflow-y-auto z-10">
         <header class="flex justify-between items-center border-b border-[var(--win-border)] pb-4">
             <div>
-                <h1 class="text-xl font-extrabold text-white tracking-wider uppercase">G.R.I.D OS // Admin Panel</h1>
-                <p class="text-xs text-gray-400 mt-1">Sessão activa como: <span class="text-[var(--accent)] font-bold">{{ username }}</span></p>
+                <h1 class="text-xl font-extrabold tracking-wider uppercase" style="color:var(--text-main);">G.R.I.D OS // Admin Panel</h1>
+                <p class="text-xs mt-1" style="color:var(--text-nav);">Sessão activa como: <span class="text-[var(--accent)] font-bold">{{ username }}</span></p>
             </div>
             <div class="flex gap-4 text-xs font-bold">
                 <div class="bg-black/40 px-4 py-2 border border-[var(--win-border)] rounded-lg flex items-center gap-2">
@@ -109,7 +145,7 @@
  
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
             <div class="admin-card p-6 lg:col-span-2 flex flex-col gap-4">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-white border-b border-[var(--win-border)] pb-2">Gestão de Permissões</h2>
+                <h2 class="text-xs font-bold uppercase tracking-widest border-b border-[var(--win-border)] pb-2" style="color:var(--text-main);">Gestão de Permissões</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead>
@@ -124,7 +160,7 @@
                         <tbody class="divide-y divide-gray-800/50">
                             {% for user in (users | selectattr('role', 'equalto', 'admin') | list) + (users | rejectattr('role', 'equalto', 'admin') | list) %}
                             <tr class="group {% if user.role == 'admin' %}row-admin{% endif %}" id="row-{{ user.username }}">
-                                <td class="py-4 font-bold text-white">
+                                <td class="py-4 font-bold" style="color:var(--text-main);">
                                     {{ user.username }}
                                     <span class="block text-[10px] font-normal text-gray-500">{{ user.email }}</span>
                                 </td>
