@@ -16,7 +16,7 @@ O G.R.I.D OS é o "cérebro" do sistema G.R.I.D — uma aplicação web que rece
 - **Controlo do rover** — joystick virtual com comandos de direção e velocidade
 - **Autenticação** — registo, login, recuperação de password por email e sistema de aprovação por administrador
 - **Vinculação de rover** — associação de rovers a utilizadores via código enviado por email
-- **Painel de administração** — gestão de utilizadores (aprovar, bloquear, alterar papel) e gestão de rovers
+- **Painel de administração** — gestão de utilizadores (aprovar, bloquear, alterar cargo) e gestão de rovers
 - **Logs de operação** — histórico filtrável de eventos e leituras de sensores, com exportação em CSV e PDF
 - **PWA** — instalável como app nativa (manifest + service worker incluídos)
 - **Bridge autónoma** — script independente para persistir dados MQTT no Supabase sem o servidor web
