@@ -1,60 +1,31 @@
 import secrets
-import threading
-import requests
 
 from flask import render_template, request, jsonify, redirect, url_for, session
-from core import supabase, RESEND_API_KEY
+from core import supabase, _enviar_email_mailerlite
 
 
 def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool:
-    """Envia em background via Resend API."""
-
-    def _send():
-        try:
-            codigo_fmt = f"{codigo[:3]} {codigo[3:]}"
-
-            html = f"""
-            <div style="background:#0a0c10;padding:40px;font-family:monospace;color:#c9d1d9;">
-                <h1 style="color:#3ecf8e;letter-spacing:4px;font-size:20px;">G.R.I.D OS</h1>
-                <p style="color:#6b7280;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Vinculação de Equipamento</p>
-                <hr style="border-color:#30363d;margin:24px 0;">
-                <p>Um administrador associou o rover <strong style="color:#3ecf8e;">{nome_rover}</strong> à tua conta.</p>
-                <p>Quando fizeres registo pela primeira vez, insere o código abaixo para confirmar a vinculação.</p>
-                <div style="margin:32px 0;text-align:center;">
-                    <div style="display:inline-block;background:#12151a;border:2px solid #3ecf8e;border-radius:16px;padding:24px 40px;">
-                        <p style="color:#6b7280;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin:0 0 12px 0;">Código de Vinculação</p>
-                        <p style="color:#3ecf8e;font-size:36px;font-weight:800;letter-spacing:12px;margin:0;">{codigo_fmt}</p>
-                    </div>
-                </div>
-                <p style="color:#6b7280;font-size:10px;">Guarda este código — será pedido no primeiro acesso.</p>
-                <hr style="border-color:#30363d;margin:24px 0;">
-                <p style="color:#374151;font-size:9px;letter-spacing:2px;">G.R.I.D OS · PAP 2026</p>
+    """Envia email de vinculação de rover via MailerLite."""
+    codigo_fmt = f"{codigo[:3]} {codigo[3:]}"
+    html = f"""
+    <div style="background:#0a0c10;padding:40px;font-family:monospace;color:#c9d1d9;">
+        <h1 style="color:#3ecf8e;letter-spacing:4px;font-size:20px;">G.R.I.D OS</h1>
+        <p style="color:#6b7280;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Vinculação de Equipamento</p>
+        <hr style="border-color:#30363d;margin:24px 0;">
+        <p>Um administrador associou o rover <strong style="color:#3ecf8e;">{nome_rover}</strong> à tua conta.</p>
+        <p>Quando fizeres registo pela primeira vez, insere o código abaixo para confirmar a vinculação.</p>
+        <div style="margin:32px 0;text-align:center;">
+            <div style="display:inline-block;background:#12151a;border:2px solid #3ecf8e;border-radius:16px;padding:24px 40px;">
+                <p style="color:#6b7280;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin:0 0 12px 0;">Código de Vinculação</p>
+                <p style="color:#3ecf8e;font-size:36px;font-weight:800;letter-spacing:12px;margin:0;">{codigo_fmt}</p>
             </div>
-            """
-
-            resp = requests.post(
-                'https://api.resend.com/emails',
-                headers={
-                    'Authorization': f'Bearer {RESEND_API_KEY}',
-                    'Content-Type': 'application/json',
-                },
-                json={
-                    'from':    'G.R.I.D OS <onboarding@resend.dev>',
-                    'to':      [destinatario],
-                    'subject': 'G.R.I.D OS — Rover Vinculado à tua Conta',
-                    'html':    html,
-                },
-                timeout=10
-            )
-            if resp.status_code in (200, 201):
-                print(f"[EMAIL ROVER] Enviado para {destinatario}")
-            else:
-                print(f"[EMAIL ROVER] Erro Resend {resp.status_code}: {resp.text}")
-        except Exception as e:
-            print(f"[EMAIL ROVER] Erro: {e}")
-
-    threading.Thread(target=_send, daemon=True).start()
-    return True
+        </div>
+        <p style="color:#6b7280;font-size:10px;">Guarda este código — será pedido no primeiro acesso.</p>
+        <hr style="border-color:#30363d;margin:24px 0;">
+        <p style="color:#374151;font-size:9px;letter-spacing:2px;">G.R.I.D OS · PAP 2026</p>
+    </div>
+    """
+    return _enviar_email_mailerlite(destinatario, 'G.R.I.D OS — Rover Vinculado à tua Conta', html)
 
 
 # ── Painel ────────────────────────────────────────────────────────────────────
@@ -137,6 +108,8 @@ def admin_bind_rover():
     try:
         rid = int(rover_id) if rover_id and rover_id != 'Nenhum' else None
         supabase.table('users').update({'rover_id': rid}).eq('username', username).execute()
+        if rid:
+            supabase.table('rovers').update({'ativo': True}).eq('id', rid).execute()
         return jsonify({'status': 'success'})
     except Exception:
         return jsonify({'status': 'error'}), 500
