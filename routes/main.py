@@ -4,11 +4,6 @@ from flask import render_template, redirect, url_for, request, session
 def landing_apresentacao():
     if session.get('logged_in'):
         return redirect(url_for('index'))
-
-    referer = request.headers.get('Referer', '')
-    sec_fetch_site = request.headers.get('Sec-Fetch-Site', '')
-    if not referer and sec_fetch_site == 'none':
-        return redirect(url_for('welcome'))
     return render_template('landing_apresentacao.html')
 
 

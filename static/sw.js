@@ -1,6 +1,5 @@
-
-const CACHE_NAME   = 'grid-os-v4';
-const CACHE_STATIC = 'grid-static-v4';
+const CACHE_NAME   = 'grid-os-v5';
+const CACHE_STATIC = 'grid-static-v5';
  
 // Assets estáticos que devem ser cacheados na instalação
 const STATIC_ASSETS = [

@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G.R.I.D OS — Ground Recon & Intelligent Detection</title>
 
+    <!-- PWA: se aberto em modo standalone (instalado), redireciona para /app -->
+    <script>
+        (function() {
+            var isStandalone =
+                window.matchMedia('(display-mode: standalone)').matches ||
+                window.navigator.standalone === true;
+            if (isStandalone) {
+                window.location.replace('/app');
+            }
+        })();
+    </script>
     <!-- PWA — o manifest aponta start_url para /app, não para aqui -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#0a0c10">
