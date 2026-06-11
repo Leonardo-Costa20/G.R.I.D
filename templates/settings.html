@@ -333,6 +333,10 @@
                             <label class="s-label">Email</label>
                             <input class="s-input" type="email" id="s-email" value="{{ email }}" placeholder="email@grid.pt">
                         </div>
+                        <div class="s-field">
+                            <label class="s-label">Telemóvel</label>
+                            <input class="s-input" type="tel" id="s-phone" value="{{ phone or '' }}" placeholder="+351 9XX XXX XXX">
+                        </div>
                         <div style="display:flex;gap:10px;margin-top:4px;">
                             <button class="s-btn s-btn-primary" onclick="saveProfile()">Guardar alterações</button>
                         </div>
@@ -425,7 +429,14 @@
 
                         <!-- Desvincular (só aparece se tiver rover) -->
                         <div id="rover-unlink-section" style="display:none;">
-                            <button class="s-btn s-btn-danger" onclick="unlinkRover()">Desvincular rover</button>
+                            <div class="s-field" style="margin-bottom:14px;">
+                                <label class="s-label">Nome personalizado</label>
+                                <input class="s-input" type="text" id="rover-custom-name" placeholder="Ex: Rover Alpha" maxlength="32">
+                            </div>
+                            <div style="display:flex;gap:10px;">
+                                <button class="s-btn s-btn-primary" onclick="saveRoverName()">Guardar nome</button>
+                                <button class="s-btn s-btn-danger" onclick="unlinkRover()">Desvincular rover</button>
+                            </div>
                         </div>
 
                         <div id="msg-rover" class="s-msg"></div>
@@ -436,33 +447,6 @@
                 <div id="tab-preferencias" class="spanel">
                     <div class="spanel-title">Preferências</div>
                     <div class="spanel-sub">Personaliza a tua experiência</div>
-
-                    <div class="s-card">
-                        <div class="s-card-title">
-                            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                            Notificações
-                        </div>
-                        <div class="s-toggle-row">
-                            <div class="s-toggle-info">
-                                <div class="s-toggle-label">Alertas de sensores</div>
-                                <div class="s-toggle-desc">Receber notificações no browser</div>
-                            </div>
-                            <label class="s-toggle">
-                                <input type="checkbox" id="pref-notif">
-                                <span class="s-slider"></span>
-                            </label>
-                        </div>
-                        <div class="s-toggle-row">
-                            <div class="s-toggle-info">
-                                <div class="s-toggle-label">Som de alertas</div>
-                                <div class="s-toggle-desc">Reproduzir som quando há alertas críticos</div>
-                            </div>
-                            <label class="s-toggle">
-                                <input type="checkbox" id="pref-sound">
-                                <span class="s-slider"></span>
-                            </label>
-                        </div>
-                    </div>
 
                     <div class="s-card">
                         <div class="s-card-title">
@@ -479,15 +463,17 @@
                                 <span class="s-slider"></span>
                             </label>
                         </div>
-                        <div class="s-toggle-row">
+                        <div class="s-toggle-row" style="border-bottom:none;padding-bottom:0;">
                             <div class="s-toggle-info">
-                                <div class="s-toggle-label">Atualização em tempo real</div>
-                                <div class="s-toggle-desc">Atualizar dados dos sensores automaticamente</div>
+                                <div class="s-toggle-label" data-i18n="pref_language">Idioma</div>
+                                <div class="s-toggle-desc" data-i18n="pref_language_desc">Língua da interface</div>
                             </div>
-                            <label class="s-toggle">
-                                <input type="checkbox" id="pref-autoupdate">
-                                <span class="s-slider"></span>
-                            </label>
+                            <select id="pref-lang" class="s-input" style="width:auto;min-width:130px;padding:7px 12px;" onchange="applyLang(this.value)">
+                                <option value="pt">🇵🇹 Português</option>
+                                <option value="en">🇬🇧 English</option>
+                                <option value="es">🇪🇸 Español</option>
+                                <option value="fr">🇫🇷 Français</option>
+                            </select>
                         </div>
                     </div>
 
@@ -531,11 +517,12 @@
         function saveProfile() {
             const username = document.getElementById('s-username').value.trim();
             const email    = document.getElementById('s-email').value.trim();
+            const phone    = document.getElementById('s-phone').value.trim();
             if (!username) return showMsg('msg-perfil', 'O nome de utilizador não pode estar vazio.', 'err');
             fetch('/api/profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email })
+                body: JSON.stringify({ username, email, phone })
             })
             .then(r => r.json())
             .then(d => {
@@ -610,19 +597,29 @@
 
                 if (d.rover && d.rover !== 'Nenhum') {
                     dot.classList.add('linked');
-                    name.textContent = d.rover;
+                    const customName = localStorage.getItem('rover_custom_name') || d.rover;
+                    name.textContent = customName;
                     sub.textContent  = 'Rover vinculado';
-                    linkSection.style.display   = 'none';
-                    unlinkSec.style.display     = 'block';
+                    linkSection.style.display = 'none';
+                    unlinkSec.style.display   = 'block';
+                    document.getElementById('rover-custom-name').value = customName !== d.rover ? customName : '';
                 } else {
                     dot.classList.remove('linked');
                     name.textContent = 'Sem rover vinculado';
                     sub.textContent  = 'Nenhum rover associado à conta';
-                    linkSection.style.display   = 'block';
-                    unlinkSec.style.display     = 'none';
+                    linkSection.style.display = 'block';
+                    unlinkSec.style.display   = 'none';
                 }
             })
             .catch(() => {});
+        }
+
+        function saveRoverName() {
+            const val = document.getElementById('rover-custom-name').value.trim();
+            if (!val) return showMsg('msg-rover', 'Insere um nome para o rover.', 'err');
+            localStorage.setItem('rover_custom_name', val);
+            document.getElementById('rover-badge-name').textContent = val;
+            showMsg('msg-rover', 'Nome guardado.', 'ok');
         }
 
         function linkRoverCodigo() {
@@ -658,17 +655,209 @@
 
         // ── Preferências ──
         function loadPrefs() {
-            document.getElementById('pref-notif').checked      = localStorage.getItem('pref_notif')      !== 'false';
-            document.getElementById('pref-sound').checked      = localStorage.getItem('pref_sound')      === 'true';
-            document.getElementById('pref-autoupdate').checked = localStorage.getItem('pref_autoupdate') !== 'false';
-            document.getElementById('pref-light').checked      = localStorage.getItem('grid_theme')      === 'light';
+            document.getElementById('pref-light').checked = localStorage.getItem('grid_theme') === 'light';
+            const lang = localStorage.getItem('grid_lang') || 'pt';
+            document.getElementById('pref-lang').value = lang;
+            applyLang(lang, false);
         }
 
         function savePrefs() {
-            localStorage.setItem('pref_notif',      document.getElementById('pref-notif').checked);
-            localStorage.setItem('pref_sound',      document.getElementById('pref-sound').checked);
-            localStorage.setItem('pref_autoupdate', document.getElementById('pref-autoupdate').checked);
-            showMsg('msg-prefs', 'Preferências guardadas.', 'ok');
+            localStorage.setItem('grid_lang', document.getElementById('pref-lang').value);
+            showMsg('msg-prefs', i18n[currentLang]?.prefs_saved || 'Preferências guardadas.', 'ok');
+        }
+
+        // ── i18n ──
+        const i18n = {
+            pt: {
+                title: 'Definições',
+                tab_perfil: 'Perfil', tab_password: 'Password', tab_rover: 'Rover', tab_prefs: 'Preferências',
+                perfil_title: 'Perfil', perfil_sub: 'Informações da tua conta',
+                dados_title: 'Dados de Conta',
+                lbl_username: 'Nome de utilizador', lbl_email: 'Email', lbl_phone: 'Telemóvel',
+                btn_save_profile: 'Guardar alterações',
+                session_title: 'Informação da Sessão', lbl_access: 'Nível de acesso', lbl_status: 'Estado da conta', val_approved: '● Aprovada',
+                pw_title: 'Password', pw_sub: 'Altera a tua palavra-passe de acesso',
+                pw_card: 'Alterar Password', lbl_pw_cur: 'Password atual', lbl_pw_new: 'Nova password', lbl_pw_confirm: 'Confirmar nova password',
+                btn_change_pw: 'Alterar password',
+                rover_title: 'Rover', rover_sub: 'Vincula e gere o teu rover',
+                rover_status_card: 'Estado do Rover', rover_checking: 'A verificar...', rover_state: 'Estado da vinculação',
+                rover_code_hint: 'Insere o código de 6 dígitos que recebeste no email para vincular o teu rover.',
+                lbl_rover_code: 'Código do Rover', btn_link_rover: 'Vincular rover',
+                lbl_rover_name: 'Nome personalizado', btn_save_name: 'Guardar nome', btn_unlink: 'Desvincular rover',
+                prefs_title: 'Preferências', prefs_sub: 'Personaliza a tua experiência',
+                iface_card: 'Interface', lbl_theme: 'Tema claro', desc_theme: 'Ativado = tema claro · Desativado = tema escuro',
+                pref_language: 'Idioma', pref_language_desc: 'Língua da interface',
+                btn_save_prefs: 'Guardar preferências', prefs_saved: 'Preferências guardadas.',
+            },
+            en: {
+                title: 'Settings',
+                tab_perfil: 'Profile', tab_password: 'Password', tab_rover: 'Rover', tab_prefs: 'Preferences',
+                perfil_title: 'Profile', perfil_sub: 'Your account information',
+                dados_title: 'Account Data',
+                lbl_username: 'Username', lbl_email: 'Email', lbl_phone: 'Phone',
+                btn_save_profile: 'Save changes',
+                session_title: 'Session Info', lbl_access: 'Access level', lbl_status: 'Account status', val_approved: '● Approved',
+                pw_title: 'Password', pw_sub: 'Change your access password',
+                pw_card: 'Change Password', lbl_pw_cur: 'Current password', lbl_pw_new: 'New password', lbl_pw_confirm: 'Confirm new password',
+                btn_change_pw: 'Change password',
+                rover_title: 'Rover', rover_sub: 'Link and manage your rover',
+                rover_status_card: 'Rover Status', rover_checking: 'Checking...', rover_state: 'Link status',
+                rover_code_hint: 'Enter the 6-digit code you received by email to link your rover.',
+                lbl_rover_code: 'Rover Code', btn_link_rover: 'Link rover',
+                lbl_rover_name: 'Custom name', btn_save_name: 'Save name', btn_unlink: 'Unlink rover',
+                prefs_title: 'Preferences', prefs_sub: 'Customize your experience',
+                iface_card: 'Interface', lbl_theme: 'Light theme', desc_theme: 'On = light theme · Off = dark theme',
+                pref_language: 'Language', pref_language_desc: 'Interface language',
+                btn_save_prefs: 'Save preferences', prefs_saved: 'Preferences saved.',
+            },
+            es: {
+                title: 'Configuración',
+                tab_perfil: 'Perfil', tab_password: 'Contraseña', tab_rover: 'Rover', tab_prefs: 'Preferencias',
+                perfil_title: 'Perfil', perfil_sub: 'Información de tu cuenta',
+                dados_title: 'Datos de Cuenta',
+                lbl_username: 'Nombre de usuario', lbl_email: 'Email', lbl_phone: 'Teléfono',
+                btn_save_profile: 'Guardar cambios',
+                session_title: 'Info de Sesión', lbl_access: 'Nivel de acceso', lbl_status: 'Estado de la cuenta', val_approved: '● Aprobada',
+                pw_title: 'Contraseña', pw_sub: 'Cambia tu contraseña de acceso',
+                pw_card: 'Cambiar Contraseña', lbl_pw_cur: 'Contraseña actual', lbl_pw_new: 'Nueva contraseña', lbl_pw_confirm: 'Confirmar nueva contraseña',
+                btn_change_pw: 'Cambiar contraseña',
+                rover_title: 'Rover', rover_sub: 'Vincula y gestiona tu rover',
+                rover_status_card: 'Estado del Rover', rover_checking: 'Comprobando...', rover_state: 'Estado del vínculo',
+                rover_code_hint: 'Introduce el código de 6 dígitos que recibiste por email para vincular tu rover.',
+                lbl_rover_code: 'Código del Rover', btn_link_rover: 'Vincular rover',
+                lbl_rover_name: 'Nombre personalizado', btn_save_name: 'Guardar nombre', btn_unlink: 'Desvincular rover',
+                prefs_title: 'Preferencias', prefs_sub: 'Personaliza tu experiencia',
+                iface_card: 'Interfaz', lbl_theme: 'Tema claro', desc_theme: 'Activado = tema claro · Desactivado = tema oscuro',
+                pref_language: 'Idioma', pref_language_desc: 'Idioma de la interfaz',
+                btn_save_prefs: 'Guardar preferencias', prefs_saved: 'Preferencias guardadas.',
+            },
+            fr: {
+                title: 'Paramètres',
+                tab_perfil: 'Profil', tab_password: 'Mot de passe', tab_rover: 'Rover', tab_prefs: 'Préférences',
+                perfil_title: 'Profil', perfil_sub: 'Informations de votre compte',
+                dados_title: 'Données du Compte',
+                lbl_username: 'Nom d\'utilisateur', lbl_email: 'Email', lbl_phone: 'Téléphone',
+                btn_save_profile: 'Enregistrer les modifications',
+                session_title: 'Info de Session', lbl_access: 'Niveau d\'accès', lbl_status: 'État du compte', val_approved: '● Approuvé',
+                pw_title: 'Mot de passe', pw_sub: 'Modifier votre mot de passe',
+                pw_card: 'Changer le mot de passe', lbl_pw_cur: 'Mot de passe actuel', lbl_pw_new: 'Nouveau mot de passe', lbl_pw_confirm: 'Confirmer le nouveau mot de passe',
+                btn_change_pw: 'Changer le mot de passe',
+                rover_title: 'Rover', rover_sub: 'Lier et gérer votre rover',
+                rover_status_card: 'État du Rover', rover_checking: 'Vérification...', rover_state: 'État du lien',
+                rover_code_hint: 'Entrez le code à 6 chiffres reçu par email pour lier votre rover.',
+                lbl_rover_code: 'Code du Rover', btn_link_rover: 'Lier le rover',
+                lbl_rover_name: 'Nom personnalisé', btn_save_name: 'Enregistrer le nom', btn_unlink: 'Délier le rover',
+                prefs_title: 'Préférences', prefs_sub: 'Personnalisez votre expérience',
+                iface_card: 'Interface', lbl_theme: 'Thème clair', desc_theme: 'Activé = thème clair · Désactivé = thème sombre',
+                pref_language: 'Langue', pref_language_desc: 'Langue de l\'interface',
+                btn_save_prefs: 'Enregistrer les préférences', prefs_saved: 'Préférences enregistrées.',
+            }
+        };
+
+        let currentLang = 'pt';
+
+        const i18nMap = {
+            'topbar-sub-lang':           l => document.querySelector('.topbar-sub') && null, // skip
+            '[data-i18n="tab_perfil"]':        l => i18n[l].tab_perfil,
+            '[data-i18n="tab_password"]':      l => i18n[l].tab_password,
+            '[data-i18n="tab_rover"]':         l => i18n[l].tab_rover,
+            '[data-i18n="tab_prefs"]':         l => i18n[l].tab_prefs,
+        };
+
+        function applyLang(lang, save = true) {
+            currentLang = lang;
+            if (save) localStorage.setItem('grid_lang', lang);
+            const t = i18n[lang];
+            if (!t) return;
+
+            // Page title
+            document.querySelector('.topbar-title').innerHTML = 'G.R.I.D <span>OS</span> // ' + t.title;
+
+            // Tabs
+            const tabs = document.querySelectorAll('.stab');
+            const tabKeys = ['tab_perfil','tab_password',null,'tab_rover',null,'tab_prefs'];
+            let ti = 0;
+            tabs.forEach(tab => { if (tabKeys[ti] && t[tabKeys[ti]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[ti]]; ti++; });
+
+            // Perfil panel
+            setText('#tab-perfil .spanel-title', t.perfil_title);
+            setText('#tab-perfil .spanel-sub', t.perfil_sub);
+            setCardTitle('#tab-perfil .s-card:nth-child(1) .s-card-title', t.dados_title);
+            setLabel('[for-key="username"]', t.lbl_username);
+            setLabel('[for-key="email"]', t.lbl_email);
+            setLabel('[for-key="phone"]', t.lbl_phone);
+            setText('#tab-perfil .s-btn-primary', t.btn_save_profile);
+            setCardTitle('#tab-perfil .s-card:nth-child(2) .s-card-title', t.session_title);
+
+            // All s-label elements by position in Perfil
+            const perfLabels = document.querySelectorAll('#tab-perfil .s-label');
+            if (perfLabels[0]) perfLabels[0].textContent = t.lbl_username;
+            if (perfLabels[1]) perfLabels[1].textContent = t.lbl_email;
+            if (perfLabels[2]) perfLabels[2].textContent = t.lbl_phone;
+
+            const sessionRows = document.querySelectorAll('#tab-perfil .s-card:nth-child(2) span[style*="text-nav"]');
+            if (sessionRows[0]) sessionRows[0].textContent = t.lbl_access;
+            if (sessionRows[1]) sessionRows[1].textContent = t.lbl_status;
+
+            // Password panel
+            setText('#tab-password .spanel-title', t.pw_title);
+            setText('#tab-password .spanel-sub', t.pw_sub);
+            setCardTitle('#tab-password .s-card-title', t.pw_card);
+            const pwLabels = document.querySelectorAll('#tab-password .s-label');
+            if (pwLabels[0]) pwLabels[0].textContent = t.lbl_pw_cur;
+            if (pwLabels[1]) pwLabels[1].textContent = t.lbl_pw_new;
+            if (pwLabels[2]) pwLabels[2].textContent = t.lbl_pw_confirm;
+            setText('#tab-password .s-btn-primary', t.btn_change_pw);
+
+            // Rover panel
+            setText('#tab-rover .spanel-title', t.rover_title);
+            setText('#tab-rover .spanel-sub', t.rover_sub);
+            setCardTitle('#tab-rover .s-card-title', t.rover_status_card);
+            const roverChecking = document.getElementById('rover-badge-name');
+            if (roverChecking && roverChecking.textContent === 'A verificar...') roverChecking.textContent = t.rover_checking;
+            const roverState = document.getElementById('rover-badge-sub');
+            if (roverState && roverState.textContent === 'Estado da vinculação') roverState.textContent = t.rover_state;
+            const roverHint = document.querySelector('#rover-link-section p');
+            if (roverHint) roverHint.textContent = t.rover_code_hint;
+            const roverCodeLabel = document.querySelector('#rover-link-section .s-label');
+            if (roverCodeLabel) roverCodeLabel.textContent = t.lbl_rover_code;
+            setText('#rover-link-section .s-btn-primary', t.btn_link_rover);
+            const roverNameLabel = document.querySelector('#rover-unlink-section .s-label');
+            if (roverNameLabel) roverNameLabel.textContent = t.lbl_rover_name;
+            const roverBtns = document.querySelectorAll('#rover-unlink-section .s-btn');
+            if (roverBtns[0]) roverBtns[0].textContent = t.btn_save_name;
+            if (roverBtns[1]) roverBtns[1].textContent = t.btn_unlink;
+
+            // Preferências panel
+            setText('#tab-preferencias .spanel-title', t.prefs_title);
+            setText('#tab-preferencias .spanel-sub', t.prefs_sub);
+            setCardTitle('#tab-preferencias .s-card-title', t.iface_card);
+            const themeToggle = document.querySelector('#tab-preferencias .s-toggle-label');
+            if (themeToggle) themeToggle.textContent = t.lbl_theme;
+            const themeDesc = document.querySelector('#tab-preferencias .s-toggle-desc');
+            if (themeDesc) themeDesc.textContent = t.desc_theme;
+            const langLabel = document.querySelector('[data-i18n="pref_language"]');
+            if (langLabel) langLabel.textContent = t.pref_language;
+            const langDesc = document.querySelector('[data-i18n="pref_language_desc"]');
+            if (langDesc) langDesc.textContent = t.pref_language_desc;
+            setText('#tab-preferencias > .s-btn-primary', t.btn_save_prefs);
+        }
+
+        function setText(sel, val) {
+            const el = document.querySelector(sel);
+            if (el) el.textContent = val;
+        }
+        function setLabel(sel, val) {
+            const el = document.querySelector(sel);
+            if (el) el.textContent = val;
+        }
+        function setCardTitle(sel, val) {
+            const el = document.querySelector(sel);
+            if (el) {
+                const svg = el.querySelector('svg');
+                el.textContent = val;
+                if (svg) el.prepend(svg);
+            }
         }
 
         // ── Init ──

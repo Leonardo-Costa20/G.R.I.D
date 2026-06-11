@@ -73,6 +73,29 @@
         section { position: relative; z-index: 1; }
 
         /* ══════════════════════════════════════
+           LOGO SCROLL
+        ══════════════════════════════════════ */
+        #logo-scroll-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #logo-scroll-bg img {
+            width: min(480px, 70vw);
+            will-change: transform, opacity, filter;
+            filter: drop-shadow(0 0 60px rgba(62,207,142,0.25));
+        }
+
+        #rover-canvas {
+            display: none;
+        }
+
+        /* ══════════════════════════════════════
            HERO
         ══════════════════════════════════════ */
         #hero {
@@ -174,7 +197,6 @@
             transform: translateY(-2px);
         }
 
-        /* ── Install button (hidden until event fires) ── */
         #btn-install { display: inline-flex; }
         #btn-install-2 { display: inline-flex; }
 
@@ -335,7 +357,6 @@
             display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
         }
 
-        /* ── Nota de plataforma ──────────────── */
         .platform-note {
             margin-top: 24px;
             font-size: 9px; color: var(--muted);
@@ -366,6 +387,7 @@
             .stat-divider { display: none; }
             .cta-card { padding: 40px 24px; }
             footer { justify-content: center; text-align: center; }
+            #rover-canvas { opacity: 0.12 !important; }
         }
     </style>
 </head>
@@ -373,6 +395,13 @@
 
 <div class="grid-canvas"></div>
 <div class="depth-gradient"></div>
+
+<!-- ══════════════════════════════════════
+     LOGO ANIMADO AO SCROLL
+══════════════════════════════════════ -->
+<div id="logo-scroll-bg">
+    <img id="logo-scroll-img" src="/static/logo.png" alt="">
+</div>
 
 <!-- ══════════════════════════════════════
      HERO
@@ -384,26 +413,22 @@
         Sistema Operacional
     </div>
 
-    <!-- Logo / ícone animado -->
     <img src="/static/logo.png" alt="G.R.I.D" class="hero-logo">
 
     <h1>G.R.I.D <span>OS</span></h1>
     <p class="hero-sub">Ground Recon &amp; Intelligent Detection</p>
 
     <div class="cta-group">
-        <!-- Botão de instalar PWA — só aparece quando o evento beforeinstallprompt dispara -->
         <button id="btn-install" class="btn btn-primary btn-install-pwa">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             Instalar App
         </button>
 
-        <!-- Entrar na app (browser) -->
         <a href="/login" class="btn btn-primary" id="btn-entrar">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             Abrir App
         </a>
 
-        <!-- Saber mais -->
         <a href="#features" class="btn btn-secondary">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             Saber Mais
@@ -565,11 +590,52 @@
 
 
 <script>
+    /* ── Logo scroll animation ─────────────────────────────── */
+    (function() {
+        const img = document.getElementById('logo-scroll-img');
+        if (!img) return;
+
+        let ticking = false;
+
+        function update() {
+            const scrollY  = window.scrollY || window.pageYOffset;
+            const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
+            const p = scrollY / maxScroll; // 0 → 1
+
+            // Rotação contínua ao scroll (Y e ligeiro Z)
+            const rotY  = p * 360 * 2.5;           // duas voltas e meia ao longo da página
+            const rotZ  = Math.sin(p * Math.PI * 4) * 12;  // balança ±12°
+            const rotX  = Math.sin(p * Math.PI * 2) * 8;   // tilt ±8°
+
+            // Escala: começa normal, encolhe no meio, volta no fim
+            const scale = 1 + Math.sin(p * Math.PI) * 0.18;
+
+            // Opacidade: quase invisível no topo, sobe, desce no final
+            const opacity = 0.08 + Math.sin(p * Math.PI) * 0.20;
+
+            // Glow verde pulsa com o scroll
+            const glowSize = 40 + Math.sin(p * Math.PI) * 60;
+            const glowAlpha = (0.15 + Math.sin(p * Math.PI) * 0.25).toFixed(2);
+
+            img.style.opacity   = opacity.toFixed(3);
+            img.style.transform = `perspective(600px) rotateY(${rotY.toFixed(1)}deg) rotateX(${rotX.toFixed(1)}deg) rotateZ(${rotZ.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+            img.style.filter    = `drop-shadow(0 0 ${glowSize}px rgba(62,207,142,${glowAlpha}))`;
+
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) { requestAnimationFrame(update); ticking = true; }
+        }, { passive: true });
+
+        update();
+    })();
+
+    /* ── PWA Install ───────────────────────────────────────── */
     let deferredPrompt = null;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    // Capturar o prompt logo que o browser o lança
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -589,7 +655,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Se já está em modo standalone (PWA aberta), esconder botão de instalar
         if (isStandalone) {
             document.querySelectorAll('.btn-install-pwa').forEach(b => b.style.display = 'none');
             return;
@@ -600,7 +665,6 @@
                 e.preventDefault();
 
                 if (deferredPrompt) {
-                    // Prompt nativo disponível — usar diretamente
                     await deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
                     deferredPrompt = null;
@@ -612,7 +676,6 @@
                     return;
                 }
 
-                // Sem prompt — mostrar instrução para o dispositivo
                 const isAndroid = /Android/.test(navigator.userAgent);
                 const msg = isIOS
                     ? ' Safari → toca em Partilhar ⬆ → "Adicionar ao ecrã principal"'
