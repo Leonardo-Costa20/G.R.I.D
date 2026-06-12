@@ -5,7 +5,7 @@ from core import supabase, _enviar_email_gmail as _enviar_email_mailerlite
 
 
 def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool:
-    """Envia email de vinculação de rover via MailerLite."""
+    """Envia email de vinculação de rover via Gmail OAuth2."""
     codigo_fmt = f"{codigo[:3]} {codigo[3:]}"
     html = f"""
     <div style="background:#0a0c10;padding:40px;font-family:monospace;color:#c9d1d9;">
@@ -38,7 +38,18 @@ def admin_panel():
     if supabase:
         try:
             res = supabase.table('users').select('*').execute()
-            users_list = res.data if res.data else []
+            users_raw = res.data if res.data else []
+
+            # Buscar todos os rovers para fazer join manual
+            rovers_res = supabase.table('rovers').select('id, nome').execute()
+            rovers_map = {r['id']: r['nome'] for r in (rovers_res.data or [])}
+
+            # Adicionar nome do rover a cada user
+            for user in users_raw:
+                rid = user.get('rover_id')
+                user['rover_nome'] = rovers_map.get(rid, None) if rid else None
+
+            users_list = users_raw
         except Exception:
             pass
 
@@ -148,7 +159,7 @@ def admin_add_rover():
         return jsonify({
             'status':        'success',
             'email_enviado': enviado,
-            'message':       f'Rover "{nome}" registado. Email {"enviado" if enviado else "não enviado (verificar SMTP)"}.'
+            'message':       f'Rover "{nome}" registado. Email {"enviado" if enviado else "não enviado (verificar config)"}.'
         })
     except Exception as e:
         print(f'[ADD ROVER] {e}')

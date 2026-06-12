@@ -36,6 +36,7 @@ def register_routes(app):
         api_change_password,
         api_rover_status,
         api_rover_link,
+        api_rover_rename,
         api_rover_unlink,
     )
     from . import rover
@@ -74,5 +75,6 @@ def register_routes(app):
     app.add_url_rule('/api/profile', endpoint='api_profile', view_func=api_profile, methods=['POST'])
     app.add_url_rule('/api/change-password', endpoint='api_change_password', view_func=api_change_password, methods=['POST'])
     app.add_url_rule('/api/rover/status', endpoint='api_rover_status', view_func=api_rover_status)
+    app.add_url_rule('/api/rover/rename', endpoint='api_rover_rename', view_func=api_rover_rename, methods=['POST'])
     app.add_url_rule('/api/rover/link', endpoint='api_rover_link', view_func=api_rover_link, methods=['POST'])
     app.add_url_rule('/api/rover/unlink', endpoint='api_rover_unlink', view_func=api_rover_unlink, methods=['POST'])

@@ -87,6 +87,33 @@ def api_rover_status():
         return jsonify({'rover': 'Nenhum'})
 
 
+def api_rover_rename():
+    """Atualiza o nome do rover na base de dados."""
+    if not session.get('logged_in'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not supabase:
+        return jsonify({'error': 'Database unavailable'}), 503
+
+    data = request.get_json(silent=True) or {}
+    novo_nome = data.get('nome', '').strip()
+
+    if not novo_nome:
+        return jsonify({'error': 'Nome não pode estar vazio.'}), 400
+
+    try:
+        # Buscar o rover_id do utilizador
+        res = supabase.table('users').select('rover_id').eq('username', session['username']).single().execute()
+        rover_id = res.data.get('rover_id') if res.data else None
+        if not rover_id:
+            return jsonify({'error': 'Nenhum rover vinculado.'}), 404
+
+        # Atualizar o nome na tabela rovers
+        supabase.table('rovers').update({'nome': novo_nome}).eq('id', rover_id).execute()
+        return jsonify({'status': 'ok', 'nome': novo_nome})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 def api_rover_link():
     if not session.get('logged_in'):
         return jsonify({'error': 'Unauthorized'}), 401
