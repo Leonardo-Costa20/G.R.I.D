@@ -69,12 +69,15 @@
         ═══════════════════════════════════ */
         #bottom-nav {
             display: none;
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+            position: fixed; bottom: 16px; left: 12px; right: 12px; z-index: 1000;
             background: var(--sidebar-bg);
-            border-top: 1px solid var(--win-border);
-            padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+            border: 1px solid var(--win-border);
+            border-radius: 20px;
+            padding: 10px 4px calc(10px + env(safe-area-inset-bottom, 0px));
             justify-content: space-around;
             align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+            backdrop-filter: blur(12px);
         }
         .bnav-item {
             display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -90,7 +93,7 @@
         /* Drawer mobile de sensores */
         #mobile-sensor-drawer {
             display: none;
-            position: fixed; bottom: calc(60px + env(safe-area-inset-bottom)); left: 0; right: 0;
+            position: fixed; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0;
             z-index: 999;
             background: var(--sidebar-bg);
             border-top: 1px solid var(--win-border);
@@ -156,7 +159,7 @@
             display: none;
             flex-direction: column;
             gap: 12px;
-            padding: 16px 16px calc(80px + env(safe-area-inset-bottom));
+            padding: 16px 16px calc(110px + env(safe-area-inset-bottom, 0px));
             overflow-y: auto;
             height: 100%;
         }
@@ -283,6 +286,10 @@
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             Tema
         </button>
+        <a href="/settings" class="bnav-item">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3" stroke-width="2"></circle></svg>
+            Definições
+        </a>
         <a href="/logout" class="bnav-item text-red-400">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
             Sair
