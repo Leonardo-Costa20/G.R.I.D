@@ -7,14 +7,16 @@ def settings_page():
         return redirect(url_for('login'))
 
     email = ''
+    phone = ''
     if supabase:
         try:
-            res = supabase.table('users').select('email').eq('username', session['username']).single().execute()
+            res = supabase.table('users').select('email, telemovel').eq('username', session['username']).single().execute()
             email = res.data.get('email', '') if res.data else ''
+            phone = res.data.get('telemovel', '') if res.data else ''
         except Exception:
             pass
 
-    return render_template('settings.html', username=session.get('username'), role=session.get('role'), email=email)
+    return render_template('settings.html', username=session.get('username'), role=session.get('role'), email=email, phone=phone)
 
 
 def api_profile():
@@ -26,6 +28,7 @@ def api_profile():
     data = request.get_json(silent=True) or {}
     new_username = data.get('username', '').strip()
     new_email = data.get('email', '').strip().lower()
+    new_phone = data.get('phone', '').strip()
 
     if not new_username:
         return jsonify({'error': 'Username não pode estar vazio.'}), 400
@@ -34,6 +37,7 @@ def api_profile():
         update = {'username': new_username}
         if new_email:
             update['email'] = new_email
+        update['telemovel'] = new_phone
         supabase.table('users').update(update).eq('username', session['username']).execute()
         session['username'] = new_username
         return jsonify({'status': 'ok'})
