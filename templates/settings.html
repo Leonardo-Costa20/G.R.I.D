@@ -801,7 +801,7 @@
 
             // Tabs
             const tabs = document.querySelectorAll('.stab');
-            const tabKeys = ['tab_perfil','tab_password',null,'tab_rover',null,'tab_prefs'];
+            const tabKeys = ['tab_perfil','tab_password','tab_rover','tab_prefs'];
             let ti = 0;
             tabs.forEach(tab => { if (tabKeys[ti] && t[tabKeys[ti]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[ti]]; ti++; });
 
