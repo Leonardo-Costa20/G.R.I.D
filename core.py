@@ -15,7 +15,7 @@ load_dotenv()
 
 SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'grid_secret_key_123')
 
-socketio = SocketIO(cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(cors_allowed_origins="*", async_mode='gevent')
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
