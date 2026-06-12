@@ -1,7 +1,7 @@
 import secrets
 
 from flask import render_template, request, jsonify, redirect, url_for, session
-from core import supabase, _enviar_email_mailerlite
+from core import supabase, _enviar_email_gmail as _enviar_email_mailerlite
 
 
 def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool:

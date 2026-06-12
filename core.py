@@ -3,6 +3,9 @@ import time
 import threading
 import secrets
 import requests
+import base64
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timezone
 import json
 import bcrypt
@@ -21,8 +24,11 @@ SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
-RESEND_API_KEY = os.getenv('RESEND_API_KEY')
-MAILERLITE_API_KEY = os.getenv('MAILERLITE_API_KEY')
+# ── Gmail OAuth2 ──────────────────────────────────────────────────────────────
+GMAIL_CLIENT_ID     = os.getenv('GMAIL_CLIENT_ID')
+GMAIL_CLIENT_SECRET = os.getenv('GMAIL_CLIENT_SECRET')
+GMAIL_REFRESH_TOKEN = os.getenv('GMAIL_REFRESH_TOKEN')
+GMAIL_SENDER        = os.getenv('GMAIL_SENDER')  # o teu email @gmail.com
 
 MQTT_BROKER = "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud"
 MQTT_USER = "ROVER-1"
@@ -53,37 +59,71 @@ def check_password(plain: str, hashed: str) -> bool:
         return False
 
 
-def _enviar_email_mailerlite(destinatario: str, assunto: str, html: str) -> bool:
-    """Envia email via MailerLite API em background."""
+# ── Email via Gmail OAuth2 ────────────────────────────────────────────────────
+
+def _get_gmail_access_token() -> str | None:
+    """Obtém um access token fresco usando o refresh token."""
+    try:
+        resp = requests.post(
+            'https://oauth2.googleapis.com/token',
+            data={
+                'client_id':     GMAIL_CLIENT_ID,
+                'client_secret': GMAIL_CLIENT_SECRET,
+                'refresh_token': GMAIL_REFRESH_TOKEN,
+                'grant_type':    'refresh_token',
+            },
+            timeout=10
+        )
+        if resp.status_code == 200:
+            return resp.json().get('access_token')
+        else:
+            print(f"[EMAIL] Erro ao obter access token: {resp.status_code} {resp.text}")
+            return None
+    except Exception as e:
+        print(f"[EMAIL] Erro ao obter access token: {e}")
+        return None
+
+
+def _enviar_email_gmail(destinatario: str, assunto: str, html: str) -> bool:
+    """Envia email via Gmail API com OAuth2, em background."""
     def _send():
+        access_token = _get_gmail_access_token()
+        if not access_token:
+            print("[EMAIL] Sem access token, email não enviado.")
+            return
+
+        # Construir mensagem MIME
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = assunto
+        msg['From']    = f'G.R.I.D OS <{GMAIL_SENDER}>'
+        msg['To']      = destinatario
+        msg.attach(MIMEText(html, 'html'))
+
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+
         try:
             resp = requests.post(
-                'https://connect.mailerlite.com/api/emails',
+                f'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
                 headers={
-                    'Authorization': f'Bearer {MAILERLITE_API_KEY}',
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+                    'Authorization': f'Bearer {access_token}',
+                    'Content-Type':  'application/json',
                 },
-                json={
-                    'from':     {'email': 'noreply@grid-os.com', 'name': 'G.R.I.D OS'},
-                    'to':       [{'email': destinatario}],
-                    'subject':  assunto,
-                    'html':     html,
-                },
+                json={'raw': raw},
                 timeout=10
             )
             if resp.status_code in (200, 201):
                 print(f"[EMAIL] Enviado para {destinatario}")
             else:
-                print(f"[EMAIL] Erro MailerLite {resp.status_code}: {resp.text}")
+                print(f"[EMAIL] Erro Gmail API {resp.status_code}: {resp.text}")
         except Exception as e:
             print(f"[EMAIL] Erro ao enviar: {e}")
+
     threading.Thread(target=_send, daemon=True).start()
     return True
 
 
 def enviar_email_reset(destinatario: str, codigo: str) -> bool:
-    """Envia o email de recuperação via MailerLite."""
+    """Envia o email de recuperação de password via Gmail."""
     codigo_formatado = f"{codigo[:3]} {codigo[3:]}"
     html = f"""
     <div style="background:#0a0c10;padding:40px;font-family:monospace;color:#c9d1d9;">
@@ -103,8 +143,33 @@ def enviar_email_reset(destinatario: str, codigo: str) -> bool:
         <p style="color:#374151;font-size:9px;letter-spacing:2px;">G.R.I.D OS · PAP 2026</p>
     </div>
     """
-    return _enviar_email_mailerlite(destinatario, 'G.R.I.D OS — Código de Recuperação', html)
+    return _enviar_email_gmail(destinatario, 'G.R.I.D OS — Código de Recuperação', html)
 
+
+def enviar_email_codigo_rover(destinatario: str, codigo: str, nome_rover: str) -> bool:
+    """Envia o código de vinculação de rover via Gmail."""
+    html = f"""
+    <div style="background:#0a0c10;padding:40px;font-family:monospace;color:#c9d1d9;">
+        <h1 style="color:#3ecf8e;letter-spacing:4px;font-size:20px;">G.R.I.D OS</h1>
+        <p style="color:#6b7280;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Vinculação de Rover</p>
+        <hr style="border-color:#30363d;margin:24px 0;">
+        <p>O rover <strong style="color:#3ecf8e;">{nome_rover}</strong> foi associado à tua conta.</p>
+        <p>Usa o código abaixo para confirmar a vinculação na aplicação.</p>
+        <div style="margin:32px 0;text-align:center;">
+            <div style="display:inline-block;background:#12151a;border:2px solid #3ecf8e;border-radius:16px;padding:24px 40px;">
+                <p style="color:#6b7280;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin:0 0 12px 0;">Código de Vinculação</p>
+                <p style="color:#3ecf8e;font-size:36px;font-weight:800;letter-spacing:12px;margin:0;">{codigo}</p>
+            </div>
+        </div>
+        <p style="color:#6b7280;font-size:10px;">Se não esperavas este email, contacta o administrador.</p>
+        <hr style="border-color:#30363d;margin:24px 0;">
+        <p style="color:#374151;font-size:9px;letter-spacing:2px;">G.R.I.D OS · PAP 2026</p>
+    </div>
+    """
+    return _enviar_email_gmail(destinatario, 'G.R.I.D OS — Código de Vinculação de Rover', html)
+
+
+# ── Infraestrutura ────────────────────────────────────────────────────────────
 
 def inicializar_contador_logs():
     """Procura o número inicial de logs apenas uma vez no arranque do servidor."""
