@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.R.I.D - Registro</title>
+    <title>G.R.I.D - Registo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
@@ -90,7 +90,7 @@
                         name="email"
                         required
                         autocomplete="email"
-                        placeholder="operador@grid.pt"
+                        placeholder="email@dominio.pt"
                         value="{{ form.email if form else '' }}"
                         class="field-input w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3 text-white text-sm outline-none placeholder:text-slate-700"
                         oninput="validateEmail(this)"
@@ -204,7 +204,7 @@
 
                 <button type="submit" id="submit-btn"
                         class="w-full border border-[#3ecf8e] text-[#3ecf8e] hover:bg-[#3ecf8e] hover:text-black font-black py-4 rounded-xl uppercase text-xs transition-all transform active:scale-95 shadow-[0_0_15px_rgba(62,207,142,0.1)] mt-2">
-                    Gerar Credenciais
+                    Criar Conta
                 </button>
             </form>
 
