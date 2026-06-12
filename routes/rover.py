@@ -61,15 +61,17 @@ def rover_verificar_codigo():
 
     try:
         rv = _supabase.table('rovers').select('id, codigo, nome') \
-            .eq('email_dono', email).eq('ativo', False).maybe_single().execute()
+            .eq('email_dono', email).eq('ativo', False).limit(1).execute()
 
         if not rv.data:
             return _jsonify({'status': 'error', 'message': 'Nenhum rover pendente para este email.'})
 
-        if str(rv.data['codigo']).strip() != codigo:
+        rv_data = rv.data[0]
+
+        if str(rv_data['codigo']).strip() != codigo:
             return _jsonify({'status': 'error', 'message': 'Código inválido. Verifica o email.'})
 
-        rover_id = rv.data['id']
+        rover_id = rv_data['id']
 
         # Marcar rover como ativo
         _supabase.table('rovers').update({'ativo': True}).eq('id', rover_id).execute()
@@ -77,7 +79,9 @@ def rover_verificar_codigo():
         # Ligar rover ao utilizador via rover_id (FK int8)
         _supabase.table('users').update({'rover_id': rover_id}).eq('email', email).execute()
 
-        return _jsonify({'status': 'success', 'rover_nome': rv.data['nome']})
+        return _jsonify({'status': 'success', 'rover_nome': rv_data['nome']})
     except Exception as e:
+        import traceback
         print(f'[ROVER VERIFY] {e}')
+        traceback.print_exc()
         return _jsonify({'status': 'error', 'message': 'Erro interno.'}), 500
