@@ -18,6 +18,7 @@
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/joystick.js"></script>
     <link rel="stylesheet" href="/static/joystick.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
@@ -238,8 +239,8 @@
         <!-- Header do dashboard — estilo Admin Panel -->
         <div class="dash-header" style="position:absolute;top:0;left:0;right:0;z-index:500;pointer-events:none;user-select:none;padding:14px 28px 12px;border-bottom:1px solid var(--win-border);display:flex;justify-content:space-between;align-items:center;background:transparent;">
             <div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;letter-spacing:0.08em;color:var(--text-main);text-transform:uppercase;text-shadow:0 1px 8px var(--sidebar-bg),0 0 20px var(--sidebar-bg);">G.R.I.D OS <span style="color:var(--text-nav);font-weight:300;">//</span> Dashboard</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;color:var(--text-nav);margin-top:2px;letter-spacing:0.1em;text-shadow:0 1px 6px var(--sidebar-bg);">Sessão activa como: <span style="color:#3ecf8e;font-weight:700;">{{ username }}</span></div>
+                <div class="dash-header-title" style="font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;letter-spacing:0.08em;color:var(--text-main);text-transform:uppercase;text-shadow:0 1px 8px var(--sidebar-bg),0 0 20px var(--sidebar-bg);">G.R.I.D OS <span style="color:var(--text-nav);font-weight:300;">//</span> Dashboard</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;color:var(--text-nav);margin-top:2px;letter-spacing:0.1em;text-shadow:0 1px 6px var(--sidebar-bg);"><span class="dash-session-label">Sessão activa como:</span> <span style="color:#3ecf8e;font-weight:700;">{{ username }}</span></div>
             </div>
             <div style="display:flex;align-items:center;gap:16px;">
                 <div style="background:var(--sidebar-bg);border:1px solid var(--win-border);border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
@@ -276,23 +277,23 @@
     <nav id="bottom-nav">
         <button class="bnav-item" onclick="mobileOpen('camera','LIVE_FEED')">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-            Câmera
+            <span class="bnav-camera-label">Câmera</span>
         </button>
         <button class="bnav-item" onclick="toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-            Sensores
+            <span class="bnav-sensors-label">Sensores</span>
         </button>
         <button class="bnav-item" onclick="toggleTheme()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            Tema
+            <span class="bnav-theme-label">Tema</span>
         </button>
         <a href="/settings" class="bnav-item">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3" stroke-width="2"></circle></svg>
-            Definições
+            <span class="bnav-settings-label">Definições</span>
         </a>
         <a href="/logout" class="bnav-item text-red-400">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
-            Sair
+            <span class="bnav-logout-label">Sair</span>
         </a>
     </nav>
  
@@ -304,23 +305,23 @@
         </button>
         <button class="drawer-btn" onclick="mobileOpen('gas','GAS'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2C8 2 5 5.5 5 9c0 2.5 1.5 4.7 3.5 5.8V17a1 1 0 001 1h5a1 1 0 001-1v-2.2C17.5 13.7 19 11.5 19 9c0-3.5-3-7-7-7z"></path></svg>
-            Gás
+            <span class="drawer-label-gas">Gás</span>
         </button>
         <button class="drawer-btn" onclick="mobileOpen('temperatura','TEMPERATURA'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
-            Temperatura
+            <span class="drawer-label-temp">Temperatura</span>
         </button>
         <button class="drawer-btn" onclick="mobileOpen('pressao','PRESSAO'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 4v4l3 3"></path></svg>
-            Pressão
+            <span class="drawer-label-pressure">Pressão</span>
         </button>
         <button class="drawer-btn" onclick="mobileOpen('altitude','ALTITUDE'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 17l4-8 4 4 4-6 4 4"></path></svg>
-            Altitude
+            <span class="drawer-label-altitude">Altitude</span>
         </button>
         <button class="drawer-btn" onclick="mobileOpen('tilt','TILT'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2L2 19h20L12 2z"></path></svg>
-            Tilt
+            <span class="drawer-label-tilt">Tilt</span>
         </button>
     </div>
  
@@ -618,6 +619,7 @@
         // ── Init ────────────────────────────────────────────────
         $(document).ready(() => {
             if (localStorage.getItem('grid_theme') === 'light') document.body.classList.add('light-mode');
+            applyPageLang('dashboard');
 
             // Relógio em tempo real
             function updateClock() {

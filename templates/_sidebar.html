@@ -87,13 +87,13 @@
         <!-- Câmera — só no dashboard -->
         <button onclick="createWindow('camera','LIVE_FEED')" class="nav-item">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-            <span class="nav-text">Câmera</span>
+            <span class="nav-text" data-i18n-nav="nav_camera">Câmera</span>
         </button>
         <!-- Sensores — só no dashboard -->
         <div>
             <button onclick="toggleFolderManual()" class="nav-item">
                 <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                <span class="nav-text">Sensores <span id="folder-arrow" class="text-[8px] opacity-40 ml-1">▼</span></span>
+                <span class="nav-text" data-i18n-nav="nav_sensors">Sensores <span id="folder-arrow" class="text-[8px] opacity-40 ml-1">▼</span></span>
             </button>
             <div id="sensor-folder" class="sensor-group" style="display:none">
                 <button onclick="createWindow('dist','HCSR04')" class="nav-item sub-item">
@@ -102,56 +102,56 @@
                 </button>
                 <button onclick="createWindow('gas','GAS')" class="nav-item sub-item">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2C8 2 5 5.5 5 9c0 2.5 1.5 4.7 3.5 5.8V17a1 1 0 001 1h5a1 1 0 001-1v-2.2C17.5 13.7 19 11.5 19 9c0-3.5-3-7-7-7z"></path></svg>
-                    <span class="nav-text">Gás</span>
+                    <span class="nav-text" data-i18n-nav="sensor_gas">Gás</span>
                 </button>
                 <button onclick="createWindow('temperatura','TEMPERATURA')" class="nav-item sub-item">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"></path></svg>
-                    <span class="nav-text">Temperatura</span>
+                    <span class="nav-text" data-i18n-nav="sensor_temp">Temperatura</span>
                 </button>
                 <button onclick="createWindow('pressao','PRESSAO')" class="nav-item sub-item">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 4v4l3 3"></path></svg>
-                    <span class="nav-text">Pressão</span>
+                    <span class="nav-text" data-i18n-nav="sensor_pressure">Pressão</span>
                 </button>
                 <button onclick="createWindow('altitude','ALTITUDE')" class="nav-item sub-item">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 17l4-8 4 4 4-6 4 4"></path></svg>
-                    <span class="nav-text">Altitude</span>
+                    <span class="nav-text" data-i18n-nav="sensor_altitude">Altitude</span>
                 </button>
                 <button onclick="createWindow('tilt','TILT')" class="nav-item sub-item">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2L2 19h20L12 2z"></path></svg>
-                    <span class="nav-text">Tilt</span>
+                    <span class="nav-text" data-i18n-nav="sensor_tilt">Tilt</span>
                 </button>
             </div>
         </div>
         <!-- Auto Tile — só no dashboard -->
         <button onclick="autoTile()" class="nav-item nav-tile">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-            <span class="nav-text">Auto Tile</span>
+            <span class="nav-text" data-i18n-nav="nav_autotile">Auto Tile</span>
         </button>
         {% if role in ['pilot', 'admin'] %}
         <button onclick="createWindow('joystick','Joystick')" class="nav-item">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v2m0 12v2m8-8h-2M6 12H4m11.314-5.314l-1.414 1.414M8.1 15.9l-1.414 1.414M15.9 15.9l-1.414-1.414M8.1 8.1L6.686 9.514"></path></svg>
-            <span class="nav-text">Joystick</span>
+            <span class="nav-text" data-i18n-nav="nav_joystick">Joystick</span>
         </button>
         {% endif %}
         {% else %}
         <!-- Dashboard link — nas outras páginas -->
         <a href="/" class="nav-item">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            <span class="nav-text">Dashboard</span>
+            <span class="nav-text" data-i18n-nav="nav_dashboard">Dashboard</span>
         </a>
         {% endif %}
 
         <!-- Mission Logs -->
         <a href="/logs" class="nav-item nav-logs {% if active_page == 'logs' %}active{% endif %}">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <span class="nav-text">Mission Logs</span>
+            <span class="nav-text" data-i18n-nav="nav_logs">Mission Logs</span>
         </a>
 
         <!-- Admin — só para admins -->
         {% if role == 'admin' %}
         <a href="/admin" class="nav-item nav-admin {% if active_page == 'admin' %}active{% endif %}">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span class="nav-text">Admin</span>
+            <span class="nav-text" data-i18n-nav="nav_admin">Admin</span>
         </a>
         {% endif %}
     </nav>
@@ -159,15 +159,15 @@
     <div class="mt-auto border-t border-gray-800/30 pt-4">
         <a href="/settings" class="nav-item {% if active_page == 'settings' %}active{% endif %}" style="color: #94a3b8;">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span class="nav-text">Definições</span>
+            <span class="nav-text" data-i18n-nav="nav_settings">Definições</span>
         </a>
         <button class="nav-item" onclick="toggleTheme()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span class="nav-text">Interface Color</span>
+            <span class="nav-text" data-i18n-nav="nav_theme">Interface Color</span>
         </button>
         <a href="/logout" class="nav-item nav-logout">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
-            <span class="nav-text">Logout</span>
+            <span class="nav-text" data-i18n-nav="nav_logout">Logout</span>
         </a>
     </div>
 </aside>

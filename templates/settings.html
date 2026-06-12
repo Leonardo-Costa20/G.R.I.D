@@ -12,6 +12,7 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/i18n.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -659,6 +660,7 @@
             const lang = localStorage.getItem('grid_lang') || 'pt';
             document.getElementById('pref-lang').value = lang;
             applyLang(lang, false);
+            applyPageLang('settings');
         }
 
         function savePrefs() {
@@ -769,6 +771,7 @@
             if (save) localStorage.setItem('grid_lang', lang);
             const t = i18n[lang];
             if (!t) return;
+            applyPageLang('settings');
 
             // Page title
             document.querySelector('.topbar-title').innerHTML = 'G.R.I.D <span>OS</span> // ' + t.title;

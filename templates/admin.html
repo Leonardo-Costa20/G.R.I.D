@@ -15,6 +15,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="/static/js/i18n.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -110,8 +111,8 @@
     <main class="flex-1 p-8 flex flex-col gap-6 overflow-y-auto z-10">
         <header class="flex justify-between items-center border-b border-[var(--win-border)] pb-4">
             <div>
-                <h1 class="text-xl font-extrabold tracking-wider uppercase" style="color:var(--text-main);">G.R.I.D OS // Admin Panel</h1>
-                <p class="text-xs mt-1" style="color:var(--text-nav);">Sessão activa como: <span class="text-[var(--accent)] font-bold">{{ username }}</span></p>
+                <h1 class="admin-page-title text-xl font-extrabold tracking-wider uppercase" style="color:var(--text-main);">G.R.I.D OS // Admin Panel</h1>
+                <p class="text-xs mt-1" style="color:var(--text-nav);"><span class="admin-session-label">Sessão activa como:</span> <span class="text-[var(--accent)] font-bold">{{ username }}</span></p>
             </div>
             <div class="flex gap-4 text-xs font-bold">
                 <div class="bg-black/40 px-4 py-2 border border-[var(--win-border)] rounded-lg flex items-center gap-2">
@@ -123,38 +124,38 @@
  
         <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="admin-card p-4">
-                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Contas Ativas</div>
+                <div class="stat-active-accounts text-[10px] text-gray-500 uppercase tracking-widest font-bold">Contas Ativas</div>
                 <div class="text-3xl font-bold text-[var(--accent)] mt-1">{{ users|length }}</div>
             </div>
             <div class="admin-card p-4">
-                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Equipamentos</div>
+                <div class="stat-equipment text-[10px] text-gray-500 uppercase tracking-widest font-bold">Equipamentos</div>
                 <div class="text-3xl font-bold text-blue-400 mt-1">01 <span class="text-xs text-gray-600">/ 01</span></div>
             </div>
             <div class="admin-card p-4">
-                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Infraestrutura</div>
+                <div class="stat-infra text-[10px] text-gray-500 uppercase tracking-widest font-bold">Infraestrutura</div>
                 <div class="mt-2 space-y-1">
                     <div class="flex justify-between text-[10px]"><span>Supabase API</span> <span class="text-green-500" id="supabase-status">CONNECTED</span></div>
                     <div class="flex justify-between text-[10px]"><span>MQTT Broker</span> <span class="text-green-500">READY</span></div>
                 </div>
             </div>
             <div class="admin-card p-4">
-                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Utilizadores Online</div>
+                <div class="stat-online-users text-[10px] text-gray-500 uppercase tracking-widest font-bold">Utilizadores Online</div>
                 <div class="text-3xl font-bold text-yellow-500 mt-1" id="websocket-count">0</div>
             </div>
         </section>
  
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
             <div class="admin-card p-6 lg:col-span-2 flex flex-col gap-4">
-                <h2 class="text-xs font-bold uppercase tracking-widest border-b border-[var(--win-border)] pb-2" style="color:var(--text-main);">Gestão de Permissões</h2>
+                <h2 class="section-permissions text-xs font-bold uppercase tracking-widest border-b border-[var(--win-border)] pb-2" style="color:var(--text-main);">Gestão de Permissões</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="border-b border-[var(--win-border)] text-gray-500 font-bold uppercase">
-                                <th class="pb-3">Membro</th>
-                                <th class="pb-3">Estado</th>
-                                <th class="pb-3">Cargo</th>
-                                <th class="pb-3">Rover Vinculado</th>
-                                <th class="pb-3 text-right">Ação</th>
+                                <th class="th-member pb-3">Membro</th>
+                                <th class="th-status pb-3">Estado</th>
+                                <th class="th-role pb-3">Cargo</th>
+                                <th class="th-rover pb-3">Rover Vinculado</th>
+                                <th class="th-action pb-3 text-right">Ação</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-800/50">
@@ -211,7 +212,7 @@
  
             <div class="flex flex-col gap-4">
                 <div class="admin-card p-4 border-emerald-500/20">
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)] mb-3">Gestão de Rovers</h3>
+                    <h3 class="section-rovers text-[10px] font-bold uppercase tracking-widest text-[var(--accent)] mb-3">Gestão de Rovers</h3>
 
                     <!-- Formulário de adicionar rover -->
                     <div class="space-y-2 mb-4">
@@ -223,7 +224,7 @@
                             class="w-full bg-black/40 border border-[var(--win-border)] rounded px-3 py-2 text-[10px] text-white placeholder:text-gray-700 outline-none focus:border-[var(--accent)]">
                         <button onclick="adicionarRover()"
                             class="w-full bg-[var(--accent-dim)] border border-[var(--accent)]/40 hover:bg-[var(--accent)] hover:text-black text-[var(--accent)] text-[9px] font-bold uppercase py-2 rounded transition-all">
-                            + Registar Rover
+                            <span class="btn-register-rover">+ Registar Rover</span>
                         </button>
                     </div>
 
@@ -237,15 +238,15 @@
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-3">Database & Site Analytics</h3>
                     <div class="space-y-2 text-[11px]">
                         <div class="flex justify-between border-b border-gray-800/60 pb-1">
-                            <span class="text-gray-500">Total Pacotes MQTT</span>
+                            <span class="stat-mqtt-total text-gray-500">Total Pacotes MQTT</span>
                             <span id="mqtt-counter" class="font-bold text-white">0</span>
                         </div>
                         <div class="flex justify-between border-b border-gray-800/60 pb-1">
-                            <span class="text-gray-500">Total Logs Coletados</span>
+                            <span class="stat-logs-total text-gray-500">Total Logs Coletados</span>
                             <span id="total-logs" class="font-bold text-yellow-500">0</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Velocidade Supabase</span>
+                            <span class="stat-db-speed text-gray-500">Velocidade Supabase</span>
                             <span id="db-latency" class="font-bold text-green-400">-- ms</span>
                         </div>
                     </div>
@@ -253,7 +254,7 @@
  
                 <div class="admin-card p-4 flex-1 flex flex-col bg-black/60 min-h-[220px]">
                     <div class="text-[10px] font-bold uppercase tracking-widest text-[#3ecf8e] border-b border-gray-800 pb-2 flex justify-between items-center">
-                        <span>Live Access Logs</span>
+                        <span class="section-live-logs">Live Access Logs</span>
                         <span class="flex gap-1 items-center"><span class="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse"></span> <span class="text-[8px] text-gray-500">SECURE</span></span>
                     </div>
                     <div id="admin-terminal" class="flex-1 overflow-y-auto text-[10px] font-mono p-2 flex flex-col gap-1 text-gray-400 mt-2">
@@ -395,6 +396,7 @@
             localStorage.setItem('grid_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         }
         if (localStorage.getItem('grid_theme') === 'light') document.body.classList.add('light-mode');
+        applyPageLang('admin');
     </script>
 </body>
 </html>

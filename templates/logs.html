@@ -16,6 +16,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="/static/js/i18n.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -211,8 +212,8 @@
         <!-- Header -->
         <header class="flex justify-between items-center border-b border-[var(--win-border)] pb-4">
             <div>
-                <h1 class="text-xl font-extrabold tracking-wider uppercase" style="color:var(--text-main);">G.R.I.D OS // Mission Logs</h1>
-                <p class="text-xs mt-1" style="color:var(--text-nav);">Sessão activa como: <span class="text-[var(--accent)] font-bold">{{ username }}</span></p>
+                <h1 class="logs-page-title text-xl font-extrabold tracking-wider uppercase" style="color:var(--text-main);">G.R.I.D OS // Mission Logs</h1>
+                <p class="text-xs mt-1" style="color:var(--text-nav);"><span class="logs-session-label">Sessão activa como:</span> <span class="text-[var(--accent)] font-bold">{{ username }}</span></p>
             </div>
             <div class="flex gap-3">
                 <!-- Exportar CSV -->
@@ -231,19 +232,19 @@
         <!-- Stats Bar -->
         <section class="stats-bar p-4 rounded-lg flex gap-8 text-xs">
             <div>
-                <span class="text-gray-500 uppercase tracking-widest text-[10px]">Total de Registos</span>
+                <span class="stat-total-label text-gray-500 uppercase tracking-widest text-[10px]">Total de Registos</span>
                 <div class="text-2xl font-bold mt-1" style="color:var(--text-main);" id="stat-total">--</div>
             </div>
             <div>
-                <span class="text-gray-500 uppercase tracking-widest text-[10px]">Página Atual</span>
+                <span class="stat-page-label text-gray-500 uppercase tracking-widest text-[10px]">Página Atual</span>
                 <div class="text-2xl font-bold text-[var(--accent)] mt-1" id="stat-page">--</div>
             </div>
             <div>
-                <span class="text-gray-500 uppercase tracking-widest text-[10px]">Sensores Disponíveis</span>
+                <span class="stat-sensors-label text-gray-500 uppercase tracking-widest text-[10px]">Sensores Disponíveis</span>
                 <div class="text-2xl font-bold text-blue-400 mt-1" id="stat-sensors">--</div>
             </div>
             <div class="ml-auto flex items-center gap-2">
-                <span class="text-[10px] text-gray-500 uppercase">Última Actualização</span>
+                <span class="stat-update-label text-[10px] text-gray-500 uppercase">Última Actualização</span>
                 <span class="text-[var(--accent)] font-bold" id="last-update">--:--:--</span>
             </div>
         </section>
@@ -252,21 +253,21 @@
         <section class="log-card p-4">
             <div class="flex flex-wrap gap-4 items-end">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Sensor</label>
+                    <label class="filter-sensor-label block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Sensor</label>
                     <select id="filter-sensor" class="filter-input w-40" onchange="loadLogs(1)">
                         <option value="">Todos os Sensores</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Data Início</label>
+                    <label class="filter-start-label block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Data Início</label>
                     <input type="date" id="filter-start" class="filter-input" onchange="loadLogs(1)">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Data Fim</label>
+                    <label class="filter-end-label block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Data Fim</label>
                     <input type="date" id="filter-end" class="filter-input" onchange="loadLogs(1)">
                 </div>
                 <div class="ml-auto">
-                    <button onclick="resetFilters()" class="text-[10px] text-gray-500 hover:text-[var(--danger)] uppercase font-bold transition-colors">
+                    <button onclick="resetFilters()" class="btn-clear-filters text-[10px] text-gray-500 hover:text-[var(--danger)] uppercase font-bold transition-colors">
                         Limpar Filtros
                     </button>
                 </div>
@@ -276,7 +277,7 @@
         <!-- Tabela de Logs -->
         <section class="log-card flex-1 flex flex-col overflow-hidden min-h-[400px]">
             <div class="p-4 border-b border-[var(--win-border)] flex justify-between items-center">
-                <h2 class="text-xs font-bold uppercase tracking-widest text-white">Registos da Missão</h2>
+                <h2 class="logs-table-title text-xs font-bold uppercase tracking-widest text-white">Registos da Missão</h2>
                 <span class="text-[10px] text-gray-500" id="showing-info">A carregar...</span>
             </div>
             
@@ -284,12 +285,12 @@
                 <table class="w-full text-left text-[11px]">
                     <thead class="sticky top-0 z-10" style="background: var(--sidebar-bg);">
                         <tr class="border-b border-[var(--win-border)] text-gray-500 font-bold uppercase text-[10px]">
-                            <th class="p-4 w-12">Alerta</th>
-                            <th class="p-4">Timestamp</th>
-                            <th class="p-4">Sensor</th>
-                            <th class="p-4">Valor</th>
-                            <th class="p-4">Mensagem</th>
-                            <th class="p-4 text-right">Categoria</th>
+                            <th class="th-alert p-4 w-12">Alerta</th>
+                            <th class="th-timestamp p-4">Timestamp</th>
+                            <th class="th-sensor p-4">Sensor</th>
+                            <th class="th-value p-4">Valor</th>
+                            <th class="th-message p-4">Mensagem</th>
+                            <th class="th-category p-4 text-right">Categoria</th>
                         </tr>
                     </thead>
                     <tbody id="logs-table-body" class="divide-y" style="border-color: var(--win-border);">
@@ -519,6 +520,7 @@
             localStorage.setItem('grid_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         }
         if (localStorage.getItem('grid_theme') === 'light') document.body.classList.add('light-mode');
+        applyPageLang('logs');
     </script>
 </body>
 </html>
