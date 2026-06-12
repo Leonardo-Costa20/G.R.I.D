@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G.R.I.D OS | Definições</title>
 
+    <link rel="icon" href="/static/icons/icon-192.png" type="image/png">
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#3ecf8e">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -621,11 +622,12 @@
 
                 if (d.rover && d.rover !== 'Nenhum') {
                     dot.classList.add('linked');
-                    name.textContent = d.rover;
+                    const customName = localStorage.getItem('rover_custom_name') || d.rover;
+                    name.textContent = customName;
                     sub.textContent  = 'Rover vinculado';
                     linkSection.style.display = 'none';
                     unlinkSec.style.display   = 'block';
-                    document.getElementById('rover-custom-name').value = '';
+                    document.getElementById('rover-custom-name').value = customName !== d.rover ? customName : '';
                 } else {
                     dot.classList.remove('linked');
                     name.textContent = 'Sem rover vinculado';
@@ -640,22 +642,9 @@
         function saveRoverName() {
             const val = document.getElementById('rover-custom-name').value.trim();
             if (!val) return showMsg('msg-rover', 'Insere um nome para o rover.', 'err');
-            fetch('/api/rover/rename', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({nome: val})
-            })
-            .then(r => r.json())
-            .then(d => {
-                if (d.status === 'ok') {
-                    document.getElementById('rover-badge-name').textContent = val;
-                    document.getElementById('rover-custom-name').value = '';
-                    showMsg('msg-rover', 'Nome atualizado.', 'ok');
-                } else {
-                    showMsg('msg-rover', d.error || 'Erro ao guardar nome.', 'err');
-                }
-            })
-            .catch(() => showMsg('msg-rover', 'Sem ligação ao servidor.', 'err'));
+            localStorage.setItem('rover_custom_name', val);
+            document.getElementById('rover-badge-name').textContent = val;
+            showMsg('msg-rover', 'Nome guardado.', 'ok');
         }
 
         function linkRoverCodigo() {
@@ -813,7 +802,7 @@
 
             // Tabs
             const tabs = document.querySelectorAll('.stab');
-            const tabKeys = ['tab_perfil','tab_password','tab_rover','tab_prefs'];
+            const tabKeys = ['tab_perfil','tab_password',null,'tab_rover',null,'tab_prefs'];
             let ti = 0;
             tabs.forEach(tab => { if (tabKeys[ti] && t[tabKeys[ti]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[ti]]; ti++; });
 
