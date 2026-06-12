@@ -448,7 +448,35 @@
             const id = `win-${type}`;
             if (document.getElementById(id)) { zIdx++; $(`#${id}`).css('z-index', zIdx); return; }
  
-            const body = type === 'camera' ?
+            const body = type === 'tilt' ?
+                `<div class="window-content p-6 flex flex-col items-center justify-center gap-4" style="height:100%;">
+                    <div class="label-sub" style="font-size:9px;letter-spacing:2px;opacity:.5;text-transform:uppercase;">Inclinação (Tilt)</div>
+                    <div style="position:relative;width:200px;height:60px;display:flex;align-items:center;justify-content:center;">
+                        <!-- Rover silhouette bar -->
+                        <div id="tilt-bar" style="
+                            width:160px;height:18px;
+                            background:linear-gradient(90deg,#3ecf8e22,#3ecf8e44,#3ecf8e22);
+                            border:1.5px solid #3ecf8e;
+                            border-radius:4px;
+                            position:relative;
+                            transition:transform 0.4s cubic-bezier(.4,0,.2,1);
+                            transform:rotate(0deg);
+                        ">
+                            <!-- wheels -->
+                            <div style="position:absolute;bottom:-7px;left:12px;width:16px;height:8px;background:#3ecf8e;border-radius:3px;opacity:.7;"></div>
+                            <div style="position:absolute;bottom:-7px;right:12px;width:16px;height:8px;background:#3ecf8e;border-radius:3px;opacity:.7;"></div>
+                            <!-- center dot -->
+                            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;background:#3ecf8e;border-radius:50%;"></div>
+                        </div>
+                        <!-- horizon line -->
+                        <div style="position:absolute;width:200px;height:1px;background:rgba(62,207,142,0.15);top:50%;left:0;"></div>
+                    </div>
+                    <div style="display:flex;align-items:baseline;gap:6px;">
+                        <span id="val-tilt" style="font-size:2.2rem;font-weight:800;color:var(--accent);line-height:1;">--</span>
+                        <span style="font-size:11px;opacity:.4;">°</span>
+                    </div>
+                    <div id="tilt-status" style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-nav);">--</div>
+                </div>` : type === 'camera' ?
                 `<div class="window-content bg-black w-full h-full flex items-center justify-center overflow-hidden">
                     <img src="http://172.20.10.4:81/stream" class="w-full h-full object-cover"
                          onerror="this.style.display='none';document.getElementById('cam-err').classList.remove('hidden')"/>
@@ -481,8 +509,8 @@
                     </div>
                 </div>`;
 
-            const w = type === 'camera' ? '460px' : type === 'joystick' ? '360px' : '340px';
-            const h = type === 'camera' ? '290px' : type === 'joystick' ? '430px' : '200px';
+            const w = type === 'camera' ? '460px' : type === 'joystick' ? '360px' : type === 'tilt' ? '300px' : '340px';
+            const h = type === 'camera' ? '290px' : type === 'joystick' ? '430px' : type === 'tilt' ? '260px' : '200px';
             const hh2 = $('.dash-header').outerHeight() || 65;
 
             const windowNode = $(`<div id="${id}" class="window-node" style="width:${w};height:${h};top:${hh2+10}px;left:100px;">
@@ -521,6 +549,18 @@
                     <img src="http://172.20.10.4:81/stream" style="width:100%;height:100%;object-fit:cover"
                          onerror="this.style.display='none'"/>
                     <span style="color:#f85149;font-size:10px;font-weight:700;display:none" class="anim-pulse">[NO SIGNAL]</span>
+                </div>` :
+                type === 'tilt' ?
+                `<div class="mobile-card-body" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+                    <div style="font-size:7px;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;">Inclinação</div>
+                    <div style="position:relative;width:120px;height:36px;display:flex;align-items:center;justify-content:center;">
+                        <div id="tilt-bar-m" style="width:100px;height:12px;background:linear-gradient(90deg,#3ecf8e22,#3ecf8e44,#3ecf8e22);border:1.5px solid #3ecf8e;border-radius:3px;transition:transform 0.4s cubic-bezier(.4,0,.2,1);transform:rotate(0deg);position:relative;">
+                            <div style="position:absolute;bottom:-5px;left:8px;width:10px;height:5px;background:#3ecf8e;border-radius:2px;opacity:.7;"></div>
+                            <div style="position:absolute;bottom:-5px;right:8px;width:10px;height:5px;background:#3ecf8e;border-radius:2px;opacity:.7;"></div>
+                        </div>
+                        <div style="position:absolute;width:120px;height:1px;background:rgba(62,207,142,0.15);top:50%;left:0;"></div>
+                    </div>
+                    <div class="mobile-sensor-val"><span id="mval-tilt">--</span><span style="font-size:10px;opacity:.4;">°</span></div>
                 </div>` :
                 `<div class="mobile-card-body">
                     <div style="font-size:7px;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;margin-bottom:4px">${labelMap[type]||title}</div>
@@ -600,8 +640,18 @@
             }
             // Tilt (G.R.I.D/tilt)
             else if (sensor === 'tilt') {
-                $('#val-tilt').text(valor);
-                $('#mval-tilt').text(valor);
+                const graus = parseFloat(valor);
+                $('#val-tilt').text(isNaN(graus) ? '--' : graus.toFixed(1));
+                $('#mval-tilt').text(isNaN(graus) ? '--' : graus.toFixed(1) + '°');
+                if (!isNaN(graus)) {
+                    const clamped = Math.max(-45, Math.min(45, graus));
+                    $('#tilt-bar').css('transform', `rotate(${-clamped}deg)`);
+                    $('#tilt-bar-m').css('transform', `rotate(${-clamped}deg)`);
+                    let status = 'PLANO';
+                    if (graus > 5)       status = '▲ A SUBIR';
+                    else if (graus < -5) status = '▼ A DESCER';
+                    $('#tilt-status').text(status);
+                }
             }
         });
  
