@@ -621,12 +621,11 @@
 
                 if (d.rover && d.rover !== 'Nenhum') {
                     dot.classList.add('linked');
-                    const customName = localStorage.getItem('rover_custom_name') || d.rover;
-                    name.textContent = customName;
+                    name.textContent = d.rover;
                     sub.textContent  = 'Rover vinculado';
                     linkSection.style.display = 'none';
                     unlinkSec.style.display   = 'block';
-                    document.getElementById('rover-custom-name').value = customName !== d.rover ? customName : '';
+                    document.getElementById('rover-custom-name').value = '';
                 } else {
                     dot.classList.remove('linked');
                     name.textContent = 'Sem rover vinculado';
@@ -641,9 +640,22 @@
         function saveRoverName() {
             const val = document.getElementById('rover-custom-name').value.trim();
             if (!val) return showMsg('msg-rover', 'Insere um nome para o rover.', 'err');
-            localStorage.setItem('rover_custom_name', val);
-            document.getElementById('rover-badge-name').textContent = val;
-            showMsg('msg-rover', 'Nome guardado.', 'ok');
+            fetch('/api/rover/rename', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nome: val})
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.status === 'ok') {
+                    document.getElementById('rover-badge-name').textContent = val;
+                    document.getElementById('rover-custom-name').value = '';
+                    showMsg('msg-rover', 'Nome atualizado.', 'ok');
+                } else {
+                    showMsg('msg-rover', d.error || 'Erro ao guardar nome.', 'err');
+                }
+            })
+            .catch(() => showMsg('msg-rover', 'Sem ligação ao servidor.', 'err'));
         }
 
         function linkRoverCodigo() {
