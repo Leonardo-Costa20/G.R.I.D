@@ -16,6 +16,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
     <script src="/static/js/i18n.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
@@ -31,7 +32,7 @@
             --danger: #f85149;
             --grid-color: rgba(62, 207, 142, 0.05);
         }
- 
+
         body.light-mode {
             --bg-color: #f0f4f8;
             --sidebar-bg: #ffffff;
@@ -42,68 +43,22 @@
             --grid-color: rgba(0, 0, 0, 0.05);
         }
 
-        /* Light mode overrides para cores Tailwind hardcoded */
         body.light-mode .text-white { color: var(--text-main) !important; }
         body.light-mode .text-gray-400,
         body.light-mode .text-gray-500 { color: var(--text-nav) !important; }
         body.light-mode .text-gray-700 { color: #9ca3af !important; }
-
-        /* Inputs da Gestão de Rovers */
-        body.light-mode input[class*="bg-black"] {
-            background: var(--sidebar-bg) !important;
-            color: var(--text-main) !important;
-        }
+        body.light-mode input[class*="bg-black"] { background: var(--sidebar-bg) !important; color: var(--text-main) !important; }
         body.light-mode input::placeholder { color: #a0aec0 !important; }
-
-        /* Dropdown role select (VIEWER) */
         body.light-mode select[class*="bg-\[#161b22\]"],
         body.light-mode select { background: var(--sidebar-bg) !important; color: var(--text-main) !important; }
-
-        /* Cards dos rovers e terminal */
-        body.light-mode [class*="bg-black"] {
-            background: var(--card-bg) !important;
-        }
+        body.light-mode [class*="bg-black"] { background: var(--card-bg) !important; }
         body.light-mode #admin-terminal { color: var(--text-nav) !important; }
-
-        /* Linhas da tabela */
         body.light-mode tbody tr { border-color: var(--win-border) !important; }
-
-        body { font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); color: var(--text-main); margin: 0; overflow-x: hidden; }
-        .grid-canvas { background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px); background-size: 30px 30px; position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-        
-        .admin-card { background: var(--card-bg); border: 1px solid var(--win-border); border-radius: 12px; backdrop-filter: blur(8px); transition: all 0.3s ease; }
-        .admin-card:hover { border-color: rgba(62, 207, 142, 0.4); transform: translateY(-2px); }
-        
-        .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; border: 1px solid transparent; }
-        .bg-approved { background: rgba(62, 207, 142, 0.1); color: var(--accent); border-color: rgba(62, 207, 142, 0.3); }
-        
-        .terminal-line { animation: fadeIn 0.2s ease-out forwards; border-left: 2px solid transparent; padding-left: 8px; }
-        .terminal-line.info { border-left-color: #3b82f6; }
-        .terminal-line.success { border-left-color: var(--accent); }
-        .terminal-line.danger { border-left-color: var(--danger); }
-
-        /* Admin row highlight */
-        tr.row-admin {
-            background: linear-gradient(90deg, rgba(62,207,142,0.07) 0%, rgba(62,207,142,0.03) 60%, transparent 100%);
-            border-left: 3px solid var(--accent) !important;
-        }
-        tr.row-admin td:first-child { padding-left: 10px; }
-        .admin-crown {
-            display: inline-flex; align-items: center; gap: 4px;
-            background: rgba(62,207,142,0.12);
-            border: 1px solid rgba(62,207,142,0.35);
-            color: var(--accent);
-            font-size: 9px; font-weight: 900; letter-spacing: .08em;
-            padding: 2px 7px; border-radius: 4px;
-            text-transform: uppercase;
-        }
- 
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body class="flex h-screen z-10 relative">
  
-    <div class="grid-canvas"></div>
+    <div class="grid-canvas-sm"></div>
  
     {% set active_page = 'admin' %}
     {% include '_sidebar.html' %}

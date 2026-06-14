@@ -13,6 +13,7 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
     <script src="/static/js/i18n.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
@@ -37,21 +38,6 @@
             --win-header: #edf2f7;
             --grid-color: rgba(0,0,0,0.05);
             --win-border: rgba(0,0,0,0.1);
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .grid-canvas {
-            background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px);
-            background-size: 40px 40px;
-            position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
 
         /* ── Main content ── */
