@@ -1,6 +1,6 @@
 # G.R.I.D OS
 
-**Ground Recon & Intelligent Detection** — Sistema operativo web que recebe, processa e apresenta os dados do rover G.R.I.D em tempo real.
+**Ground Recon & Intelligent Detection** — Aplicação web que recebe, processa e apresenta os dados do rover G.R.I.D em tempo real.
 
 **Acesso:** [gridos.space](https://gridos.space)
 
