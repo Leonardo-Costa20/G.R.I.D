@@ -86,7 +86,7 @@ G.R.I.D-main/
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/<teu-user>/G.R.I.D.git
+git clone https://github.com/<Leonardo-Costa20>/G.R.I.D.git
 cd G.R.I.D-main
 ```
 
@@ -192,7 +192,7 @@ Carrega o sketch para o ESP32-CAM. Após o boot, o endereço IP local aparece no
 brew install cloudflare/cloudflare/cloudflared
 
 # Windows — descarrega o binário em:
-# https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
 ```
 
 ### 3. Criar o tunnel (apenas na primeira vez)
