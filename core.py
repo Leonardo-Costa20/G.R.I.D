@@ -30,9 +30,9 @@ GMAIL_CLIENT_SECRET = os.getenv('GMAIL_CLIENT_SECRET')
 GMAIL_REFRESH_TOKEN = os.getenv('GMAIL_REFRESH_TOKEN')
 GMAIL_SENDER        = os.getenv('GMAIL_SENDER')  # o teu email @gmail.com
 
-MQTT_BROKER = "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud"
-MQTT_USER = "ROVER-1"
-MQTT_PASS = "Rover1grid"
+MQTT_BROKER = os.getenv('MQTT_BROKER', "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud")
+MQTT_USER   = os.getenv('MQTT_USER', "ROVER-1")
+MQTT_PASS   = os.getenv('MQTT_PASS', "Rover1grid")
 
 mqtt_client = None
 

@@ -1,7 +1,7 @@
 import secrets
 
 from flask import render_template, request, jsonify, redirect, url_for, session
-from core import supabase, _enviar_email_gmail as _enviar_email_mailerlite
+from core import supabase, _enviar_email_gmail
 
 
 def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool:
@@ -25,7 +25,7 @@ def _enviar_email_rover(destinatario: str, nome_rover: str, codigo: str) -> bool
         <p style="color:#374151;font-size:9px;letter-spacing:2px;">G.R.I.D OS · PAP 2026</p>
     </div>
     """
-    return _enviar_email_mailerlite(destinatario, 'G.R.I.D OS — Rover Vinculado à tua Conta', html)
+    return _enviar_email_gmail(destinatario, 'G.R.I.D OS — Rover Vinculado à tua Conta', html)
 
 
 # ── Painel ────────────────────────────────────────────────────────────────────

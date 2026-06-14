@@ -55,8 +55,8 @@ def api_change_password():
     current = data.get('current', '')
     new_password = data.get('new_password', '')
 
-    if len(new_password) < 6:
-        return jsonify({'error': 'A nova password deve ter pelo menos 6 caracteres.'}), 400
+    if len(new_password) < 8:
+        return jsonify({'error': 'A nova password deve ter pelo menos 8 caracteres.'}), 400
 
     try:
         res = supabase.table('users').select('password').eq('username', session['username']).single().execute()
