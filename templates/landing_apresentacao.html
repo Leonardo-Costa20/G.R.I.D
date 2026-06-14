@@ -72,25 +72,6 @@
         /* ── Secções ───────────────────────────── */
         section { position: relative; z-index: 1; }
 
-        /* ══════════════════════════════════════
-           LOGO SCROLL
-        ══════════════════════════════════════ */
-        #logo-scroll-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #logo-scroll-bg img {
-            width: min(480px, 70vw);
-            will-change: transform, opacity, filter;
-            filter: drop-shadow(0 0 60px rgba(62,207,142,0.25));
-        }
-
         #rover-canvas {
             display: none;
         }
@@ -106,24 +87,6 @@
             padding: 40px 24px 80px;
             gap: 0;
         }
-
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 6px 16px;
-            font-size: 9px; font-weight: 700;
-            letter-spacing: 2px; text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 40px;
-            background: var(--accent-dim);
-        }
-        .hero-badge-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: var(--accent);
-            animation: blink 2s ease-in-out infinite;
-        }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
         .hero-logo {
             width: 170px; height: 132px;
@@ -296,6 +259,65 @@
         }
 
         /* ══════════════════════════════════════
+           O ROVER — alternating rows
+        ══════════════════════════════════════ */
+        #rover {
+            padding: 100px 24px;
+            max-width: 1000px; margin: 0 auto;
+        }
+        .rover-row {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+            padding: 48px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .rover-row:last-of-type { border-bottom: none; }
+        .rover-row--reverse { flex-direction: row-reverse; }
+        .rover-icon {
+            flex-shrink: 0;
+            width: 110px; height: 110px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            background: var(--accent-dim);
+            transition: all 0.3s ease;
+        }
+        .rover-row:hover .rover-icon {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+        .rover-icon svg {
+            width: 44px; height: 44px;
+            stroke: var(--accent); fill: none;
+        }
+        .rover-content { flex: 1; }
+        .rover-content h3 {
+            font-size: 16px; font-weight: 700;
+            color: #fff; margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .rover-content p {
+            font-size: 10px; line-height: 1.8;
+            color: var(--muted); max-width: 520px;
+        }
+        .rover-row--reverse .rover-content p { margin-left: auto; }
+        @media (max-width: 640px) {
+            .rover-row,
+            .rover-row--reverse {
+                flex-direction: column;
+                text-align: center;
+                gap: 24px;
+            }
+            .rover-content p {
+                max-width: 100%;
+            }
+            .rover-row--reverse .rover-content p {
+                margin-left: 0;
+            }
+        }
+
+        /* ══════════════════════════════════════
            TECH STACK
         ══════════════════════════════════════ */
         #tech {
@@ -397,21 +419,9 @@
 <div class="depth-gradient"></div>
 
 <!-- ══════════════════════════════════════
-     LOGO ANIMADO AO SCROLL
-══════════════════════════════════════ -->
-<div id="logo-scroll-bg">
-    <img id="logo-scroll-img" src="/static/logo.png" alt="">
-</div>
-
-<!-- ══════════════════════════════════════
      HERO
 ══════════════════════════════════════ -->
 <section id="hero">
-
-    <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        Sistema Operacional
-    </div>
 
     <img src="/static/logo.png" alt="G.R.I.D" class="hero-logo">
 
@@ -467,10 +477,18 @@
      FEATURES
 ══════════════════════════════════════ -->
 <section id="features">
-    <p class="section-label">Capacidades</p>
-    <h2 class="section-title">Tudo o que o rover precisa,<br>numa só plataforma.</h2>
+        <p class="section-label">Capacidades</p>
+        <h2 class="section-title">Tudo o que o rover precisa,<br>numa só plataforma.</h2>
 
     <div class="features-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+            </div>
+            <p class="feature-title">Controlo Remoto</p>
+            <p class="feature-desc">Comando de direção e velocidade em tempo real via joystick virtual. O rover responde instantaneamente através de MQTT com confirmação de entrega QoS 1.</p>
+        </div>
 
         <div class="feature-card">
             <div class="feature-icon">
@@ -520,6 +538,74 @@
             <p class="feature-desc">Instala como app nativa no Android, iOS e desktop. Funciona offline para visualização de dados em cache. Suporte a Push Notifications.</p>
         </div>
 
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     O ROVER
+══════════════════════════════════════ -->
+<section id="rover">
+    <p class="section-label">Hardware</p>
+    <h2 class="section-title">Conhece o rover G.R.I.D.</h2>
+
+    <div class="rover-row">
+        <div class="rover-icon">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+        </div>
+        <div class="rover-content">
+            <h3>ESP32 — Cérebro</h3>
+            <p>Microcontrolador dual-core Xtensa LX6, WiFi + Bluetooth integrados. Executa o firmware de controlo, lê sensores e publica dados via MQTT sobre TLS.</p>
+        </div>
+    </div>
+
+    <div class="rover-row rover-row--reverse">
+        <div class="rover-icon">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+        </div>
+        <div class="rover-content">
+            <h3>ESP32-CAM — Visão</h3>
+            <p>Módulo de câmara OV2640 com resolução até 1600×1200. Transmite stream MJPEG em tempo real exposto publicamente via Cloudflare Tunnel.</p>
+        </div>
+    </div>
+
+    <div class="rover-row">
+        <div class="rover-icon">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        </div>
+        <div class="rover-content">
+            <h3>Sensores</h3>
+            <p>HC-SR04 (distância até 4m), MQ2 (gás inflamável), ADXL345 (aceleração 3 eixos) e BMP280 (temperatura + pressão + altitude).</p>
+        </div>
+    </div>
+
+    <div class="rover-row rover-row--reverse">
+        <div class="rover-icon">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        </div>
+        <div class="rover-content">
+            <h3>Chassis e Motores</h3>
+            <p>Estrutura em alumínio e aço inoxidável de 4 rodas com motores DC controlados por ponte H (L298N). Direção diferencial permite curvas de raio zero e manobras precisas.</p>
+        </div>
+    </div>
+
+    <div class="rover-row">
+        <div class="rover-icon">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.858 15.355-5.858 21.213 0"/></svg>
+        </div>
+        <div class="rover-content">
+            <h3>Comunicação MQTT</h3>
+            <p>Ligação encriptada TLS ao broker HiveMQ Cloud. O controlo do rover é instantâneo, e as leituras dos sensores são persistidas na Supabase de 2 em 2 minutos.</p>
+        </div>
+    </div>
+
+    <div class="rover-row rover-row--reverse">
+        <div class="rover-icon">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div class="rover-content">
+            <h3>Autonomia</h3>
+            <p>Alimentado por duas baterias 18650 recarregáveis. O firmware otimiza o consumo e o servidor gere a sessão MQTT de forma persistente com reconexão automática.</p>
+        </div>
     </div>
 </section>
 
@@ -590,47 +676,6 @@
 
 
 <script>
-    /* ── Logo scroll animation ─────────────────────────────── */
-    (function() {
-        const img = document.getElementById('logo-scroll-img');
-        if (!img) return;
-
-        let ticking = false;
-
-        function update() {
-            const scrollY  = window.scrollY || window.pageYOffset;
-            const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
-            const p = scrollY / maxScroll; // 0 → 1
-
-            // Rotação contínua ao scroll (Y e ligeiro Z)
-            const rotY  = p * 360 * 2.5;           // duas voltas e meia ao longo da página
-            const rotZ  = Math.sin(p * Math.PI * 4) * 12;  // balança ±12°
-            const rotX  = Math.sin(p * Math.PI * 2) * 8;   // tilt ±8°
-
-            // Escala: começa normal, encolhe no meio, volta no fim
-            const scale = 1 + Math.sin(p * Math.PI) * 0.18;
-
-            // Opacidade: quase invisível no topo, sobe, desce no final
-            const opacity = 0.08 + Math.sin(p * Math.PI) * 0.20;
-
-            // Glow verde pulsa com o scroll
-            const glowSize = 40 + Math.sin(p * Math.PI) * 60;
-            const glowAlpha = (0.15 + Math.sin(p * Math.PI) * 0.25).toFixed(2);
-
-            img.style.opacity   = opacity.toFixed(3);
-            img.style.transform = `perspective(600px) rotateY(${rotY.toFixed(1)}deg) rotateX(${rotX.toFixed(1)}deg) rotateZ(${rotZ.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
-            img.style.filter    = `drop-shadow(0 0 ${glowSize}px rgba(62,207,142,${glowAlpha}))`;
-
-            ticking = false;
-        }
-
-        window.addEventListener('scroll', () => {
-            if (!ticking) { requestAnimationFrame(update); ticking = true; }
-        }, { passive: true });
-
-        update();
-    })();
-
     /* ── PWA Install ───────────────────────────────────────── */
     let deferredPrompt = null;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;

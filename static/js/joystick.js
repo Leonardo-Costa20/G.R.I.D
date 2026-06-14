@@ -1,6 +1,6 @@
 let currentSpeed = 60;
 let lastDriveState = { command: 'stop', speed: 0 };
-const joystickState = { active: false, maxRadius: 92 };
+const joystickState = { active: false, maxRadius: 130 };
 
 function updateDriveStatus(command, speed) {
     const directionEl = document.getElementById('drive-direction');
@@ -64,16 +64,7 @@ function applyJoystickPosition(x, y) {
 function initJoystickWindow() {
     const frame = document.getElementById('joystick-frame');
     const stick = document.getElementById('joystick-stick');
-    const speedSlider = document.getElementById('speed-slider');
     if (!frame || !stick) return;
-
-    if (speedSlider) {
-        currentSpeed = parseInt(speedSlider.value, 10) || 60;
-        speedSlider.addEventListener('input', (event) => {
-            currentSpeed = Math.max(0, Math.min(100, parseInt(event.target.value, 10) || 0));
-            updateDriveStatus(lastDriveState.command, currentSpeed);
-        });
-    }
 
     frame.addEventListener('pointerdown', (event) => {
         joystickState.active = true;

@@ -40,6 +40,12 @@
             --win-border: rgba(0,0,0,0.1);
         }
 
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
         /* ── Main content ── */
         #main-content {
             flex: 1;
@@ -788,9 +794,8 @@
 
             // Tabs
             const tabs = document.querySelectorAll('.stab');
-            const tabKeys = ['tab_perfil','tab_password',null,'tab_rover',null,'tab_prefs'];
-            let ti = 0;
-            tabs.forEach(tab => { if (tabKeys[ti] && t[tabKeys[ti]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[ti]]; ti++; });
+            const tabKeys = ['tab_perfil','tab_password','tab_rover','tab_prefs'];
+            tabs.forEach((tab, i) => { if (t[tabKeys[i]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[i]]; });
 
             // Perfil panel
             setText('#tab-perfil .spanel-title', t.perfil_title);
