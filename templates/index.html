@@ -95,6 +95,7 @@
             <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.25em;color:rgba(62,207,142,0.5);text-transform:uppercase;">G.R.I.D</span>
             <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;letter-spacing:0.15em;color:rgba(100,116,139,0.5);text-transform:uppercase;"> // Dashboard</span>
         </div>
+        <div id="mobile-camera-slot"></div>
         <div id="mobile-cards-grid"></div>
     </main>
  
@@ -389,14 +390,14 @@
                 </div>`;
 
             const card = $(`
-                <div id="${id}" class="mobile-card${isCamera ? ' wide' : ''}">
+                <div id="${id}" class="mobile-card${isCamera ? ' wide' : (type === 'tilt' ? ' wide-tall' : '')}">
                     <div class="mobile-card-header">
                         <span>${title}</span>
                         <button onclick="document.getElementById('${id}').remove()">✕</button>
                     </div>
                     ${body}
                 </div>
-            `)[isCamera ? 'prependTo' : 'appendTo']('#mobile-cards-grid');
+            `).appendTo(isCamera ? '#mobile-camera-slot' : '#mobile-cards-grid');
 
             card[0].scrollIntoView({ behavior:'smooth', block:'start' });
         }

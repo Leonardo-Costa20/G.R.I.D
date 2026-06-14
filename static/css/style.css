@@ -225,10 +225,26 @@ body {
     display: flex;
     flex-direction: column;
 }
-.mobile-card.wide {
-    grid-column: span 3;
+#mobile-camera-slot .mobile-card {
+    width: 100%;
     aspect-ratio: unset;
     height: 260px;
+    min-height: 260px;
+    max-height: 260px;
+    border-radius: 14px;
+}
+.mobile-card.wide {
+    grid-column: 1 / -1;
+    aspect-ratio: unset;
+    height: 260px;
+    min-height: 260px;
+    max-height: 260px;
+}
+.mobile-card.wide-tall {
+    grid-column: 1 / -1;
+    aspect-ratio: unset;
+    height: 180px;
+    min-height: 180px;
 }
 .mobile-card-header {
     background: var(--win-header);
