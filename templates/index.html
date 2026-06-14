@@ -479,7 +479,7 @@
                     <div id="tilt-status" style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-nav);">--</div>
                 </div>` : type === 'camera' ?
                 `<div class="window-content bg-black w-full h-full flex items-center justify-center overflow-hidden">
-                    <img src="http://172.20.10.4:81/stream" class="w-full h-full object-cover"
+                    <img src="https://camera.gridos.space/stream" class="w-full h-full object-cover"
                          onerror="this.style.display='none';document.getElementById('cam-err').classList.remove('hidden')"/>
                     <div id="cam-err" class="hidden text-[10px] text-red-500 font-bold animate-pulse">[NO SIGNAL]</div>
                 </div>` : type === 'joystick' ?
@@ -547,7 +547,7 @@
             const isCamera = type === 'camera';
             const body = isCamera ?
                 `<div class="mobile-camera-body">
-                    <img src="http://172.20.10.4:81/stream" style="width:100%;height:100%;object-fit:cover"
+                    <img src="https://camera.gridos.space/stream" style="width:100%;height:100%;object-fit:cover"
                          onerror="this.style.display='none'"/>
                     <span style="color:#f85149;font-size:10px;font-weight:700;display:none" class="anim-pulse">[NO SIGNAL]</span>
                 </div>` :
