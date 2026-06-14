@@ -43,7 +43,7 @@ O G.R.I.D OS é o "cérebro" do sistema G.R.I.D — uma aplicação web que rece
 ## Estrutura do Projeto
 
 ```
-G.R.I.D-main/
+G.R.I.D/
 ├── app.py                          # Ponto de entrada da aplicação
 ├── core.py                         # Configurações globais, MQTT, Socket.IO, helpers
 ├── bridge.py                       # Bridge MQTT → Supabase (script independente)
@@ -86,8 +86,8 @@ G.R.I.D-main/
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/<Leonardo-Costa20>/G.R.I.D.git
-cd G.R.I.D-main
+git clone https://github.com/Leonardo-Costa20/G.R.I.D.git
+cd G.R.I.D
 ```
 
 ### 2. Instalar dependências
@@ -108,6 +108,10 @@ Cria um ficheiro `.env` na raiz do projeto:
 FLASK_SECRET_KEY=<chave-secreta-aleatória>
 SUPABASE_URL=<url-do-teu-projeto-supabase>
 SUPABASE_KEY=<anon-key-do-supabase>
+MQTT_BROKER=<broker.hivemq.cloud>
+MQTT_PORT=8883
+MQTT_USERNAME=<utilizador-mqtt>
+MQTT_PASSWORD=<password-mqtt>
 GMAIL_CLIENT_ID=<client-id-do-oauth2>
 GMAIL_CLIENT_SECRET=<client-secret-do-oauth2>
 GMAIL_REFRESH_TOKEN=<refresh-token-do-oauth2>
@@ -146,8 +150,6 @@ Precisas de ter estes quatro componentes a correr em simultâneo:
 | 2 | **ESP32 (rover)** | Firmware carregado e rover ligado à corrente |
 | 3 | **ESP32-CAM** | Firmware carregado e módulo ligado à corrente |
 | 4 | **Cloudflare Tunnel** | `cloudflared tunnel run grid-cam` no PC da rede local |
-
----
 
 ---
 
