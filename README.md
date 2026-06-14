@@ -34,7 +34,7 @@ O G.R.I.D OS é o "cérebro" do sistema G.R.I.D — uma aplicação web que rece
 | Base de dados | Supabase (PostgreSQL) |
 | Comunicação IoT | MQTT (HiveMQ Cloud, TLS porta 8883) |
 | Email | Gmail API + OAuth2 |
-| Frontend | HTML/CSS/JS + Socket.IO client |
+| Frontend | HTML/CSS/JS + Tailwind CSS + Socket.IO client |
 | Deploy | Gunicorn + Gevent |
 | Stream de vídeo | ESP32-CAM + Cloudflare Tunnel |
 
