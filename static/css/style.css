@@ -228,23 +228,23 @@ body {
 #mobile-camera-slot .mobile-card {
     width: 100%;
     aspect-ratio: unset;
-    height: 260px;
-    min-height: 260px;
-    max-height: 260px;
+    height: 220px;
+    min-height: 220px;
+    max-height: 220px;
     border-radius: 14px;
 }
 .mobile-card.wide {
     grid-column: 1 / -1;
     aspect-ratio: unset;
-    height: 260px;
-    min-height: 260px;
-    max-height: 260px;
+    height: 220px;
+    min-height: 220px;
+    max-height: 220px;
 }
 .mobile-card.wide-tall {
     grid-column: 1 / -1;
     aspect-ratio: unset;
-    height: 180px;
-    min-height: 180px;
+    height: 120px;
+    min-height: 120px;
 }
 .mobile-card-header {
     background: var(--win-header);
