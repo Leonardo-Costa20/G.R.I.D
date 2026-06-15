@@ -51,7 +51,7 @@ static esp_err_t index_handler(httpd_req_t *req) {
         "<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
         "<style>body{background:#020617;color:#f8fafc;font-family:sans-serif;text-align:center;padding:20px}"
         ".container{max-width:600px;margin:auto}"
-        "img{width:100%;border-radius:20px;border:2px solid #1e293b;box-shadow:0 20px 50px rgba(0,0,0,0.7)}"
+        "img{width:100%;border-radius:20px;border:2px solid #1e293b;box-shadow:0 20px 50px rgba(0,0,0,0.7);transform:rotate(-90deg);aspect-ratio:3/4;object-fit:cover}"
         "button{background:#38bdf8;color:#020617;border:none;padding:20px;border-radius:15px;width:100%;font-weight:bold;font-size:18px;margin-top:20px;cursor:pointer;box-shadow:0 4px 0 #0284c7}button:active{transform:translateY(4px);box-shadow:none}</style></head>"
         "<body><div class='container'><h2>ROVER CAM 🛰️</h2><img src='' id='photo'>"
         "<button onclick=\"fetch('/flash')\">ALTERNAR FLASH 🔦</button></div>"
