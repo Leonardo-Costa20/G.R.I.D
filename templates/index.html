@@ -305,7 +305,7 @@
                     <div id="tilt-status" style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-nav);">--</div>
                 </div>` : type === 'camera' ?
                 `<div class="window-content bg-black w-full h-full flex items-center justify-center overflow-hidden relative" style="aspect-ratio:3/4">
-                    <img src="https://camera.gridos.space/stream" class="w-full h-full" style="transform:rotate(-90deg);object-fit:cover;width:100%;height:100%"
+                    <img src="https://camera.gridos.space/stream" class="w-full h-full" style="transform:rotate(90deg);object-fit:cover;width:100%;height:100%"
                          onerror="this.style.display='none';document.getElementById('cam-err').classList.remove('hidden')"/>
                     ${['admin','pilot'].includes(USER_ROLE) ? `<button onclick="fetch('/flash')" style="position:absolute;top:8px;left:8px;z-index:10;width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.5);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)" title="Flash">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
