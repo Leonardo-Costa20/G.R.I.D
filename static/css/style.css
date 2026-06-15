@@ -40,10 +40,17 @@ body {
 :root { --text-nav: #8b949e; }
 
 .sensor-group {
+    max-height: 35vh;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--win-border) transparent;
+}
+@media (min-height: 900px) {
+    .sensor-group { max-height: 45vh; }
+}
+@media (min-height: 1200px) {
+    .sensor-group { max-height: 55vh; }
 }
 .sensor-group::-webkit-scrollbar { width: 3px; }
 .sensor-group::-webkit-scrollbar-track { background: transparent; }
