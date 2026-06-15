@@ -249,8 +249,8 @@ body {
 .mobile-card.wide-tall {
     grid-column: 1 / -1;
     aspect-ratio: unset;
-    height: 180px;
-    min-height: 180px;
+    height: 150px;
+    min-height: 150px;
 }
 .mobile-card-header {
     background: var(--win-header);
