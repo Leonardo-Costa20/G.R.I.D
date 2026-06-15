@@ -9,8 +9,8 @@ httpd_handle_t camera_httpd = NULL;
 httpd_handle_t stream_httpd = NULL;
 
 // Dados do WiFi
-const char *ssid = "iphonedeleo";
-const char *password = "123456789";
+const char *ssid = "-------";
+const char *password = "-------";
 
 // Funções que estão no outro ficheiro
 void startCameraServer();

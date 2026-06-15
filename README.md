@@ -118,7 +118,7 @@ GMAIL_REFRESH_TOKEN=<refresh-token-do-oauth2>
 GMAIL_SENDER=<o-teu-email@gmail.com>
 ```
 
-> ⚠️ **Nunca commites o ficheiro `.env` com credenciais reais.**
+>  **Nunca commites o ficheiro `.env` com credenciais reais.**
 
 Para obter as credenciais Gmail OAuth2, consulta a secção [Configuração do Gmail OAuth2](#configuração-do-gmail-oauth2) abaixo.
 

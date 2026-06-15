@@ -8,13 +8,13 @@
 #include <math.h>
 
 // ================= WIFI =================
-const char* ssid = "iphonedeleo";
-const char* password = "123456789";
+const char* ssid = "-------";
+const char* password = "-------";
 
 // ================= MQTT =================
-const char* mqtt_server = "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud";
-const char* mqtt_user = "ROVER-1";
-const char* mqtt_pass = "Rover1grid";
+const char* mqtt_server = "---------------------------------------";
+const char* mqtt_user = "----------";
+const char* mqtt_pass = "--------";
 
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
