@@ -41,7 +41,7 @@ body {
 
 .sensor-group {
     max-height: 35vh;
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--win-border) transparent;
