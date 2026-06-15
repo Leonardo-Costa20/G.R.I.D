@@ -171,11 +171,26 @@
         }
  
         // ── Sidebar desktop: pasta de sensores ──────────────────
+        function ajustarAlturaSensores() {
+            const folder = document.getElementById('sensor-folder');
+            const sidebar = document.getElementById('sidebar');
+            const bottom = sidebar.querySelector('.mt-auto');
+            if (!folder || !bottom) return;
+            const folderTop = folder.parentElement.querySelector('.nav-item').getBoundingClientRect().bottom;
+            const bottomTop = bottom.getBoundingClientRect().top;
+            folder.style.maxHeight = Math.max(80, bottomTop - folderTop - 12) + 'px';
+        }
         function toggleFolderManual() {
             folderOpenState = !folderOpenState;
             const arrow = document.getElementById('folder-arrow');
-            if (folderOpenState) { $('#sensor-folder').slideDown(300); if(arrow) arrow.textContent='▲'; }
-            else                 { $('#sensor-folder').slideUp(300);   if(arrow) arrow.textContent='▼'; }
+            if (folderOpenState) {
+                ajustarAlturaSensores();
+                $('#sensor-folder').slideDown(300);
+                if(arrow) arrow.textContent='▲';
+            } else {
+                $('#sensor-folder').slideUp(300);
+                if(arrow) arrow.textContent='▼';
+            }
         }
 
  
@@ -500,6 +515,11 @@
         $(document).ready(() => {
             if (localStorage.getItem('grid_theme') === 'light') document.body.classList.add('light-mode');
             applyPageLang('dashboard');
+
+            // Reajusta altura dos sensores ao redimensionar
+            window.addEventListener('resize', () => {
+                if (folderOpenState) ajustarAlturaSensores();
+            });
 
             // Relógio em tempo real
             function updateClock() {

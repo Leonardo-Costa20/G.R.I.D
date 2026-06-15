@@ -40,7 +40,6 @@ body {
 :root { --text-nav: #8b949e; }
 
 .sensor-group {
-    max-height: 150px;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
