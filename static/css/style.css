@@ -40,7 +40,7 @@ body {
 :root { --text-nav: #8b949e; }
 
 .sensor-group {
-    max-height: 35vh;
+    max-height: 130px;
     overflow-y: scroll;
     overflow-x: hidden;
     scrollbar-gutter: stable;
@@ -48,10 +48,10 @@ body {
     scrollbar-color: var(--accent) transparent;
 }
 @media (min-height: 900px) {
-    .sensor-group { max-height: 45vh; }
+    .sensor-group { max-height: 160px; }
 }
 @media (min-height: 1200px) {
-    .sensor-group { max-height: 55vh; }
+    .sensor-group { max-height: 190px; }
 }
 .sensor-group::-webkit-scrollbar { width: 6px; }
 .sensor-group::-webkit-scrollbar-track { background: transparent; }
