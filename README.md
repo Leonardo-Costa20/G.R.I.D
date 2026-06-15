@@ -60,6 +60,17 @@ G.R.I.D/
 │   ├── admin.py                    # Painel de administração
 │   └── profile.py                  # Definições de perfil e rover do utilizador
 ├── templates/                      # Templates HTML (Jinja2)
+│   ├── index.html                  # Dashboard principal
+│   ├── _sidebar.html               # Sidebar partilhada
+│   ├── login.html                  # Página de login
+│   ├── register.html               # Página de registo
+│   ├── forgot_password.html        # Recuperação de password
+│   ├── reset_password.html         # Redefinição de password
+│   ├── landing_apresentacao.html   # Landing page
+│   ├── welcome.html                # Boas-vindas pós-registo
+│   ├── settings.html               # Definições do utilizador
+│   ├── logs.html                   # Histórico de logs
+│   └── admin.html                  # Painel de administração
 ├── static/                         # CSS, JS, ícones, manifest PWA
 ├── cod_esp32_final/
 │   └── cod_esp32_final.ino         # Firmware do ESP32 (rover: sensores + MQTT)
