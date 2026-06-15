@@ -190,13 +190,16 @@ body {
 .label-sub { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.4; margin-bottom: 8px; }
 
 .ui-resizable-se {
-    width: 14px !important; height: 14px !important;
-    right: 8px !important; bottom: 8px !important;
-    background: none !important;
-    border-right: 3px solid var(--accent) !important;
-    border-bottom: 3px solid var(--accent) !important;
-    opacity: 0.5;
+    width: 12px !important; height: 12px !important;
+    right: 4px !important; bottom: 4px !important;
+    background: var(--win-border) !important;
+    border: none !important;
+    border-radius: 50% !important;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    cursor: se-resize !important;
 }
+.window-node:hover .ui-resizable-se { opacity: 0.8; }
 
 /* ═══════════════════════════════════════════
    CARDS — MOBILE

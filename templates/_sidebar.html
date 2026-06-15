@@ -53,17 +53,17 @@
                 </button>
             </div>
         </div>
-        <!-- Auto Tile — só no dashboard -->
-        <button onclick="autoTile()" class="nav-item nav-tile">
-            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-            <span class="nav-text" data-i18n-nav="nav_autotile">Auto Tile</span>
-        </button>
         {% if role in ['pilot', 'admin'] %}
                 <button onclick="createWindow('joystick','Joystick')" class="nav-item">
             <svg viewBox="0 0 24 24"><rect x="2" y="8" rx="3" width="20" height="8" stroke-width="2" fill="none"/><circle cx="7" cy="12" r="1.5" stroke-width="2" fill="none"/><circle cx="17" cy="12" r="1.5" stroke-width="2" fill="none"/></svg>
             <span class="nav-text" data-i18n-nav="nav_joystick">Joystick</span>
         </button>
         {% endif %}
+        <!-- Organizar — só no dashboard -->
+        <button onclick="autoTile()" class="nav-item nav-tile">
+            <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            <span class="nav-text">Organizar</span>
+        </button>
         {% else %}
         <!-- Dashboard link — nas outras páginas -->
         <a href="/" class="nav-item">
