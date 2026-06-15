@@ -225,13 +225,17 @@ body {
     display: flex;
     flex-direction: column;
 }
+#mobile-camera-slot {
+    width: 100vw;
+    margin-left: calc(-1 * (100vw - 100%) / 2);
+}
 #mobile-camera-slot .mobile-card {
     width: 100%;
     aspect-ratio: unset;
     height: 220px;
     min-height: 220px;
     max-height: 220px;
-    border-radius: 14px;
+    border-radius: 0;
 }
 .mobile-card.wide {
     grid-column: 1 / -1;
