@@ -6,6 +6,7 @@
 #include <Adafruit_ADXL345_U.h>
 #include <Adafruit_BMP280.h>
 #include <math.h>
+#include <ArduinoJson.h>
 
 // ================= WIFI =================
 const char* ssid = "-------";
@@ -32,10 +33,88 @@ const int pinoMQ2 = 34;
 #define SDA_PIN 21
 #define SCL_PIN 22
 
+// ================= PONTE H (L298N) — Tração Diferencial =================
+// 2 motores lado esquerdo → canal A (ENA, IN1, IN2)
+// 2 motores lado direito  → canal B (ENB, IN3, IN4)
+#define ENA 14
+#define IN1 27
+#define IN2 26
+#define IN3 25
+#define IN4 33
+#define ENB 32
+
 // ================= MOVIMENTO =================
 float last_ax = 0;
 float last_ay = 0;
 float last_az = 0;
+
+// --- Núcleo do controlo diferencial ---
+// left/right: -255..+255 (negativo = ré, positivo = frente)
+void setMotores(int left, int right) {
+  left  = constrain(left,  -255, 255);
+  right = constrain(right, -255, 255);
+
+  // Canal A — lado esquerdo
+  if (left >= 0) {
+    digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  } else {
+    digitalWrite(IN1, LOW); digitalWrite(IN2, HIGH);
+  }
+  analogWrite(ENA, abs(left));
+
+  // Canal B — lado direito
+  if (right >= 0) {
+    digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  } else {
+    digitalWrite(IN3, LOW); digitalWrite(IN4, HIGH);
+  }
+  analogWrite(ENB, abs(right));
+}
+
+void pararMotor() { setMotores(0, 0); }
+
+// --- Curvas suaves com mistura proporcional ---
+// forward-left:   esquerda 60%, direita 100%
+// forward-right:  esquerda 100%, direita 60%
+// backward-left:  esquerda -60%, direita -100%
+// backward-right: esquerda -100%, direita -60%
+// left (pivot):   esquerda -100%, direita +100%
+// right (pivot):  esquerda +100%, direita -100%
+
+void frente(int pwm)      { setMotores(pwm, pwm); }
+void tras(int pwm)        { setMotores(-pwm, -pwm); }
+void pivotEsq(int pwm)    { setMotores(-pwm, pwm); }
+void pivotDir(int pwm)    { setMotores(pwm, -pwm); }
+void curvaFrenteEsq(int pwm) { setMotores(pwm * 0.6, pwm); }
+void curvaFrenteDir(int pwm) { setMotores(pwm, pwm * 0.6); }
+void curvaTrasEsq(int pwm)   { setMotores(-pwm * 0.6, -pwm); }
+void curvaTrasDir(int pwm)   { setMotores(-pwm, -pwm * 0.6); }
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  if (strcmp(topic, "G.R.I.D/drive/command") != 0) return;
+
+  char msg[length + 1];
+  memcpy(msg, payload, length);
+  msg[length] = '\0';
+
+  StaticJsonDocument<128> doc;
+  DeserializationError err = deserializeJson(doc, msg);
+  if (err) return;
+
+  const char* command = doc["command"];
+  int speed = constrain(doc["speed"] | 60, 0, 100);
+  int pwm = map(speed, 0, 100, 0, 255);
+
+  if      (strcmp(command, "forward")        == 0)  frente(pwm);
+  else if (strcmp(command, "backward")       == 0)  tras(pwm);
+  else if (strcmp(command, "left")           == 0)  pivotEsq(pwm);
+  else if (strcmp(command, "right")          == 0)  pivotDir(pwm);
+  else if (strcmp(command, "forward-left")   == 0)  curvaFrenteEsq(pwm);
+  else if (strcmp(command, "forward-right")  == 0)  curvaFrenteDir(pwm);
+  else if (strcmp(command, "backward-left")  == 0)  curvaTrasEsq(pwm);
+  else if (strcmp(command, "backward-right") == 0)  curvaTrasDir(pwm);
+  else if (strcmp(command, "stop")           == 0)  pararMotor();
+}
 
 void setup() {
   Serial.begin(115200);
@@ -44,6 +123,11 @@ void setup() {
   pinMode(pinoMQ2, INPUT);
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
+
+  // Motor pins
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT); pinMode(ENB, OUTPUT);
+  pararMotor();
 
   // WiFi
   WiFi.begin(ssid, password);
@@ -56,6 +140,7 @@ void setup() {
   // MQTT
   espClient.setInsecure();
   client.setServer(mqtt_server, 8883);
+  client.setCallback(callback);
 
   // ADXL345
   if (!accel.begin()) {
