@@ -11,6 +11,7 @@ def register_routes(app):
         landing_apresentacao,
         welcome,
         index,
+        api_flash,
     )
     from .logs import (
         logs_page,
@@ -45,6 +46,7 @@ def register_routes(app):
     app.add_url_rule('/', endpoint='landing_apresentacao', view_func=landing_apresentacao)
     app.add_url_rule('/app', endpoint='welcome', view_func=welcome)
     app.add_url_rule('/dashboard', endpoint='index', view_func=index)
+    app.add_url_rule('/api/flash', endpoint='api_flash', view_func=api_flash)
 
     app.add_url_rule('/login', endpoint='login', view_func=login, methods=['GET', 'POST'])
     app.add_url_rule('/register', endpoint='register', view_func=register, methods=['GET', 'POST'])
