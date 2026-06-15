@@ -18,7 +18,9 @@ static esp_err_t flash_handler(httpd_req_t *req) {
     flash_on = !flash_on;
     digitalWrite(FLASH_GPIO_NUM, flash_on ? HIGH : LOW);
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    return httpd_resp_send(req, NULL, 0);
+    httpd_resp_set_type(req, "text/plain");
+    const char* resp = flash_on ? "ON" : "OFF";
+    return httpd_resp_send(req, resp, strlen(resp));
 }
 
 static esp_err_t stream_handler(httpd_req_t *req) {
