@@ -303,9 +303,10 @@
                     </div>
                     <div id="tilt-status" style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-nav);">--</div>
                 </div>` : type === 'camera' ?
-                `<div class="window-content bg-black w-full h-full flex items-center justify-center overflow-hidden" style="aspect-ratio:3/4">
+                `<div class="window-content bg-black w-full h-full flex items-center justify-center overflow-hidden relative" style="aspect-ratio:3/4">
                     <img src="https://camera.gridos.space/stream" class="w-full h-full" style="transform:rotate(-90deg);object-fit:cover;width:100%;height:100%"
                          onerror="this.style.display='none';document.getElementById('cam-err').classList.remove('hidden')"/>
+                    <button onclick="fetch('/flash')" style="position:absolute;bottom:8px;right:8px;z-index:10;width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.5);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)" title="Flash">⚡</button>
                     <div id="cam-err" class="hidden text-[10px] text-red-500 font-bold animate-pulse">[NO SIGNAL]</div>
                 </div>` : type === 'joystick' ?
                 `<div class="window-content p-6">
@@ -364,9 +365,10 @@
 
             const isCamera = type === 'camera';
             const body = isCamera ?
-                `<div class="mobile-camera-body">
+                `<div class="mobile-camera-body" style="position:relative">
                     <img src="https://camera.gridos.space/stream" style="width:100%;height:100%;object-fit:cover;transform:rotate(-90deg)"
                          onerror="this.style.display='none'"/>
+                    <button onclick="fetch('/flash')" style="position:absolute;bottom:8px;right:8px;z-index:10;width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.5);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)" title="Flash">⚡</button>
                     <span style="color:#f85149;font-size:10px;font-weight:700;display:none" class="anim-pulse">[NO SIGNAL]</span>
                 </div>` :
                 type === 'tilt' ?

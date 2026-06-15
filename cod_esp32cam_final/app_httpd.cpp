@@ -71,6 +71,7 @@ void startCameraServer() {
     config.ctrl_port = 32769;
     if (httpd_start(&stream_httpd, &config) == ESP_OK) {
         httpd_register_uri_handler(stream_httpd, new httpd_uri_t{ .uri = "/stream", .method = HTTP_GET, .handler = stream_handler });
+        httpd_register_uri_handler(stream_httpd, new httpd_uri_t{ .uri = "/flash", .method = HTTP_GET, .handler = flash_handler });
     }
 }
 
