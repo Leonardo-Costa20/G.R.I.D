@@ -11,9 +11,9 @@ SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 supabase     = create_client(SUPABASE_URL, SUPABASE_KEY)
  
-MQTT_BROKER = os.getenv('MQTT_BROKER', "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud")
-MQTT_USER   = os.getenv('MQTT_USER', "ROVER-1")
-MQTT_PASS   = os.getenv('MQTT_PASS', "Rover1grid")
+MQTT_BROKER = os.getenv('MQTT_BROKER')
+MQTT_USER   = os.getenv('MQTT_USER')
+MQTT_PASS   = os.getenv('MQTT_PASS')
  
 ultimos_envios  = {}
 INTERVALO_ENVIO = 120  # 2 minutos
@@ -53,11 +53,15 @@ def on_message(client, userdata, msg):
     except:
         pass
  
+if not MQTT_BROKER or not MQTT_USER or not MQTT_PASS:
+    print("[Bridge] Credenciais MQTT não configuradas no .env")
+    exit(1)
+
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.username_pw_set(MQTT_USER, MQTT_PASS)
 client.tls_set()
 client.on_message = on_message
- 
+
 print("Bridge Ativa! (Intervalo: 2 min)")
 client.connect(MQTT_BROKER, 8883)
 client.subscribe("G.R.I.D/#")

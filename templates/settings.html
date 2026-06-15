@@ -27,6 +27,7 @@
             --win-header: rgba(48, 54, 61, 0.5);
             --grid-color: rgba(62, 207, 142, 0.1);
             --win-border: rgba(48, 54, 61, 0.8);
+            --card-bg: rgba(22, 27, 34, 0.8);
             --accent: #3ecf8e;
         }
         body.light-mode {
@@ -38,6 +39,7 @@
             --win-header: #edf2f7;
             --grid-color: rgba(0,0,0,0.05);
             --win-border: rgba(0,0,0,0.1);
+            --card-bg: rgba(255, 255, 255, 0.96);
         }
 
         body {
@@ -161,7 +163,7 @@
         }
         .s-input {
             width: 100%;
-            background: rgba(0,0,0,0.3);
+            background: var(--card-bg);
             border: 1px solid var(--win-border);
             border-radius: 8px; padding: 10px 14px;
             font-size: 12px; font-family: 'JetBrains Mono', monospace;
@@ -170,6 +172,7 @@
         }
         .s-input:focus { border-color: var(--accent); }
         .s-input:disabled { opacity: 0.4; cursor: not-allowed; }
+        select.s-input { color-scheme: dark; }
 
         /* ── Buttons ── */
         .s-btn {

@@ -16,7 +16,7 @@ from flask_socketio import SocketIO
 
 load_dotenv()
 
-SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'grid_secret_key_123')
+SECRET_KEY = os.getenv('FLASK_SECRET_KEY')
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode='gevent')
 
@@ -30,9 +30,9 @@ GMAIL_CLIENT_SECRET = os.getenv('GMAIL_CLIENT_SECRET')
 GMAIL_REFRESH_TOKEN = os.getenv('GMAIL_REFRESH_TOKEN')
 GMAIL_SENDER        = os.getenv('GMAIL_SENDER')  # o teu email @gmail.com
 
-MQTT_BROKER = os.getenv('MQTT_BROKER', "79cfe6e1598b447b95c57a4303744c21.s1.eu.hivemq.cloud")
-MQTT_USER   = os.getenv('MQTT_USER', "ROVER-1")
-MQTT_PASS   = os.getenv('MQTT_PASS', "Rover1grid")
+MQTT_BROKER = os.getenv('MQTT_BROKER')
+MQTT_USER   = os.getenv('MQTT_USER')
+MQTT_PASS   = os.getenv('MQTT_PASS')
 
 mqtt_client = None
 
@@ -275,6 +275,10 @@ def on_message(client, userdata, msg):
 def initialize_mqtt():
     global mqtt_client
     if mqtt_client is not None:
+        return
+
+    if not MQTT_BROKER or not MQTT_USER or not MQTT_PASS:
+        print("[MQTT] Credenciais não configuradas no .env — MQTT desativado")
         return
 
     try:

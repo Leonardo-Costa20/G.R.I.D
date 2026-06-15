@@ -126,8 +126,8 @@ def api_rover_link():
         return jsonify({'error': 'rover_id é obrigatório.'}), 400
 
     try:
-        supabase.table('users').update({'rover_vinculado': rover_id}).eq('username', session['username']).execute()
-        return jsonify({'status': 'ok', 'rover_vinculado': rover_id})
+        supabase.table('users').update({'rover_id': rover_id}).eq('username', session['username']).execute()
+        return jsonify({'status': 'ok', 'rover_id': rover_id})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
