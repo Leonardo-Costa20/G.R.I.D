@@ -72,6 +72,16 @@ G.R.I.D/
 │   ├── logs.html                   # Histórico de logs
 │   └── admin.html                  # Painel de administração
 ├── static/                         # CSS, JS, ícones, manifest PWA
+│   ├── css/
+│   │   ├── style.css               # Estilos globais
+│   │   └── joystick.css            # Estilos do joystick
+│   ├── js/
+│   │   ├── i18n.js                 # Internacionalização
+│   │   └── joystick.js             # Lógica do joystick
+│   ├── icons/                      # Ícones PWA
+│   ├── logo.png                    # Logótipo
+│   ├── manifest.json               # Manifest PWA
+│   └── sw.js                       # Service Worker
 ├── cod_esp32_final/
 │   └── cod_esp32_final.ino         # Firmware do ESP32 (rover: sensores + MQTT)
 └── cod_esp32cam_final/
