@@ -258,9 +258,38 @@
         .role-viewer { background: rgba(139,148,158,0.15); color: #8b949e; border: 1px solid rgba(139,148,158,0.3); }
         .role-operator { background: rgba(62,207,142,0.15); color: #3ecf8e; border: 1px solid rgba(62,207,142,0.3); }
 
+        /* ── Mobile top tabs ── */
+        #mobile-settings-tabs {
+            display: none;
+            overflow-x: auto;
+            white-space: nowrap;
+            background: var(--sidebar-bg);
+            border-bottom: 1px solid var(--win-border);
+            padding: 0 8px;
+            flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        #mobile-settings-tabs::-webkit-scrollbar { display: none; }
+        #mobile-settings-tabs { scrollbar-width: none; }
+        .mstab {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 14px;
+            font-size: 9px; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: var(--text-nav);
+            border: none; background: none; cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .mstab:hover { color: var(--text-main); }
+        .mstab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .mstab svg { width: 14px; height: 14px; stroke: currentColor; fill: none; }
+
         /* ── Mobile ── */
         @media (max-width: 768px) {
             #settings-tabs { display: none; }
+            #mobile-settings-tabs { display: flex !important; }
             #settings-panels { padding: 20px 16px 100px; }
             #sidebar { display: none !important; }
             #settings-bottom-nav { display: flex !important; }
@@ -304,6 +333,26 @@
             <div style="display:flex;align-items:center;gap:10px;">
                 <span class="role-badge role-{{ role }}">{{ role }}</span>
             </div>
+        </div>
+
+        <!-- Mobile tab bar -->
+        <div id="mobile-settings-tabs">
+            <button class="mstab active" onclick="switchTab('perfil', this)">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Perfil
+            </button>
+            <button class="mstab" onclick="switchTab('password', this)">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                Password
+            </button>
+            <button class="mstab" onclick="switchTab('rover', this)">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+                Rover
+            </button>
+            <button class="mstab" onclick="switchTab('preferencias', this)">
+                <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                Preferências
+            </button>
         </div>
 
         <div id="settings-wrap">
@@ -515,11 +564,17 @@
         }
 
         // ── Tabs ──
-        function switchTab(name) {
+        function switchTab(name, el) {
             document.querySelectorAll('.spanel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.mstab').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + name).classList.add('active');
-            event.currentTarget.classList.add('active');
+            if (el) {
+                el.classList.add('active');
+                el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            } else if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
         }
 
         // ── Mensagens ──
@@ -794,8 +849,10 @@
 
             // Tabs
             const tabs = document.querySelectorAll('.stab');
+            const mtabs = document.querySelectorAll('.mstab');
             const tabKeys = ['tab_perfil','tab_password','tab_rover','tab_prefs'];
             tabs.forEach((tab, i) => { if (t[tabKeys[i]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[i]]; });
+            mtabs.forEach((tab, i) => { if (t[tabKeys[i]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[i]]; });
 
             // Perfil panel
             setText('#tab-perfil .spanel-title', t.perfil_title);
