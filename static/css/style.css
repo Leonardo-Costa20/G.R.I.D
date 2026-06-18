@@ -197,7 +197,7 @@ body {
 .label-sub { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.4; margin-bottom: 8px; }
 
 .ui-resizable-se {
-    width: 28px !important; height: 28px !important;
+    width: 24px !important; height: 24px !important;
     right: 10px !important; bottom: 10px !important;
     background: none !important;
     border-right: 3px solid var(--accent) !important;
