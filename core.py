@@ -192,7 +192,7 @@ def monitor_infraestrutura_loop():
         if supabase:
             try:
                 inicio_ping = time.time()
-                supabase.auth.get_session()
+                supabase.table('logs_operacao').select('id', count='exact').limit(1).execute()
                 latencia_db = int((time.time() - inicio_ping) * 1000)
             except Exception:
                 latencia_db = "FAIL"
