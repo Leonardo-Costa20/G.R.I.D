@@ -35,14 +35,19 @@ def admin_panel():
         return redirect(url_for('login'))
 
     users_list = []
+    rovers_total = 0
+    rovers_vinculados = 0
     if supabase:
         try:
             res = supabase.table('users').select('*').execute()
             users_raw = res.data if res.data else []
 
-            # Buscar todos os rovers para fazer join manual
-            rovers_res = supabase.table('rovers').select('id, nome').execute()
-            rovers_map = {r['id']: r['nome'] for r in (rovers_res.data or [])}
+            # Buscar todos os rovers
+            rovers_res = supabase.table('rovers').select('id, nome, ativo').execute()
+            rovers_data = rovers_res.data or []
+            rovers_map = {r['id']: r['nome'] for r in rovers_data}
+            rovers_total = len(rovers_data)
+            rovers_vinculados = sum(1 for r in rovers_data if r.get('ativo'))
 
             # Adicionar nome do rover a cada user
             for user in users_raw:
@@ -55,7 +60,9 @@ def admin_panel():
 
     return render_template('admin.html', users=users_list,
                            username=session.get('username'),
-                           role=session.get('role'))
+                           role=session.get('role'),
+                           rovers_total=rovers_total,
+                           rovers_vinculados=rovers_vinculados)
 
 
 # ── Gestão de utilizadores ────────────────────────────────────────────────────

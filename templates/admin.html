@@ -85,7 +85,7 @@
             </div>
             <div class="admin-card p-4">
                 <div class="stat-equipment text-[10px] text-gray-500 uppercase tracking-widest font-bold">Equipamentos</div>
-                <div class="text-3xl font-bold text-blue-400 mt-1">01 <span class="text-xs text-gray-600">/ 01</span></div>
+                <div class="text-3xl font-bold text-blue-400 mt-1" id="equipment-count">{{ rovers_vinculados }} <span class="text-xs text-gray-600">/ {{ rovers_total }}</span></div>
             </div>
             <div class="admin-card p-4">
                 <div class="stat-infra text-[10px] text-gray-500 uppercase tracking-widest font-bold">Infraestrutura</div>
@@ -261,11 +261,19 @@
                 .then(r => r.json())
                 .then(data => {
                     const el = document.getElementById('rovers-list');
-                    if (!data.rovers || data.rovers.length === 0) {
+                    const rovers = data.rovers || [];
+
+                    // Atualizar contador de equipamentos
+                    const total = rovers.length;
+                    const vinculados = rovers.filter(r => r.ativo).length;
+                    document.getElementById('equipment-count').innerHTML =
+                        vinculados + ' <span class="text-xs text-gray-600">/ ' + total + '</span>';
+
+                    if (total === 0) {
                         el.innerHTML = '<div class="text-[9px] text-gray-600 text-center py-2">Nenhum rover registado.</div>';
                         return;
                     }
-                    el.innerHTML = data.rovers.map(r => `
+                    el.innerHTML = rovers.map(r => `
                         <div class="flex items-center justify-between bg-black/30 border border-gray-800/60 rounded px-2 py-1.5 gap-2">
                             <div class="min-w-0">
                                 <div class="text-[10px] font-bold text-white truncate">${r.nome}</div>
