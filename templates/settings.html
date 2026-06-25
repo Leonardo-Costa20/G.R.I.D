@@ -911,8 +911,8 @@
                 if (roverNameLabel) roverNameLabel.textContent = t.lbl_rover_name;
                 const roverBtns = document.querySelectorAll('#rover-unlink-section .s-btn');
                 if (roverBtns[0]) roverBtns[0].textContent = t.btn_save_name;
+                if (roverBtns[1]) roverBtns[1].textContent = t.btn_unlink;
             }
-            if (roverBtns[1]) roverBtns[1].textContent = t.btn_unlink;
 
             // Preferências panel
             setText('#tab-preferencias .spanel-title', t.prefs_title);
