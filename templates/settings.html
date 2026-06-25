@@ -173,6 +173,7 @@
         .s-input:focus { border-color: var(--accent); }
         .s-input:disabled { opacity: 0.4; cursor: not-allowed; }
         select.s-input { color-scheme: dark; }
+        body.light-mode select.s-input { color-scheme: light; }
 
         /* ── Buttons ── */
         .s-btn {
@@ -222,6 +223,9 @@
             border-radius: 10px; margin-bottom: 18px;
             background: rgba(0,0,0,0.2);
         }
+        body.light-mode .rover-badge {
+            background: var(--card-bg);
+        }
         .rover-badge-dot {
             width: 10px; height: 10px; border-radius: 50%;
             background: #f87171; flex-shrink: 0;
@@ -238,6 +242,9 @@
             font-size: 18px; font-weight: 800; color: var(--accent);
             background: rgba(0,0,0,0.4); border: 1px solid var(--win-border);
             border-radius: 10px; outline: none; transition: border-color .2s;
+        }
+        body.light-mode .rover-code-digit {
+            background: rgba(255,255,255,0.8);
         }
         .rover-code-digit:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(62,207,142,.12); }
 
