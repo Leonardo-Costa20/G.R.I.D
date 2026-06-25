@@ -856,12 +856,16 @@
             // Page title
             document.querySelector('.topbar-title').innerHTML = 'G.R.I.D <span>OS</span> // ' + t.title;
 
-            // Tabs
-            const tabs = document.querySelectorAll('.stab');
-            const mtabs = document.querySelectorAll('.mstab');
-            const tabKeys = ['tab_perfil','tab_password','tab_rover','tab_prefs'];
-            tabs.forEach((tab, i) => { if (t[tabKeys[i]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[i]]; });
-            mtabs.forEach((tab, i) => { if (t[tabKeys[i]]) tab.childNodes[tab.childNodes.length-1].textContent = ' ' + t[tabKeys[i]]; });
+            // Tabs (match by onclick, not by position — rover tab may be hidden for viewers)
+            ['perfil', 'password', 'rover', 'preferencias'].forEach(name => {
+                const key = 'tab_' + name;
+                [...document.querySelectorAll('.stab, .mstab')].forEach(btn => {
+                    if (btn.getAttribute('onclick')?.includes(`'${name}'`)) {
+                        const textNode = btn.childNodes[btn.childNodes.length-1];
+                        if (textNode && t[key]) textNode.textContent = ' ' + t[key];
+                    }
+                });
+            });
 
             // Perfil panel
             setText('#tab-perfil .spanel-title', t.perfil_title);
