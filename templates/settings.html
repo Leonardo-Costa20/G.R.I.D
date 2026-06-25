@@ -348,10 +348,12 @@
                 <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                 Password
             </button>
+            {% if role in ['pilot', 'admin'] %}
             <button class="mstab" onclick="switchTab('rover', this)">
                 <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
                 Rover
             </button>
+            {% endif %}
             <button class="mstab" onclick="switchTab('preferencias', this)">
                 <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                 Preferências
@@ -370,11 +372,13 @@
                     Password
                 </button>
                 <hr class="stab-divider">
+                {% if role in ['pilot', 'admin'] %}
                 <button class="stab" onclick="switchTab('rover')">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
                     Rover
                 </button>
                 <hr class="stab-divider">
+                {% endif %}
                 <button class="stab" onclick="switchTab('preferencias')">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                     Preferências
@@ -458,6 +462,7 @@
                     </div>
                 </div>
 
+                {% if role in ['pilot', 'admin'] %}
                 <!-- ── ROVER ── -->
                 <div id="tab-rover" class="spanel">
                     <div class="spanel-title">Rover</div>
@@ -511,6 +516,7 @@
                         <div id="msg-rover" class="s-msg"></div>
                     </div>
                 </div>
+                {% endif %}
 
                 <!-- ── PREFERÊNCIAS ── -->
                 <div id="tab-preferencias" class="spanel">
@@ -887,23 +893,25 @@
             if (pwLabels[2]) pwLabels[2].textContent = t.lbl_pw_confirm;
             setText('#tab-password .s-btn-primary', t.btn_change_pw);
 
-            // Rover panel
-            setText('#tab-rover .spanel-title', t.rover_title);
-            setText('#tab-rover .spanel-sub', t.rover_sub);
-            setCardTitle('#tab-rover .s-card-title', t.rover_status_card);
-            const roverChecking = document.getElementById('rover-badge-name');
-            if (roverChecking && roverChecking.textContent === 'A verificar...') roverChecking.textContent = t.rover_checking;
-            const roverState = document.getElementById('rover-badge-sub');
-            if (roverState && roverState.textContent === 'Estado da vinculação') roverState.textContent = t.rover_state;
-            const roverHint = document.querySelector('#rover-link-section p');
-            if (roverHint) roverHint.textContent = t.rover_code_hint;
-            const roverCodeLabel = document.querySelector('#rover-link-section .s-label');
-            if (roverCodeLabel) roverCodeLabel.textContent = t.lbl_rover_code;
-            setText('#rover-link-section .s-btn-primary', t.btn_link_rover);
-            const roverNameLabel = document.querySelector('#rover-unlink-section .s-label');
-            if (roverNameLabel) roverNameLabel.textContent = t.lbl_rover_name;
-            const roverBtns = document.querySelectorAll('#rover-unlink-section .s-btn');
-            if (roverBtns[0]) roverBtns[0].textContent = t.btn_save_name;
+            // Rover panel (only if viewer has access)
+            if (document.getElementById('tab-rover')) {
+                setText('#tab-rover .spanel-title', t.rover_title);
+                setText('#tab-rover .spanel-sub', t.rover_sub);
+                setCardTitle('#tab-rover .s-card-title', t.rover_status_card);
+                const roverChecking = document.getElementById('rover-badge-name');
+                if (roverChecking && roverChecking.textContent === 'A verificar...') roverChecking.textContent = t.rover_checking;
+                const roverState = document.getElementById('rover-badge-sub');
+                if (roverState && roverState.textContent === 'Estado da vinculação') roverState.textContent = t.rover_state;
+                const roverHint = document.querySelector('#rover-link-section p');
+                if (roverHint) roverHint.textContent = t.rover_code_hint;
+                const roverCodeLabel = document.querySelector('#rover-link-section .s-label');
+                if (roverCodeLabel) roverCodeLabel.textContent = t.lbl_rover_code;
+                setText('#rover-link-section .s-btn-primary', t.btn_link_rover);
+                const roverNameLabel = document.querySelector('#rover-unlink-section .s-label');
+                if (roverNameLabel) roverNameLabel.textContent = t.lbl_rover_name;
+                const roverBtns = document.querySelectorAll('#rover-unlink-section .s-btn');
+                if (roverBtns[0]) roverBtns[0].textContent = t.btn_save_name;
+            }
             if (roverBtns[1]) roverBtns[1].textContent = t.btn_unlink;
 
             // Preferências panel
@@ -940,7 +948,7 @@
 
         // ── Init ──
         loadPrefs();
-        loadRoverStatus();
+        if (document.getElementById('tab-rover')) loadRoverStatus();
     </script>
     <nav id="settings-bottom-nav">
         <a href="/" class="bnav-item">
