@@ -127,7 +127,7 @@
  
     <!-- Drawer mobile de sensores -->
     <div id="mobile-sensor-drawer">
-        <button class="drawer-btn" onclick="mobileOpen('dist','HCSR04'); toggleMobileDrawer()">
+        <button class="drawer-btn" onclick="mobileOpen('dist','DISTÂNCIA'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
             HC-SR04
         </button>
@@ -147,9 +147,9 @@
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 17l4-8 4 4 4-6 4 4"></path></svg>
             <span class="drawer-label-altitude">Altitude</span>
         </button>
-        <button class="drawer-btn" onclick="mobileOpen('tilt','TILT'); toggleMobileDrawer()">
+        <button class="drawer-btn" onclick="mobileOpen('tilt','INCLINAÇÃO'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2L2 19h20L12 2z"></path></svg>
-            <span class="drawer-label-tilt">Tilt</span>
+            <span class="drawer-label-tilt">Inclinação</span>
         </button>
     </div>
  
@@ -257,15 +257,15 @@
             tilt: '°'
         };
         const labelMap  = { 
-            mq2: 'Sensor de Gás MQ2', 
-            dist: 'Ultrassónico HC-SR04', 
-            mpu: 'Acelerómetro MPU6050', 
-            bmp: 'Barómetro BMP280',
-            gas: 'Sensor de Gás',
-            temperatura: 'Temperatura',
-            pressao: 'Pressão',
-            altitude: 'Altitude',
-            tilt: 'Inclinação (Tilt)'
+            mq2: 'MQ2', 
+            dist: 'HC-SR04', 
+            mpu: 'ADXL345', 
+            bmp: 'BMP280',
+            gas: 'MQ2',
+            temperatura: 'BMP280',
+            pressao: 'BMP280',
+            altitude: 'BMP280',
+            tilt: 'ADXL345'
         };
  
         // ── Criar janela (desktop) ──────────────────────────────
