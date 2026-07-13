@@ -29,7 +29,7 @@
             <div id="sensor-folder" class="sensor-group" style="display:none">
                 <button onclick="createWindow('dist','DISTANCIA')" class="nav-item sub-item">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M6 12a6 6 0 0112 0"/><path stroke-width="2" d="M3 12a9 9 0 0118 0"/><circle cx="12" cy="12" r="3" stroke-width="2" fill="none"/></svg>
-                    <span class="nav-text">Distância</span>
+                    <span class="nav-text" data-i18n-nav="nav_distancia">Distância</span>
                 </button>
                 <button onclick="createWindow('gas','GAS')" class="nav-item sub-item">
                     <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2C8 2 5 5.5 5 9c0 2.5 1.5 4.7 3.5 5.8V17a1 1 0 001 1h5a1 1 0 001-1v-2.2C17.5 13.7 19 11.5 19 9c0-3.5-3-7-7-7z"></path></svg>
@@ -62,7 +62,7 @@
         <!-- Organizar — só no dashboard -->
         <button onclick="autoTile()" class="nav-item nav-tile">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-            <span class="nav-text">Organizar</span>
+                    <span class="nav-text" data-i18n-nav="nav_autotile">Organizar</span>
         </button>
         {% else %}
         <!-- Dashboard link — nas outras páginas -->

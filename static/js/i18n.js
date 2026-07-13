@@ -8,6 +8,7 @@ const GRID_I18N = {
         nav_camera: 'Câmera', nav_sensors: 'Sensores', nav_autotile: 'Auto Tile',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Mission Logs',
         nav_admin: 'Admin', nav_settings: 'Definições', nav_theme: 'Tema', nav_logout: 'Sair',
+        nav_distancia: 'Distância',
         // Topbar comum
         session_as: 'Sessão activa como:',
         // Dashboard
@@ -15,12 +16,19 @@ const GRID_I18N = {
         dash_awaiting: 'A AGUARDAR',
         dash_online: 'ROVER ONLINE',
         dash_offline: 'ROVER OFFLINE',
+        rover_online: 'ROVER ONLINE', rover_offline: 'ROVER OFFLINE',
         // Dashboard bottom nav (mobile)
         bnav_camera: 'Câmera', bnav_sensors: 'Sensores', bnav_theme: 'Tema',
         bnav_settings: 'Definições', bnav_logout: 'Sair',
         // Dashboard sensor drawer
         sensor_gas: 'Gás', sensor_temp: 'Temperatura', sensor_pressure: 'Pressão',
-        sensor_altitude: 'Altitude', sensor_tilt: 'Inclinação',
+        sensor_altitude: 'Altitude', sensor_tilt: 'Inclinação', sensor_dist: 'Distância',
+        drawer_dist: 'HC-SR04',
+        // Dashboard sensor window labels
+        tilt_label: 'ADXL345',
+        joy_panel: 'Joystick de Controlo',
+        drive_stopped: 'PARADO',
+        tilt_flat: 'PLANO', tilt_rising: '▲ A SUBIR', tilt_descending: '▼ A DESCER',
         // Joystick window
         joy_title: 'Joystick de Controlo', joy_forward: 'Frente', joy_back: 'Ré',
         joy_left: 'Esq', joy_right: 'Dir', joy_stop: 'STOP',
@@ -61,15 +69,22 @@ const GRID_I18N = {
         nav_camera: 'Camera', nav_sensors: 'Sensors', nav_autotile: 'Auto Tile',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Mission Logs',
         nav_admin: 'Admin', nav_settings: 'Settings', nav_theme: 'Theme', nav_logout: 'Logout',
+        nav_distancia: 'Distance',
         session_as: 'Active session as:',
         dash_title: 'G.R.I.D OS // Dashboard',
         dash_awaiting: 'AWAITING',
         dash_online: 'ROVER ONLINE',
         dash_offline: 'ROVER OFFLINE',
+        rover_online: 'ROVER ONLINE', rover_offline: 'ROVER OFFLINE',
         bnav_camera: 'Camera', bnav_sensors: 'Sensors', bnav_theme: 'Theme',
         bnav_settings: 'Settings', bnav_logout: 'Logout',
         sensor_gas: 'Gas', sensor_temp: 'Temperature', sensor_pressure: 'Pressure',
-        sensor_altitude: 'Altitude', sensor_tilt: 'Tilt',
+        sensor_altitude: 'Altitude', sensor_tilt: 'Tilt', sensor_dist: 'Distance',
+        drawer_dist: 'HC-SR04',
+        tilt_label: 'ADXL345',
+        joy_panel: 'Control Joystick',
+        drive_stopped: 'STOPPED',
+        tilt_flat: 'FLAT', tilt_rising: '▲ RISING', tilt_descending: '▼ DESCENDING',
         joy_title: 'Control Joystick', joy_forward: 'Fwd', joy_back: 'Rev',
         joy_left: 'Left', joy_right: 'Right', joy_stop: 'STOP',
         admin_title: 'G.R.I.D OS // Admin Panel',
@@ -107,6 +122,7 @@ const GRID_I18N = {
         nav_camera: 'Cámara', nav_sensors: 'Sensores', nav_autotile: 'Auto Tile',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Registros',
         nav_admin: 'Admin', nav_settings: 'Configuración', nav_theme: 'Tema', nav_logout: 'Salir',
+        nav_distancia: 'Distancia',
         session_as: 'Sesión activa como:',
         dash_title: 'G.R.I.D OS // Dashboard',
         dash_awaiting: 'EN ESPERA',
@@ -115,7 +131,13 @@ const GRID_I18N = {
         bnav_camera: 'Cámara', bnav_sensors: 'Sensores', bnav_theme: 'Tema',
         bnav_settings: 'Config.', bnav_logout: 'Salir',
         sensor_gas: 'Gas', sensor_temp: 'Temperatura', sensor_pressure: 'Presión',
-        sensor_altitude: 'Altitud', sensor_tilt: 'Inclinación',
+        sensor_altitude: 'Altitud', sensor_tilt: 'Inclinación', sensor_dist: 'Distancia',
+        drawer_dist: 'HC-SR04',
+        tilt_label: 'ADXL345',
+        joy_panel: 'Joystick de Control',
+        drive_stopped: 'PARADO',
+        tilt_flat: 'PLANO', tilt_rising: '▲ SUBIENDO', tilt_descending: '▼ BAJANDO',
+        rover_online: 'ROVER EN LÍNEA', rover_offline: 'ROVER FUERA DE LÍNEA',
         joy_title: 'Joystick de Control', joy_forward: 'Adelante', joy_back: 'Atrás',
         joy_left: 'Izq', joy_right: 'Der', joy_stop: 'STOP',
         admin_title: 'G.R.I.D OS // Panel Admin',
@@ -153,6 +175,7 @@ const GRID_I18N = {
         nav_camera: 'Caméra', nav_sensors: 'Capteurs', nav_autotile: 'Auto Tile',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Journaux',
         nav_admin: 'Admin', nav_settings: 'Paramètres', nav_theme: 'Thème', nav_logout: 'Déconnexion',
+        nav_distancia: 'Distance',
         session_as: 'Session active en tant que:',
         dash_title: 'G.R.I.D OS // Dashboard',
         dash_awaiting: 'EN ATTENTE',
@@ -161,7 +184,13 @@ const GRID_I18N = {
         bnav_camera: 'Caméra', bnav_sensors: 'Capteurs', bnav_theme: 'Thème',
         bnav_settings: 'Paramètres', bnav_logout: 'Quitter',
         sensor_gas: 'Gaz', sensor_temp: 'Température', sensor_pressure: 'Pression',
-        sensor_altitude: 'Altitude', sensor_tilt: 'Inclinaison',
+        sensor_altitude: 'Altitude', sensor_tilt: 'Inclinaison', sensor_dist: 'Distance',
+        drawer_dist: 'HC-SR04',
+        tilt_label: 'ADXL345',
+        joy_panel: 'Joystick de Contrôle',
+        drive_stopped: 'ARRÊT',
+        tilt_flat: 'PLAT', tilt_rising: '▲ MONTÉE', tilt_descending: '▼ DESCENTE',
+        rover_online: 'ROVER EN LIGNE', rover_offline: 'ROVER HORS LIGNE',
         joy_title: 'Joystick de Contrôle', joy_forward: 'Avant', joy_back: 'Arrière',
         joy_left: 'Gauche', joy_right: 'Droite', joy_stop: 'STOP',
         admin_title: 'G.R.I.D OS // Panneau Admin',
@@ -236,6 +265,12 @@ function applyPageLang(page) {
         setTxt('.drawer-label-pressure', t.sensor_pressure);
         setTxt('.drawer-label-altitude', t.sensor_altitude);
         setTxt('.drawer-label-tilt',     t.sensor_tilt);
+        setTxt('.drawer-label-dist',     t.drawer_dist);
+        // Sensor window labels
+        setTxt('.tilt-label',   t.tilt_label);
+        setTxt('.tilt-label-m', t.tilt_label);
+        setTxt('.joy-panel-title', t.joy_panel);
+        setTxt('.drive-status-text', t.drive_stopped);
         // Joystick window
         setTxt('.joy-title-label',   t.joy_title);
         setTxt('.joy-forward-label', t.joy_forward);

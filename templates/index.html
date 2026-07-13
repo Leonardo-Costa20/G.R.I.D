@@ -130,7 +130,7 @@
     <div id="mobile-sensor-drawer">
         <button class="drawer-btn" onclick="mobileOpen('dist','DISTÂNCIA'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-            HC-SR04
+            <span class="drawer-label-dist">HC-SR04</span>
         </button>
         <button class="drawer-btn" onclick="mobileOpen('gas','GAS'); toggleMobileDrawer()">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M12 2C8 2 5 5.5 5 9c0 2.5 1.5 4.7 3.5 5.8V17a1 1 0 001 1h5a1 1 0 001-1v-2.2C17.5 13.7 19 11.5 19 9c0-3.5-3-7-7-7z"></path></svg>
@@ -278,7 +278,7 @@
  
             const body = type === 'tilt' ?
                 `<div class="window-content p-6 flex flex-col items-center justify-center gap-4" style="height:100%;">
-                    <div class="label-sub" style="font-size:9px;letter-spacing:2px;opacity:.5;text-transform:uppercase;">ADXL345</div>
+                    <div class="label-sub tilt-label" style="font-size:9px;letter-spacing:2px;opacity:.5;text-transform:uppercase;">${gridT('tilt_label')}</div>
                     <div style="position:relative;width:200px;height:60px;display:flex;align-items:center;justify-content:center;">
                         <!-- Rover silhouette bar -->
                         <div id="tilt-bar" style="
@@ -320,12 +320,12 @@
                 </div>` : type === 'joystick' ?
                 `<div class="window-content p-6">
                     <div class="joystick-panel">
-                        <div class="label-sub">Joystick de Controlo</div>
+                        <div class="label-sub joy-panel-title">${gridT('joy_panel')}</div>
                         <div class="joystick-frame" id="joystick-frame">
                             <div class="joystick-stick" id="joystick-stick"></div>
                         </div>
                         <div class="drive-status">
-                            <span id="drive-direction">PARADO</span> · <strong id="drive-speed">60%</strong>
+                            <span id="drive-direction" class="drive-status-text">${gridT('drive_stopped')}</span> · <strong id="drive-speed">60%</strong>
                         </div>
 
                     </div>
@@ -381,7 +381,7 @@
                 </div>` :
                 type === 'tilt' ?
                 `<div class="mobile-card-body" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-                    <div style="font-size:7px;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;">Inclinação</div>
+                    <div class="tilt-label-m" style="font-size:7px;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;">${gridT('tilt_label')}</div>
                     <div style="position:relative;width:120px;height:36px;display:flex;align-items:center;justify-content:center;">
                         <div id="tilt-bar-m" style="width:100px;height:12px;background:linear-gradient(90deg,#3ecf8e22,#3ecf8e44,#3ecf8e22);border:1.5px solid #3ecf8e;border-radius:3px;transition:transform 0.4s cubic-bezier(.4,0,.2,1);transform:rotate(0deg);position:relative;">
                             <div style="position:absolute;bottom:-5px;left:8px;width:10px;height:5px;background:#3ecf8e;border-radius:2px;opacity:.7;"></div>
@@ -476,9 +476,9 @@
                     const clamped = Math.max(-45, Math.min(45, graus));
                     $('#tilt-bar').css('transform', `rotate(${-clamped}deg)`);
                     $('#tilt-bar-m').css('transform', `rotate(${-clamped}deg)`);
-                    let status = 'PLANO';
-                    if (graus > 5)       status = '▲ A SUBIR';
-                    else if (graus < -5) status = '▼ A DESCER';
+                    let status = gridT('tilt_flat');
+                    if (graus > 5)       status = gridT('tilt_rising');
+                    else if (graus < -5) status = gridT('tilt_descending');
                     $('#tilt-status').text(status);
                 }
             }
@@ -490,10 +490,10 @@
             const text = document.getElementById('rover-status-text');
             if (data.status === 'online') {
                 dot.className = 'online';
-                text.textContent = 'ROVER ONLINE';
+                text.textContent = gridT('rover_online');
             } else {
                 dot.className = 'offline';
-                text.textContent = 'ROVER OFFLINE';
+                text.textContent = gridT('rover_offline');
             }
         });
  

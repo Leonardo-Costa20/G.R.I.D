@@ -776,6 +776,7 @@
                 prefs_title: 'Preferências', prefs_sub: 'Personaliza a tua experiência',
                 iface_card: 'Interface', lbl_theme: 'Tema claro', desc_theme: 'Ativado = tema claro · Desativado = tema escuro',
                 pref_language: 'Idioma', pref_language_desc: 'Língua da interface',
+                bnav_dashboard: 'Dashboard', bnav_settings: 'Definições', bnav_logout: 'Sair',
                 btn_save_prefs: 'Guardar preferências', prefs_saved: 'Preferências guardadas.',
             },
             en: {
@@ -797,6 +798,7 @@
                 prefs_title: 'Preferences', prefs_sub: 'Customize your experience',
                 iface_card: 'Interface', lbl_theme: 'Light theme', desc_theme: 'On = light theme · Off = dark theme',
                 pref_language: 'Language', pref_language_desc: 'Interface language',
+                bnav_dashboard: 'Dashboard', bnav_settings: 'Settings', bnav_logout: 'Logout',
                 btn_save_prefs: 'Save preferences', prefs_saved: 'Preferences saved.',
             },
             es: {
@@ -818,6 +820,7 @@
                 prefs_title: 'Preferencias', prefs_sub: 'Personaliza tu experiencia',
                 iface_card: 'Interfaz', lbl_theme: 'Tema claro', desc_theme: 'Activado = tema claro · Desactivado = tema oscuro',
                 pref_language: 'Idioma', pref_language_desc: 'Idioma de la interfaz',
+                bnav_dashboard: 'Dashboard', bnav_settings: 'Configuración', bnav_logout: 'Salir',
                 btn_save_prefs: 'Guardar preferencias', prefs_saved: 'Preferencias guardadas.',
             },
             fr: {
@@ -839,6 +842,7 @@
                 prefs_title: 'Préférences', prefs_sub: 'Personnalisez votre expérience',
                 iface_card: 'Interface', lbl_theme: 'Thème clair', desc_theme: 'Activé = thème clair · Désactivé = thème sombre',
                 pref_language: 'Langue', pref_language_desc: 'Langue de l\'interface',
+                bnav_dashboard: 'Dashboard', bnav_settings: 'Paramètres', bnav_logout: 'Quitter',
                 btn_save_prefs: 'Enregistrer les préférences', prefs_saved: 'Préférences enregistrées.',
             }
         };
@@ -938,6 +942,11 @@
             const langDesc = document.querySelector('[data-i18n="pref_language_desc"]');
             if (langDesc) langDesc.textContent = t.pref_language_desc;
             setText('#tab-preferencias > .s-btn-primary', t.btn_save_prefs);
+
+            // Bottom nav
+            setText('.bnav-dashboard-label', t.bnav_dashboard);
+            setText('.bnav-settings-label', t.bnav_settings);
+            setText('.bnav-logout-label', t.bnav_logout);
         }
 
         function setText(sel, val) {
@@ -964,15 +973,15 @@
     <nav id="settings-bottom-nav">
         <a href="/" class="bnav-item">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            <span>Dashboard</span>
+            <span class="bnav-dashboard-label">Dashboard</span>
         </a>
         <a href="/settings" class="bnav-item active">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
-            <span>Definições</span>
+            <span class="bnav-settings-label">Definições</span>
         </a>
         <a href="/logout" class="bnav-item red">
             <svg viewBox="0 0 24 24"><path stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>
-            <span>Sair</span>
+            <span class="bnav-logout-label">Sair</span>
         </a>
     </nav>
 </body>
