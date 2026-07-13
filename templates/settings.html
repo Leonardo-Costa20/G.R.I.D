@@ -868,8 +868,9 @@
             document.querySelector('.topbar-title').innerHTML = 'G.R.I.D <span>OS</span> // ' + t.title;
 
             // Tabs (match by onclick, not by position — rover tab may be hidden for viewers)
+            const tabKeys = { perfil:'tab_perfil', password:'tab_password', rover:'tab_rover', preferencias:'tab_prefs' };
             ['perfil', 'password', 'rover', 'preferencias'].forEach(name => {
-                const key = 'tab_' + name;
+                const key = tabKeys[name];
                 [...document.querySelectorAll('.stab, .mstab')].forEach(btn => {
                     if (btn.getAttribute('onclick')?.includes(`'${name}'`)) {
                         const textNode = btn.childNodes[btn.childNodes.length-1];
@@ -881,12 +882,12 @@
             // Perfil panel
             setText('#tab-perfil .spanel-title', t.perfil_title);
             setText('#tab-perfil .spanel-sub', t.perfil_sub);
-            setCardTitle('#tab-perfil .s-card:nth-child(1) .s-card-title', t.dados_title);
+            setCardTitle('#tab-perfil .s-card:nth-of-type(1) .s-card-title', t.dados_title);
             setLabel('[for-key="username"]', t.lbl_username);
             setLabel('[for-key="email"]', t.lbl_email);
             setLabel('[for-key="phone"]', t.lbl_phone);
             setText('#tab-perfil .s-btn-primary', t.btn_save_profile);
-            setCardTitle('#tab-perfil .s-card:nth-child(2) .s-card-title', t.session_title);
+            setCardTitle('#tab-perfil .s-card:nth-of-type(2) .s-card-title', t.session_title);
 
             // All s-label elements by position in Perfil
             const perfLabels = document.querySelectorAll('#tab-perfil .s-label');
@@ -894,7 +895,7 @@
             if (perfLabels[1]) perfLabels[1].textContent = t.lbl_email;
             if (perfLabels[2]) perfLabels[2].textContent = t.lbl_phone;
 
-            const sessionRows = document.querySelectorAll('#tab-perfil .s-card:nth-child(2) span[style*="text-nav"]');
+            const sessionRows = document.querySelectorAll('#tab-perfil .s-card:nth-of-type(2) span[style*="text-nav"]');
             if (sessionRows[0]) sessionRows[0].textContent = t.lbl_access;
             if (sessionRows[1]) sessionRows[1].textContent = t.lbl_status;
 
