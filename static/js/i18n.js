@@ -27,7 +27,6 @@ const GRID_I18N = {
         // Dashboard sensor window labels
         tilt_label: 'ADXL345',
         joy_panel: 'Joystick de Controlo',
-        drive_stopped: 'PARADO',
         tilt_flat: 'PLANO', tilt_rising: '▲ A SUBIR', tilt_descending: '▼ A DESCER',
         // Joystick window
         joy_title: 'Joystick de Controlo', joy_forward: 'Frente', joy_back: 'Ré',
@@ -83,7 +82,6 @@ const GRID_I18N = {
         drawer_dist: 'HC-SR04',
         tilt_label: 'ADXL345',
         joy_panel: 'Control Joystick',
-        drive_stopped: 'STOPPED',
         tilt_flat: 'FLAT', tilt_rising: '▲ RISING', tilt_descending: '▼ DESCENDING',
         joy_title: 'Control Joystick', joy_forward: 'Fwd', joy_back: 'Rev',
         joy_left: 'Left', joy_right: 'Right', joy_stop: 'STOP',
@@ -135,7 +133,6 @@ const GRID_I18N = {
         drawer_dist: 'HC-SR04',
         tilt_label: 'ADXL345',
         joy_panel: 'Joystick de Control',
-        drive_stopped: 'PARADO',
         tilt_flat: 'PLANO', tilt_rising: '▲ SUBIENDO', tilt_descending: '▼ BAJANDO',
         rover_online: 'ROVER EN LÍNEA', rover_offline: 'ROVER FUERA DE LÍNEA',
         joy_title: 'Joystick de Control', joy_forward: 'Adelante', joy_back: 'Atrás',
@@ -188,7 +185,6 @@ const GRID_I18N = {
         drawer_dist: 'HC-SR04',
         tilt_label: 'ADXL345',
         joy_panel: 'Joystick de Contrôle',
-        drive_stopped: 'ARRÊT',
         tilt_flat: 'PLAT', tilt_rising: '▲ MONTÉE', tilt_descending: '▼ DESCENTE',
         rover_online: 'ROVER EN LIGNE', rover_offline: 'ROVER HORS LIGNE',
         joy_title: 'Joystick de Contrôle', joy_forward: 'Avant', joy_back: 'Arrière',
@@ -270,7 +266,6 @@ function applyPageLang(page) {
         setTxt('.tilt-label',   t.tilt_label);
         setTxt('.tilt-label-m', t.tilt_label);
         setTxt('.joy-panel-title', t.joy_panel);
-        setTxt('.drive-status-text', t.drive_stopped);
         // Joystick window
         setTxt('.joy-title-label',   t.joy_title);
         setTxt('.joy-forward-label', t.joy_forward);

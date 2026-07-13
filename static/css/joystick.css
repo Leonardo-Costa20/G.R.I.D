@@ -41,7 +41,5 @@
 
 .joystick-stick.active { cursor: grabbing; }
 
-.drive-status { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #8b949e; }
-.drive-status strong { color: var(--accent); }
 
 
