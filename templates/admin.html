@@ -298,6 +298,16 @@
                 });
         }
 
+        document.getElementById('rover-mac').addEventListener('input', function() {
+            let val = this.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
+            let formatted = '';
+            for (let i = 0; i < val.length && i < 12; i++) {
+                if (i > 0 && i % 2 === 0) formatted += ':';
+                formatted += val[i];
+            }
+            this.value = formatted;
+        });
+
         function adicionarRover() {
             const mac   = document.getElementById('rover-mac').value.trim();
             const nome  = document.getElementById('rover-nome').value.trim();
