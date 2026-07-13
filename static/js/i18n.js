@@ -5,7 +5,7 @@
 const GRID_I18N = {
     pt: {
         // Sidebar
-        nav_camera: 'Câmera', nav_sensors: 'Sensores', nav_autotile: 'Auto Tile',
+        nav_camera: 'Câmera', nav_sensors: 'Sensores', nav_autotile: 'Organizar',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Mission Logs',
         nav_admin: 'Admin', nav_settings: 'Definições', nav_theme: 'Tema', nav_logout: 'Sair',
         nav_distancia: 'Distância',
