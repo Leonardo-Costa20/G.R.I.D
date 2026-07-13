@@ -10,7 +10,7 @@ const GRID_I18N = {
         nav_admin: 'Admin', nav_settings: 'Definições', nav_theme: 'Tema', nav_logout: 'Sair',
         nav_distancia: 'Distância',
         // Topbar comum
-        session_as: 'Sessão activa como:',
+        session_as: 'Sessão ativa como:',
         // Dashboard
         dash_title: 'G.R.I.D OS // Dashboard',
         dash_awaiting: 'A AGUARDAR',
@@ -56,7 +56,7 @@ const GRID_I18N = {
         // Logs
         logs_title: 'G.R.I.D OS // Mission Logs',
         logs_total: 'Total de Registos', logs_page: 'Página Atual',
-        logs_sensors_avail: 'Sensores Disponíveis', logs_last_update: 'Última Actualização',
+        logs_sensors_avail: 'Sensores Disponíveis', logs_last_update: 'Última Atualização',
         logs_sensor_label: 'Sensor', logs_start_label: 'Data Início', logs_end_label: 'Data Fim',
         logs_clear: 'Limpar Filtros',
         logs_table_title: 'Registos da Missão', logs_loading: 'A carregar...',
