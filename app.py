@@ -3,6 +3,9 @@ monkey.patch_all()
 
 import os
 import threading
+import mimetypes
+mimetypes.add_type('application/manifest+json', '.json')
+
 from flask import Flask
 from core import SECRET_KEY, socketio, inicializar_contador_logs, monitor_infraestrutura_loop, initialize_mqtt
 from routes import register_routes
