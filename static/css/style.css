@@ -92,6 +92,12 @@ body {
 .nav-profile { color: #fbbf24 !important; }
 .nav-logs:hover, .nav-admin:hover, .nav-tile:hover, .nav-logout:hover { opacity: 0.85; }
 
+/* ── Theme icons (moon/sun) ── */
+.theme-icon-moon { display: block; }
+.theme-icon-sun  { display: none; }
+body.light-mode .theme-icon-moon { display: none; }
+body.light-mode .theme-icon-sun  { display: block; }
+
 .sidebar-logo-wrap {
     display: flex; align-items: center;
     padding: 1.5px 24px 20px 8px;

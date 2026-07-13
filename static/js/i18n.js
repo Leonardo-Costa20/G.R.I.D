@@ -7,7 +7,7 @@ const GRID_I18N = {
         // Sidebar
         nav_camera: 'Câmera', nav_sensors: 'Sensores', nav_autotile: 'Auto Tile',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Mission Logs',
-        nav_admin: 'Admin', nav_settings: 'Definições', nav_theme: 'Interface Color', nav_logout: 'Sair',
+        nav_admin: 'Admin', nav_settings: 'Definições', nav_theme: 'Tema', nav_logout: 'Sair',
         // Topbar comum
         session_as: 'Sessão activa como:',
         // Dashboard
@@ -60,7 +60,7 @@ const GRID_I18N = {
     en: {
         nav_camera: 'Camera', nav_sensors: 'Sensors', nav_autotile: 'Auto Tile',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Mission Logs',
-        nav_admin: 'Admin', nav_settings: 'Settings', nav_theme: 'Interface Color', nav_logout: 'Logout',
+        nav_admin: 'Admin', nav_settings: 'Settings', nav_theme: 'Theme', nav_logout: 'Logout',
         session_as: 'Active session as:',
         dash_title: 'G.R.I.D OS // Dashboard',
         dash_awaiting: 'AWAITING',
@@ -106,7 +106,7 @@ const GRID_I18N = {
     es: {
         nav_camera: 'Cámara', nav_sensors: 'Sensores', nav_autotile: 'Auto Tile',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Registros',
-        nav_admin: 'Admin', nav_settings: 'Configuración', nav_theme: 'Color Interfaz', nav_logout: 'Salir',
+        nav_admin: 'Admin', nav_settings: 'Configuración', nav_theme: 'Tema', nav_logout: 'Salir',
         session_as: 'Sesión activa como:',
         dash_title: 'G.R.I.D OS // Dashboard',
         dash_awaiting: 'EN ESPERA',
@@ -152,7 +152,7 @@ const GRID_I18N = {
     fr: {
         nav_camera: 'Caméra', nav_sensors: 'Capteurs', nav_autotile: 'Auto Tile',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Journaux',
-        nav_admin: 'Admin', nav_settings: 'Paramètres', nav_theme: 'Couleur Interface', nav_logout: 'Déconnexion',
+        nav_admin: 'Admin', nav_settings: 'Paramètres', nav_theme: 'Thème', nav_logout: 'Déconnexion',
         session_as: 'Session active en tant que:',
         dash_title: 'G.R.I.D OS // Dashboard',
         dash_awaiting: 'EN ATTENTE',
