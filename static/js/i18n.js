@@ -20,7 +20,7 @@ const GRID_I18N = {
         bnav_settings: 'Definições', bnav_logout: 'Sair',
         // Dashboard sensor drawer
         sensor_gas: 'Gás', sensor_temp: 'Temperatura', sensor_pressure: 'Pressão',
-        sensor_altitude: 'Altitude', sensor_tilt: 'Tilt',
+        sensor_altitude: 'Altitude', sensor_tilt: 'Inclinação',
         // Joystick window
         joy_title: 'Joystick de Controlo', joy_forward: 'Frente', joy_back: 'Ré',
         joy_left: 'Esq', joy_right: 'Dir', joy_stop: 'STOP',
