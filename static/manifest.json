@@ -1,7 +1,7 @@
 {
-  "name": "G.R.I.D OS — Mission Control",
+  "name": "G.R.I.D OS",
   "short_name": "G.R.I.D",
-  "description": "Ground Recon & Intelligent Detection — Painel de Controlo",
+  "description": "Ground Recon & Intelligent Detection ",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
