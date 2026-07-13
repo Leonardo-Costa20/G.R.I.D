@@ -65,7 +65,7 @@ const GRID_I18N = {
         logs_sync: 'A sincronizar com a base de dados...',
     },
     en: {
-        nav_camera: 'Camera', nav_sensors: 'Sensors', nav_autotile: 'Auto Tile',
+        nav_camera: 'Camera', nav_sensors: 'Sensors', nav_autotile: 'Arrange',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Mission Logs',
         nav_admin: 'Admin', nav_settings: 'Settings', nav_theme: 'Theme', nav_logout: 'Logout',
         nav_distancia: 'Distance',
@@ -117,7 +117,7 @@ const GRID_I18N = {
         logs_sync: 'Syncing with database...',
     },
     es: {
-        nav_camera: 'Cámara', nav_sensors: 'Sensores', nav_autotile: 'Auto Tile',
+        nav_camera: 'Cámara', nav_sensors: 'Sensores', nav_autotile: 'Organizar',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Registros',
         nav_admin: 'Admin', nav_settings: 'Configuración', nav_theme: 'Tema', nav_logout: 'Salir',
         nav_distancia: 'Distancia',
@@ -169,7 +169,7 @@ const GRID_I18N = {
         logs_sync: 'Sincronizando con la base de datos...',
     },
     fr: {
-        nav_camera: 'Caméra', nav_sensors: 'Capteurs', nav_autotile: 'Auto Tile',
+        nav_camera: 'Caméra', nav_sensors: 'Capteurs', nav_autotile: 'Organiser',
         nav_joystick: 'Joystick', nav_dashboard: 'Dashboard', nav_logs: 'Journaux',
         nav_admin: 'Admin', nav_settings: 'Paramètres', nav_theme: 'Thème', nav_logout: 'Déconnexion',
         nav_distancia: 'Distance',
